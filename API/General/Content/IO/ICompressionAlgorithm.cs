@@ -18,6 +18,12 @@ public interface ICompressionAlgorithm
     AlgorithmName Name { get; }
 
     /// <summary>
+    /// The file name suffix used for precompressed variants of static files
+    /// (e.g. "gz" for gzip).
+    /// </summary>
+    string FileExtension { get; }
+
+    /// <summary>
     /// The priority of the algorithm. The algorithm with the highest
     /// priority will be selected if mutliple algorithms can be applied
     /// to a response.

@@ -16,7 +16,7 @@ public sealed class ResponseTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestProperties(TestEngine engine)
+    public async Task TestProperties(ServerEngine engine)
     {
         var provider = new ResponseProvider();
 
@@ -39,7 +39,7 @@ public sealed class ResponseTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestEmptyBody(TestEngine engine)
+    public async Task TestEmptyBody(ServerEngine engine)
     {
         var provider = new ResponseProvider();
 

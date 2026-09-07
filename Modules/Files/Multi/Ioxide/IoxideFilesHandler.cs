@@ -1,38 +1,56 @@
+using System.Text;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Compression.Providers;
 using GenHTTP.Modules.IO;
 
 using ioxide.file;
 
-namespace GenHTTP.Modules.IoxideFiles;
+namespace GenHTTP.Modules.Files.Multi;
 
 /// <summary>
-/// Resolves a request path against the shared <see cref="StaticAssets"/> cache, frames status +
-/// headers (Content-Type from the identity file, plus precompressed negotiation), and hands the body
-/// off to an <see cref="IoxideAssetContent"/>. GET/HEAD only.
+/// Static-file strategy backed by ioxide.file's <see cref="StaticAssets"/> (an fd cache with baked
+/// native responses + statx-based revalidation). GenHTTP frames the status + headers; this writes the
+/// body via <see cref="IoxideAssetContent"/>, flushing every &lt;= 12 KB so it never stages more than a
+/// slab's worth. GET/HEAD only. Selected by <see cref="FileAssetsHandler"/> on the Ioxide engine.
 /// </summary>
-public sealed class IoxideFilesHandler : IHandler
+internal sealed class IoxideFilesHandler : IHandler
 {
-    // Precompressed negotiation: the request's Accept-Encoding is matched against these, and the
-    // ".br"/".gz" sibling served (with the matching Content-Encoding) when present. br before gzip.
-    private static readonly AlgorithmName Brotli = new("br"u8.ToArray());
-    private static readonly AlgorithmName Gzip = new("gzip"u8.ToArray());
+    private readonly string _directory;
 
-    private readonly StaticAssets _assets;
+    private readonly TimeSpan _refreshInterval;
 
-    private readonly AssetRefresh _refresh;
+    private readonly PreCompression _preCompression;
 
-    internal IoxideFilesHandler(StaticAssets assets, AssetRefresh refresh)
+    private StaticAssets _assets = null!;
+
+    private AssetRefresh _refresh = null!;
+
+    internal IoxideFilesHandler(string directory, TimeSpan refreshInterval, List<ICompressionAlgorithm> algorithms, char separator)
     {
-        _assets = assets;
-        _refresh = refresh;
+        _directory = directory;
+        _refreshInterval = refreshInterval;
+        _preCompression = new PreCompression(algorithms, separator);
     }
 
-    public ValueTask PrepareAsync(IServer server) => default;
+    public ValueTask PrepareAsync(IServer server)
+    {
+        // Opened once and shared across reactors (fds are stable, reads positional); the per-reactor
+        // AssetReader pool is resolved lazily in the content. Built here rather than in the builder so
+        // the native library is only touched when the server actually runs on the Ioxide engine.
+        _assets = new StaticAssets(_directory);
+
+        // Stamped after the snapshot so the two describe the same moment - see the parameter note on
+        // the AssetRefresh constructor for what taking it later would cost.
+        var stamp = AssetRefresh.Stamp(_directory);
+
+        _refresh = new AssetRefresh(_assets, _directory, _refreshInterval, stamp);
+
+        return default;
+    }
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
@@ -86,29 +104,27 @@ public sealed class IoxideFilesHandler : IHandler
         var contentType = Path.GetFileName(path).GuessContentType() ?? ContentType.ApplicationOctetStream;
 
         var response = request.Respond()
-                              .Header("Vary", "Accept-Encoding")
                               .Content(new IoxideAssetContent(_assets, servePath, length, contentType, encoding));
+
+        if (_preCompression.Enabled)
+        {
+            response = response.Header("Vary", "Accept-Encoding");
+        }
 
         return new ValueTask<IResponse?>(response.Build());
     }
 
-    // Pick the best precompressed sibling the client accepts (br before gzip), else fall back to identity.
-    private static (string Path, ReadOnlyMemory<byte>? Encoding) Negotiate(IRequest request, StaticAssets.Lease lease, string path)
+    // Pick the best precompressed sibling the client accepts (highest priority first), else fall back
+    // to identity - the same negotiation the regular handler applies, over the snapshot's siblings.
+    private (string Path, ReadOnlyMemory<byte>? Encoding) Negotiate(IRequest request, StaticAssets.Lease lease, string path)
     {
-        var header = request.Header.Headers.GetEntry(KnownHeaders.AcceptEncoding);
-
-        if (header != null)
+        foreach (var supported in _preCompression.Accepted(request))
         {
-            var accepted = AcceptEncodingHeader.ParseSupported(header.Value);
+            var sibling = path + Encoding.ASCII.GetString(supported.Extension.Span);
 
-            if (accepted.Contains(Brotli) && lease.TryGet(path + ".br", out _))
+            if (lease.TryGet(sibling, out _))
             {
-                return (path + ".br", Brotli.Bytes);
-            }
-
-            if (accepted.Contains(Gzip) && lease.TryGet(path + ".gz", out _))
-            {
-                return (path + ".gz", Gzip.Bytes);
+                return (sibling, supported.Algorithm.Name.Bytes);
             }
         }
 
@@ -117,4 +133,5 @@ public sealed class IoxideFilesHandler : IHandler
 
     private static string NormalizePath(string remaining)
         => remaining.Length == 0 || remaining[0] != '/' ? "/" + remaining : remaining;
+    
 }

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.SinglePageApplications;
 using GenHTTP.Testing.Acceptance.Utilities;
@@ -11,7 +12,7 @@ public sealed class SinglePageTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestIndex(TestEngine engine)
+    public async Task TestIndex(ServerEngine engine)
     {
         var root = CreateRoot();
 
@@ -31,7 +32,7 @@ public sealed class SinglePageTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestIndexServedWithRouting(TestEngine engine)
+    public async Task TestIndexServedWithRouting(ServerEngine engine)
     {
         var root = CreateRoot();
 
@@ -50,7 +51,7 @@ public sealed class SinglePageTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoIndex(TestEngine engine)
+    public async Task TestNoIndex(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())), engine: engine);
 
@@ -61,7 +62,7 @@ public sealed class SinglePageTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFile(TestEngine engine)
+    public async Task TestFile(ServerEngine engine)
     {
         var root = CreateRoot();
 
@@ -81,7 +82,7 @@ public sealed class SinglePageTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoFile(TestEngine engine)
+    public async Task TestNoFile(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(SinglePageApplication.From(ResourceTree.FromDirectory(CreateRoot())), engine: engine);
 

@@ -22,6 +22,8 @@ internal sealed class ThreadedServer : IServer
 
     #region Get-/Setters
 
+    public ServerEngine ServerEngine => ServerEngine.Internal;
+
     public string Version { get; }
 
     public bool Running => !_disposed;

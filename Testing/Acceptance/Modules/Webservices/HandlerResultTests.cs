@@ -73,7 +73,7 @@ public sealed class HandlerResultTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestRoot(TestEngine engine, ExecutionMode mode)
+    public async Task TestRoot(ServerEngine engine, ExecutionMode mode)
     {
         var app = Layout.Create()
                         .AddService<RootService>("c", mode: mode);
@@ -89,7 +89,7 @@ public sealed class HandlerResultTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestPathed(TestEngine engine, ExecutionMode mode)
+    public async Task TestPathed(ServerEngine engine, ExecutionMode mode)
     {
         var app = Layout.Create()
                         .AddService<PathService>("c", mode: mode);
@@ -105,7 +105,7 @@ public sealed class HandlerResultTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestPathedAsync(TestEngine engine, ExecutionMode mode)
+    public async Task TestPathedAsync(ServerEngine engine, ExecutionMode mode)
     {
         var app = Layout.Create()
                         .AddService<PathAsyncService>("c", mode: mode);

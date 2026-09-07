@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.Controllers;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.OpenApi;
@@ -12,7 +13,7 @@ public class IntegrationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestWebserviceSupported(TestEngine engine)
+    public async Task TestWebserviceSupported(ServerEngine engine)
     {
         var api = Layout.Create()
                         .AddService<MyService>("my")
@@ -25,7 +26,7 @@ public class IntegrationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestControllerSupported(TestEngine engine)
+    public async Task TestControllerSupported(ServerEngine engine)
     {
         var api = Layout.Create()
                         .AddController<MyController>("my")
@@ -38,7 +39,7 @@ public class IntegrationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestInlineSupported(TestEngine engine)
+    public async Task TestInlineSupported(ServerEngine engine)
     {
         var api = Inline.Create()
                         .Get("/method", () => 42)
@@ -51,7 +52,7 @@ public class IntegrationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestObsoleteOperation(TestEngine engine)
+    public async Task TestObsoleteOperation(ServerEngine engine)
     {
         var api = Layout.Create()
                         .AddService<ObsoleteService>("my")
@@ -64,7 +65,7 @@ public class IntegrationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestControllerWithMultipleMethods(TestEngine engine)
+    public async Task TestControllerWithMultipleMethods(ServerEngine engine)
     {
         var api = Layout.Create()
                         .AddController<MultipleMethodsController>("my")

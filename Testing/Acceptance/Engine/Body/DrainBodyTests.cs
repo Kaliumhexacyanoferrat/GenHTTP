@@ -2,6 +2,7 @@ using System.Net;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 
 namespace GenHTTP.Testing.Acceptance.Engine.Body;
 
@@ -13,7 +14,7 @@ public sealed class DrainBodyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestIgnoredContentLength(TestEngine engine)
+    public async Task TestIgnoredContentLength(ServerEngine engine)
     {
         var handler = new CountingHandler();
 
@@ -38,7 +39,7 @@ public sealed class DrainBodyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestIgnoredChunked(TestEngine engine)
+    public async Task TestIgnoredChunked(ServerEngine engine)
     {
         var handler = new CountingHandler();
 
@@ -65,7 +66,7 @@ public sealed class DrainBodyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestIgnoredLargeContentLength(TestEngine engine)
+    public async Task TestIgnoredLargeContentLength(ServerEngine engine)
     {
         var payload = new byte[256 * 1024];
         new Random(42).NextBytes(payload);
@@ -93,7 +94,7 @@ public sealed class DrainBodyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestIgnoredLargeChunked(TestEngine engine)
+    public async Task TestIgnoredLargeChunked(ServerEngine engine)
     {
         var payload = new byte[256 * 1024];
         new Random(42).NextBytes(payload);
@@ -123,7 +124,7 @@ public sealed class DrainBodyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPartialRead(TestEngine engine)
+    public async Task TestPartialRead(ServerEngine engine)
     {
         var handler = new PartialReadHandler(bytesToRead: 4);
 
@@ -148,7 +149,7 @@ public sealed class DrainBodyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPartialReadChunked(TestEngine engine)
+    public async Task TestPartialReadChunked(ServerEngine engine)
     {
         var handler = new PartialReadHandler(bytesToRead: 4);
 

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+
+        <Description>Shared Ioxide runtime surface (e.g. the current reactor) that both the Ioxide engine and Ioxide-aware modules build against, so modules do not need to reference the engine.</Description>
+        <PackageTags>GenHTTP HTTP Webserver C# API Ioxide io_uring Reactor</PackageTags>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+
+        <PackageReference Include="ioxide" Version="0.13.218" />
+
+    </ItemGroup>
+
+    <ItemGroup>
+        
+        <InternalsVisibleTo Include="GenHTTP.Engine.Ioxide" />
+
+    </ItemGroup>
+
+</Project>

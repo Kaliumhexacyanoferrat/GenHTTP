@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
@@ -14,7 +15,7 @@ public sealed class ExtensionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestConfiguration(TestEngine engine, ExecutionMode mode)
+    public async Task TestConfiguration(ServerEngine engine, ExecutionMode mode)
     {
         var injectors = Injection.Default();
 

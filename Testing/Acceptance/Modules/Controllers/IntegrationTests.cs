@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
@@ -25,7 +26,7 @@ public class IntegrationTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestInstance(TestEngine engine, ExecutionMode mode)
+    public async Task TestInstance(ServerEngine engine, ExecutionMode mode)
     {
         var controller = Controller.From(new TestController())
                                    .ExecutionMode(mode);

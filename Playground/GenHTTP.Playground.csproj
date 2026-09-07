@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
 
@@ -15,7 +15,7 @@
 
     <ItemGroup>
 
-        <ProjectReference Include="..\API\GenHTTP.Api.csproj"/>
+        <ProjectReference Include="..\API\General\GenHTTP.Api.csproj"/>
 
         <ProjectReference Include="..\Engine\Internal\GenHTTP.Engine.Internal.csproj"/>
         <ProjectReference Include="..\Engine\Kestrel\GenHTTP.Engine.Kestrel.csproj"/>
@@ -32,7 +32,6 @@
         <ProjectReference Include="..\Modules\Compression\GenHTTP.Modules.Compression.csproj"/>
         <ProjectReference Include="..\Modules\Controllers\GenHTTP.Modules.Controllers.csproj"/>
         <ProjectReference Include="..\Modules\Files\GenHTTP.Modules.Files.csproj"/>
-        <ProjectReference Include="..\Modules\IoxideFiles\GenHTTP.Modules.IoxideFiles.csproj"/>
         <ProjectReference Include="..\Modules\Conversion\GenHTTP.Modules.Conversion.csproj"/>
         <ProjectReference Include="..\Modules\DependencyInjection\GenHTTP.Modules.DependencyInjection.csproj" />
         <ProjectReference Include="..\Modules\DirectoryBrowsing\GenHTTP.Modules.DirectoryBrowsing.csproj"/>

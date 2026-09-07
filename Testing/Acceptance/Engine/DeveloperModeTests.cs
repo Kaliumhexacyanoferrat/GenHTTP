@@ -15,9 +15,9 @@ public sealed class DeveloperModeTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestExceptionsWithTrace(TestEngine engine)
+    public async Task TestExceptionsWithTrace(ServerEngine engine)
     {
-        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Build(), serverEngine: engine);
 
         var router = Layout.Create().Index(new ThrowingProvider().Wrap());
 
@@ -34,7 +34,7 @@ public sealed class DeveloperModeTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestExceptionsWithNoTrace(TestEngine engine)
+    public async Task TestExceptionsWithNoTrace(ServerEngine engine)
     {
         var router = Layout.Create().Index(new ThrowingProvider().Wrap());
 

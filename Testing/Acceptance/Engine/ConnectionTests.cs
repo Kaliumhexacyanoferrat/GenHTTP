@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Functional;
@@ -14,7 +14,7 @@ public sealed class ConnectionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestClose(TestEngine engine)
+    public async Task TestClose(ServerEngine engine)
     {
         var handler = Inline.Create()
                             .Get((IRequest r) =>
@@ -38,7 +38,7 @@ public sealed class ConnectionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestUpgrade(TestEngine engine)
+    public async Task TestUpgrade(ServerEngine engine)
     {
         var handler = Inline.Create()
                             .Get((IRequest r) =>

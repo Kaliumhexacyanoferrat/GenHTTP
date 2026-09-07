@@ -1,4 +1,5 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
@@ -14,7 +15,7 @@ public class ArgumentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestInjectionCausesNoArgument(TestEngine engine)
+    public async Task TestInjectionCausesNoArgument(ServerEngine engine)
     {
         var api = Inline.Create()
                         .Get((IRequest request) => request.Header.Headers.GetEntry("Host"));
@@ -26,7 +27,7 @@ public class ArgumentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPathParam(TestEngine engine)
+    public async Task TestPathParam(ServerEngine engine)
     {
         var api = Inline.Create()
                         .Get("/users/:id", (int id) => id);
@@ -39,7 +40,7 @@ public class ArgumentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestQueryParam(TestEngine engine)
+    public async Task TestQueryParam(ServerEngine engine)
     {
         var api = Inline.Create()
                         .Get("/users/", (int id) => id);
@@ -52,7 +53,7 @@ public class ArgumentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestBodyParam(TestEngine engine)
+    public async Task TestBodyParam(ServerEngine engine)
     {
         var api = Inline.Create()
                         .Post("/users/filter", (HashSet<int> items) => items.Count);
@@ -67,7 +68,7 @@ public class ArgumentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestContentParam(TestEngine engine)
+    public async Task TestContentParam(ServerEngine engine)
     {
         var api = Inline.Create()
                         .Post("/users/filter", ([FromBody] DateOnly date) => date);
@@ -81,7 +82,7 @@ public class ArgumentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestStreamParam(TestEngine engine)
+    public async Task TestStreamParam(ServerEngine engine)
     {
         var api = Inline.Create()
                         .Put("/users/avatar", (Stream file) => true);
@@ -96,7 +97,7 @@ public class ArgumentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestWildcardParameter(TestEngine engine)
+    public async Task TestWildcardParameter(ServerEngine engine)
     {
         var api = Inline.Create()
                         .Get("/files/:tenant/", () => Content.From(Resource.FromString("File Content")));

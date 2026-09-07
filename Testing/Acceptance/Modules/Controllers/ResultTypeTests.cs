@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Conversion;
@@ -16,7 +17,7 @@ public sealed class ResultTypeTests
 
     #region Helpers
 
-    private static async Task<TestHost> GetRunnerAsync(TestEngine engine, ExecutionMode mode)
+    private static async Task<TestHost> GetRunnerAsync(ServerEngine engine, ExecutionMode mode)
     {
         var controller = Controller.From<TestController>()
                                    .Serializers(Serialization.Default())
@@ -48,7 +49,7 @@ public sealed class ResultTypeTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task ControllerMayReturnHandlerBuilder(TestEngine engine, ExecutionMode mode)
+    public async Task ControllerMayReturnHandlerBuilder(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -60,7 +61,7 @@ public sealed class ResultTypeTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task ControllerMayReturnHandler(TestEngine engine, ExecutionMode mode)
+    public async Task ControllerMayReturnHandler(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -72,7 +73,7 @@ public sealed class ResultTypeTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task ControllerMayReturnResponseBuilder(TestEngine engine, ExecutionMode mode)
+    public async Task ControllerMayReturnResponseBuilder(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -84,7 +85,7 @@ public sealed class ResultTypeTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task ControllerMayReturnResponse(TestEngine engine, ExecutionMode mode)
+    public async Task ControllerMayReturnResponse(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 

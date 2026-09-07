@@ -1,4 +1,5 @@
-﻿using GenHTTP.Testing.Acceptance.Utilities;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 
@@ -8,7 +9,7 @@ public class HeaderTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerHeaderCanBeSet(TestEngine engine)
+    public async Task TestServerHeaderCanBeSet(ServerEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {
@@ -26,7 +27,7 @@ public class HeaderTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDateHeaderCanBeSet(TestEngine engine)
+    public async Task TestDateHeaderCanBeSet(ServerEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {

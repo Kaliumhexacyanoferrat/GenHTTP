@@ -1,5 +1,5 @@
 using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Testing.Acceptance.Utilities;
@@ -12,7 +12,7 @@ public sealed class ForwardingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestForwardedHeaderIsRead(TestEngine engine)
+    public async Task TestForwardedHeaderIsRead(ServerEngine engine)
     {
         var forwardings = await GetForwardingsAsync(engine, request =>
         {
@@ -29,7 +29,7 @@ public sealed class ForwardingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestForwardedHeaderSupportsMultipleHops(TestEngine engine)
+    public async Task TestForwardedHeaderSupportsMultipleHops(ServerEngine engine)
     {
         var forwardings = await GetForwardingsAsync(engine, request =>
         {
@@ -48,7 +48,7 @@ public sealed class ForwardingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestForwardedHeaderSupportsQuotedIPv6(TestEngine engine)
+    public async Task TestForwardedHeaderSupportsQuotedIPv6(ServerEngine engine)
     {
         var forwardings = await GetForwardingsAsync(engine, request =>
         {
@@ -62,7 +62,7 @@ public sealed class ForwardingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestLegacyHeadersAreRead(TestEngine engine)
+    public async Task TestLegacyHeadersAreRead(ServerEngine engine)
     {
         var forwardings = await GetForwardingsAsync(engine, request =>
         {
@@ -80,7 +80,7 @@ public sealed class ForwardingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestLegacyHeadersSupportMultipleHops(TestEngine engine)
+    public async Task TestLegacyHeadersSupportMultipleHops(ServerEngine engine)
     {
         var forwardings = await GetForwardingsAsync(engine, request =>
         {
@@ -94,7 +94,7 @@ public sealed class ForwardingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestForwardedHeaderTakesPrecedenceOverLegacy(TestEngine engine)
+    public async Task TestForwardedHeaderTakesPrecedenceOverLegacy(ServerEngine engine)
     {
         var forwardings = await GetForwardingsAsync(engine, request =>
         {
@@ -114,7 +114,7 @@ public sealed class ForwardingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestInvalidValuesAreIgnored(TestEngine engine)
+    public async Task TestInvalidValuesAreIgnored(ServerEngine engine)
     {
         var forwardings = await GetForwardingsAsync(engine, request =>
         {
@@ -130,14 +130,14 @@ public sealed class ForwardingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoHeadersResultInEmptyList(TestEngine engine)
+    public async Task TestNoHeadersResultInEmptyList(ServerEngine engine)
     {
         var forwardings = await GetForwardingsAsync(engine, _ => { });
 
         Assert.AreEqual(0, forwardings.Count);
     }
 
-    private static async Task<List<Forwarding>> GetForwardingsAsync(TestEngine engine, Action<HttpRequestMessage> configure)
+    private static async Task<List<Forwarding>> GetForwardingsAsync(ServerEngine engine, Action<HttpRequestMessage> configure)
     {
         List<Forwarding>? forwardings = null;
 

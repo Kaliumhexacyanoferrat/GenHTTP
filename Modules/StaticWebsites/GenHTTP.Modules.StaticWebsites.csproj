@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
 
@@ -10,7 +10,7 @@
 
     <ItemGroup>
 
-        <ProjectReference Include="..\..\API\GenHTTP.Api.csproj"/>
+        <ProjectReference Include="..\..\API\General\GenHTTP.Api.csproj"/>
 
         <ProjectReference Include="..\Files\GenHTTP.Modules.Files.csproj" />
 

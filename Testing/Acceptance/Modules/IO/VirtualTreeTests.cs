@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Shared.Types;
@@ -47,7 +48,7 @@ public sealed class VirtualTreeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestUsage(TestEngine engine)
+    public async Task TestUsage(ServerEngine engine)
     {
         var tree = ResourceTree.FromAssembly("Resources");
 

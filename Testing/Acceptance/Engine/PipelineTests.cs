@@ -1,5 +1,6 @@
 ﻿using System.Net.Sockets;
 using System.Text;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
@@ -10,7 +11,7 @@ public sealed class PipelineTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task ServerSupportsPipelining(TestEngine engine)
+    public async Task ServerSupportsPipelining(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 

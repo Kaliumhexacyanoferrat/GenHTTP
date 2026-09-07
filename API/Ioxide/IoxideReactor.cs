@@ -1,6 +1,6 @@
 using ioxide;
 
-namespace GenHTTP.Engine.Ioxide;
+namespace GenHTTP.Api.Ioxide;
 
 /// <summary>The reactor the calling thread is running, for host code that needs to reach it.</summary>
 public static class IoxideReactor

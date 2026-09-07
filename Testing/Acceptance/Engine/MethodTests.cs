@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Functional;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
@@ -9,7 +10,7 @@ public sealed class MethodTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomMethods(TestEngine engine)
+    public async Task TestCustomMethods(ServerEngine engine)
     {
         var result = Inline.Create().On(() => "Hmm, Beer", [new("BREW")]);
 

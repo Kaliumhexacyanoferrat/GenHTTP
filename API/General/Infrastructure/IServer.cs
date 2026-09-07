@@ -10,6 +10,11 @@ namespace GenHTTP.Api.Infrastructure;
 /// </summary>
 public interface IServer : IAsyncDisposable
 {
+    
+    /// <summary>
+    /// The engine used by this server instance.
+    /// </summary>
+    ServerEngine ServerEngine { get; }
 
     /// <summary>
     /// The version of the server software.

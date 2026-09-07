@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.IO;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
@@ -12,7 +13,7 @@ public sealed class EncodingTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestUtf8DefaultEncoding(TestEngine engine)
+    public async Task TestUtf8DefaultEncoding(ServerEngine engine)
     {
         var layout = Layout.Create().Add("utf8", Content.From(Resource.FromString("From GenHTTP with ❤")));
 

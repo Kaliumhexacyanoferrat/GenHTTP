@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
 using GenHTTP.Testing.Acceptance.Utilities;
@@ -12,7 +12,7 @@ public sealed class AssetsTreeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFileDownload(TestEngine engine)
+    public async Task TestFileDownload(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Assets.From(ResourceTree.FromAssembly()), engine: engine);
 
@@ -24,7 +24,7 @@ public sealed class AssetsTreeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSubdirectoryFileDownload(TestEngine engine)
+    public async Task TestSubdirectoryFileDownload(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Assets.From(ResourceTree.FromAssembly()), engine: engine);
 
@@ -36,7 +36,7 @@ public sealed class AssetsTreeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoFileDownload(TestEngine engine)
+    public async Task TestNoFileDownload(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Assets.From(ResourceTree.FromAssembly()), engine: engine);
 
@@ -47,7 +47,7 @@ public sealed class AssetsTreeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoSubdirectoryFileDownload(TestEngine engine)
+    public async Task TestNoSubdirectoryFileDownload(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Assets.From(ResourceTree.FromAssembly()), engine: engine);
 
@@ -58,7 +58,7 @@ public sealed class AssetsTreeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRootDownload(TestEngine engine)
+    public async Task TestRootDownload(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Assets.From(ResourceTree.FromAssembly("Resources")), engine: engine);
 
@@ -70,7 +70,7 @@ public sealed class AssetsTreeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDirectory(TestEngine engine)
+    public async Task TestDirectory(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Assets.From(ResourceTree.FromAssembly()), engine: engine);
 
@@ -81,7 +81,7 @@ public sealed class AssetsTreeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNonExistingDirectory(TestEngine engine)
+    public async Task TestNonExistingDirectory(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Assets.From(ResourceTree.FromAssembly()), engine: engine);
 

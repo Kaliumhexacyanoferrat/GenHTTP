@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Redirects;
@@ -12,7 +13,7 @@ public class ResponseTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFormatted(TestEngine engine)
+    public async Task TestFormatted(ServerEngine engine)
     {
         var api = Inline.Create().Get(() => 42);
 
@@ -24,7 +25,7 @@ public class ResponseTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFormattedNullable(TestEngine engine)
+    public async Task TestFormattedNullable(ServerEngine engine)
     {
         var api = Inline.Create().Get(() => (int?)42);
 
@@ -35,7 +36,7 @@ public class ResponseTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestStream(TestEngine engine)
+    public async Task TestStream(ServerEngine engine)
     {
         var api = Inline.Create().Get(() => new MemoryStream());
 
@@ -49,7 +50,7 @@ public class ResponseTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNone(TestEngine engine)
+    public async Task TestNone(ServerEngine engine)
     {
         var api = Inline.Create().Get(() => { });
 
@@ -61,7 +62,7 @@ public class ResponseTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDynamic(TestEngine engine)
+    public async Task TestDynamic(ServerEngine engine)
     {
         var api = Inline.Create()
                         .Get("h", (IHandler parent) => Redirect.To("https://google.de").Build())
@@ -77,7 +78,7 @@ public class ResponseTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSerialized(TestEngine engine)
+    public async Task TestSerialized(ServerEngine engine)
     {
         var api = Inline.Create().Get(() => new HashSet<int>());
 

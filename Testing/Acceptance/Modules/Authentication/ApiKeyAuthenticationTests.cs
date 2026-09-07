@@ -1,6 +1,7 @@
 ﻿using System.Net;
 
 using GenHTTP.Api.Content.Authentication;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Authentication;
@@ -20,7 +21,7 @@ public sealed class ApiKeyAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoKey(TestEngine engine)
+    public async Task TestNoKey(ServerEngine engine)
     {
         await using var runner = await GetRunnerWithKeysAsync(engine, "123");
 
@@ -31,7 +32,7 @@ public sealed class ApiKeyAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestInvalidKey(TestEngine engine)
+    public async Task TestInvalidKey(ServerEngine engine)
     {
         await using var runner = await GetRunnerWithKeysAsync(engine, "123");
 
@@ -45,7 +46,7 @@ public sealed class ApiKeyAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestValidKey(TestEngine engine)
+    public async Task TestValidKey(ServerEngine engine)
     {
         await using var runner = await GetRunnerWithKeysAsync(engine, "123");
 
@@ -59,7 +60,7 @@ public sealed class ApiKeyAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestValidKeyFromQuery(TestEngine engine)
+    public async Task TestValidKeyFromQuery(ServerEngine engine)
     {
         var auth = ApiKeyAuthentication.Create()
                                        .WithQueryParameter("key")
@@ -74,7 +75,7 @@ public sealed class ApiKeyAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestValidKeyFromHeader(TestEngine engine)
+    public async Task TestValidKeyFromHeader(ServerEngine engine)
     {
         var auth = ApiKeyAuthentication.Create()
                                        .WithHeader("key")
@@ -92,7 +93,7 @@ public sealed class ApiKeyAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomExtractor(TestEngine engine)
+    public async Task TestCustomExtractor(ServerEngine engine)
     {
         var auth = ApiKeyAuthentication.Create()
                                        .Extractor(r => r.Header.Headers.GetEntry("User-Agent"))
@@ -110,7 +111,7 @@ public sealed class ApiKeyAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomAuthenticator(TestEngine engine)
+    public async Task TestCustomAuthenticator(ServerEngine engine)
     {
         static ValueTask<IUser?> Authenticator(IRequest r, string k) => k.Length == 5 ? new ValueTask<IUser?>(new ApiKeyUser(k)) : new ValueTask<IUser?>();
 
@@ -129,7 +130,7 @@ public sealed class ApiKeyAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestGetUser(TestEngine engine)
+    public async Task TestGetUser(ServerEngine engine)
     {
         var auth = ApiKeyAuthentication.Create()
                                        .Keys("123");
@@ -152,7 +153,7 @@ public sealed class ApiKeyAuthenticationTests
         Assert.AreEqual("123|123|0", await response.GetContentAsync());
     }
 
-    private static async Task<TestHost> GetRunnerWithKeysAsync(TestEngine engine, params string[] keys)
+    private static async Task<TestHost> GetRunnerWithKeysAsync(ServerEngine engine, params string[] keys)
     {
         var auth = ApiKeyAuthentication.Create()
                                        .Keys(keys);
@@ -160,7 +161,7 @@ public sealed class ApiKeyAuthenticationTests
         return await GetRunnerWithAuthAsync(auth, engine);
     }
 
-    private static async Task<TestHost> GetRunnerWithAuthAsync(ApiKeyConcernBuilder auth, TestEngine engine)
+    private static async Task<TestHost> GetRunnerWithAuthAsync(ApiKeyConcernBuilder auth, ServerEngine engine)
     {
         var content = GetContent().Authentication(auth);
 

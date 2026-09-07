@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.I18n;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -12,7 +13,7 @@ public class ContentLanguageTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestContentLanguage(TestEngine engine)
+    public async Task TestContentLanguage(ServerEngine engine)
     {
         var app = Layout.Create()
                         .Add(Content.From(Resource.FromString("Hello World")))
@@ -29,7 +30,7 @@ public class ContentLanguageTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestInvariantNoLanguage(TestEngine engine)
+    public async Task TestInvariantNoLanguage(ServerEngine engine)
     {
         var app = Layout.Create()
                         .Add(Content.From(Resource.FromString("Hello World")))
@@ -46,7 +47,7 @@ public class ContentLanguageTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNotFoundNoLanguage(TestEngine engine)
+    public async Task TestNotFoundNoLanguage(ServerEngine engine)
     {
         var app = Layout.Create()
                         .Add(Localization.Create().FromQuery());

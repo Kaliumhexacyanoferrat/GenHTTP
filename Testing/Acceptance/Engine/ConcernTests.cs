@@ -55,7 +55,7 @@ public class ConcernTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestConcernOrder(TestEngine engine)
+    public async Task TestConcernOrder(ServerEngine engine)
     {
         var i = 0;
 

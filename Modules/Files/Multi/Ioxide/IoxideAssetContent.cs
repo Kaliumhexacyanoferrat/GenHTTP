@@ -2,12 +2,12 @@ using System.Buffers;
 
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Engine.Ioxide;
+using GenHTTP.Api.Ioxide;
 
 using ioxide;
 using ioxide.file;
 
-namespace GenHTTP.Modules.IoxideFiles;
+namespace GenHTTP.Modules.Files.Multi;
 
 /// <summary>
 /// Writes one asset's body to the response sink, flush-disciplined so it never stages more than
@@ -18,7 +18,7 @@ namespace GenHTTP.Modules.IoxideFiles;
 /// It cannot use the connection's write slab directly - <c>TcpConnection.ReadFileAsync</c> reads
 /// into that slab, and this writes into GenHTTP's response sink instead - so the copy stays.
 /// </summary>
-public sealed class IoxideAssetContent(StaticAssets assets, string path, long length, ContentType contentType, ReadOnlyMemory<byte>? contentEncoding) : IResponseContent
+internal sealed class IoxideAssetContent(StaticAssets assets, string path, long length, ContentType contentType, ReadOnlyMemory<byte>? contentEncoding) : IResponseContent
 {
 
     // Stay well under the default 16 KB slab, leaving room for the status + headers GenHTTP already

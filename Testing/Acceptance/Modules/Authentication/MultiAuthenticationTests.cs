@@ -52,7 +52,7 @@ public sealed class MultiAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSingleBearerPass(TestEngine engine)
+    public async Task TestSingleBearerPass(ServerEngine engine)
     {
         var builder = MultiAuthentication
             .Create()
@@ -69,7 +69,7 @@ public sealed class MultiAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSingleBearerFail(TestEngine engine)
+    public async Task TestSingleBearerFail(ServerEngine engine)
     {
         var builder = MultiAuthentication
             .Create()
@@ -83,7 +83,7 @@ public sealed class MultiAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSingleBasicPass(TestEngine engine)
+    public async Task TestSingleBasicPass(ServerEngine engine)
     {
         var builder = MultiAuthentication
             .Create()
@@ -100,7 +100,7 @@ public sealed class MultiAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSingleBasicFail(TestEngine engine)
+    public async Task TestSingleBasicFail(ServerEngine engine)
     {
         var builder = MultiAuthentication
             .Create()
@@ -116,7 +116,7 @@ public sealed class MultiAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCombinedFirstPass(TestEngine engine)
+    public async Task TestCombinedFirstPass(ServerEngine engine)
     {
         var builder = MultiAuthentication
             .Create()
@@ -134,7 +134,7 @@ public sealed class MultiAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCombinedSecondPass(TestEngine engine)
+    public async Task TestCombinedSecondPass(ServerEngine engine)
     {
         var builder = MultiAuthentication
             .Create()
@@ -152,7 +152,7 @@ public sealed class MultiAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCombinedFail(TestEngine engine)
+    public async Task TestCombinedFail(ServerEngine engine)
     {
         var builder = MultiAuthentication
             .Create()
@@ -169,7 +169,7 @@ public sealed class MultiAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public void TestEmpty(TestEngine engine)
+    public void TestEmpty(ServerEngine engine)
     {
         var builder = MultiAuthentication.Create();
 
@@ -184,7 +184,7 @@ public sealed class MultiAuthenticationTests
         Assert.IsNotNull(response.Headers.WwwAuthenticate.FirstOrDefault(x => x.Scheme == "Basic" && (x.Parameter?.StartsWith("realm") ?? false)));
     }
 
-    private static async Task<HttpResponseMessage> Execute(MultiAuthenticationConcernBuilder builder, TestEngine engine, Action<HttpRequestMessage>? authAction = null)
+    private static async Task<HttpResponseMessage> Execute(MultiAuthenticationConcernBuilder builder, ServerEngine engine, Action<HttpRequestMessage>? authAction = null)
     {
         var handler = Inline.Create()
                             .Get(() => "Secured")

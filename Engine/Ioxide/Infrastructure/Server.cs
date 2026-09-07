@@ -1,15 +1,12 @@
 using System.Diagnostics;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-
+using GenHTTP.Api.Ioxide;
 using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
-
 using GenHTTP.Engine.Shared.Infrastructure;
 using GenHTTP.Engine.Shared.Types;
-
 using ioxide;
 using ioxide.tls;
-
 using Microsoft.Extensions.Logging;
 using GenHTTP.Engine.Ioxide.Protocol.Drivers.Quic;
 using GenHTTP.Engine.Ioxide.Protocol.Drivers.Tcp;
@@ -38,7 +35,9 @@ public sealed partial class Server : IServer
     private TcpTlsRegistry?[]? _tcpTlsRegistries;
 
 #region Get-/Setters
-    
+
+    public ServerEngine ServerEngine => ServerEngine.Ioxide;
+
     public string Version { get; } = typeof(Server).Assembly.GetName().Version?.ToString() ?? "0.1";
 
     public bool Running { get; private set; }
@@ -52,20 +51,20 @@ public sealed partial class Server : IServer
     public IEndPointCollection EndPoints { get; }
 
     public IHandler Handler { get; }
-    
+
 #endregion
 
 #region Constructors
-    
+
     // Settles everything the bindings decide, so StartAsync only has to act on it.
     internal Server(
-        ServerConfiguration serverConfiguration, 
+        ServerConfiguration serverConfiguration,
         IHandler handler,
         Action<Reactor>? onReactorStart = null,
         EngineOptions? options = null)
     {
         Handler = handler;
-        
+
         _serverConfiguration = serverConfiguration;
         _onReactorStart = onReactorStart;
         _engineOptions = options ?? EngineOptions.Default;
@@ -78,7 +77,7 @@ public sealed partial class Server : IServer
 
         EndPoints = new EndPointCollection(_endPoints);
     }
-    
+
 #endregion
 
     // Starts a reactor per thread and waits until every one of them is listening.
@@ -87,7 +86,7 @@ public sealed partial class Server : IServer
         await PrepareHandlerAsync();
 
         Running = true;
-        
+
         var serverConfig = BuildServerConfig();
 
         bool secureTcp = SecureTcpEndPoints.Any();
@@ -128,9 +127,9 @@ public sealed partial class Server : IServer
 
                     return TcpDriver.HandleAsync(this, endPoint, tcpConnection, endPoint.Protocols);
                 },
-                
-                QuicHandle = _quicEngine is not null 
-                    ? (_, quicConnection) => Http3Driver.RunAsync(this, _quicEndPoint!, quicConnection, _h3Options!) 
+
+                QuicHandle = _quicEngine is not null
+                    ? (_, quicConnection) => Http3Driver.RunAsync(this, _quicEndPoint!, quicConnection, _h3Options!)
                     : null
             };
 
@@ -214,7 +213,7 @@ public sealed partial class Server : IServer
             // HTTP/3-only server would otherwise inherit.
             Tcp = null,
         };
-        
+
         if (_tcpPorts.Length > 0)
         {
             serverConfig = WithTcp(serverConfig);
@@ -224,7 +223,7 @@ public sealed partial class Server : IServer
         {
             serverConfig = WithQuic(serverConfig);
         }
-        
+
         return serverConfig;
     }
 
@@ -246,7 +245,7 @@ public sealed partial class Server : IServer
             _logger.LogCritical(e, "Failed to prepare the handler chain");
         }
     }
-    
+
     // One binding as an endpoint - a certificate is what makes it a secure one. The binding names
     // the protocols; the shared validator settles what this configuration can actually serve
     // (dropping HTTP/3 where there is no certificate, refusing a port left with nothing).
@@ -279,8 +278,8 @@ public sealed partial class Server : IServer
         var protocols = string.Join(" ", _endPoints.OrderBy(e => e.Port).Select(e => $"{e.Port}:{Describe(e.Protocols)}"));
 
         return $"ioxide, {protocols}, TLS on {SecureEndPoints.Count()}"
-               + (MutualTlsConfigured ? ", mTLS" : string.Empty)
-               + $", DualStack: {_dualStack}, Reactors: {_reactors?.Length ?? 0}";
+            + (MutualTlsConfigured ? ", mTLS" : string.Empty)
+            + $", DualStack: {_dualStack}, Reactors: {_reactors?.Length ?? 0}";
     }
 
     // Protocol flags as the ALPN-ish names an operator recognises.

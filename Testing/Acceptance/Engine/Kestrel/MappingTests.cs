@@ -1,6 +1,8 @@
 ﻿using System.Net;
 
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Functional;
 
 namespace GenHTTP.Testing.Acceptance.Engine.Kestrel;
@@ -27,7 +29,7 @@ public class MappingTests
             return true;
         });
 
-        await using var host = await TestHost.RunAsync(app, engine: TestEngine.Kestrel);
+        await using var host = await TestHost.RunAsync(app, engine: ServerEngine.Kestrel);
 
         using var response = await host.GetResponseAsync();
 
@@ -52,7 +54,7 @@ public class MappingTests
             return true;
         });
 
-        await using var host = await TestHost.RunAsync(app, engine: TestEngine.Kestrel);
+        await using var host = await TestHost.RunAsync(app, engine: ServerEngine.Kestrel);
 
         using var response = await host.GetResponseAsync("/?a=1&b=2");
 
@@ -71,7 +73,7 @@ public class MappingTests
             return true;
         });
 
-        await using var host = await TestHost.RunAsync(app, engine: TestEngine.Kestrel);
+        await using var host = await TestHost.RunAsync(app, engine: ServerEngine.Kestrel);
 
         using var response = await host.GetResponseAsync();
 

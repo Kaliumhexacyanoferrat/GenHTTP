@@ -8,8 +8,10 @@
 
   <ItemGroup>
     
-    <ProjectReference Include="..\..\API\GenHTTP.Api.csproj" />
-    
+    <ProjectReference Include="..\..\API\General\GenHTTP.Api.csproj" />
+
+    <ProjectReference Include="..\..\API\Ioxide\GenHTTP.Api.Ioxide.csproj" />
+
     <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
     
     <PackageReference Include="ioxide" Version="0.13.218" />

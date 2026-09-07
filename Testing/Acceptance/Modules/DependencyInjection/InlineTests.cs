@@ -1,4 +1,6 @@
-﻿using GenHTTP.Modules.DependencyInjection;
+﻿using GenHTTP.Api.Infrastructure;
+
+using GenHTTP.Modules.DependencyInjection;
 
 namespace GenHTTP.Testing.Acceptance.Modules.DependencyInjection;
 
@@ -8,7 +10,7 @@ public class InlineTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestParameterInjection(TestEngine engine)
+    public async Task TestParameterInjection(ServerEngine engine)
     {
         var app = DependentInline.Create()
                                  .Get((AwesomeService s) => s.DoWork());

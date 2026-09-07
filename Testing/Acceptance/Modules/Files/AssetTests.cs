@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Text;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Files;
@@ -15,7 +15,7 @@ public sealed class AssetTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDownload(TestEngine engine)
+    public async Task TestDownload(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Asset.From(Resource.FromAssembly("File.txt")), engine: engine);
 
@@ -29,7 +29,7 @@ public sealed class AssetTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDownloadDoesNotAcceptRouting(TestEngine engine)
+    public async Task TestDownloadDoesNotAcceptRouting(ServerEngine engine)
     {
         var layout = Layout.Create()
                            .Add("file.txt", Asset.From(Resource.FromAssembly("File.txt")));
@@ -43,7 +43,7 @@ public sealed class AssetTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task DownloadsCannotBeModified(TestEngine engine)
+    public async Task DownloadsCannotBeModified(ServerEngine engine)
     {
         var download = Asset.From(Resource.FromAssembly("File.txt"));
 
@@ -63,7 +63,7 @@ public sealed class AssetTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFileName(TestEngine engine)
+    public async Task TestFileName(ServerEngine engine)
     {
         var download = Asset.From(Resource.FromAssembly("File.txt"))
                             .AsDownload("myfile.txt");
@@ -77,7 +77,7 @@ public sealed class AssetTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoFileName(TestEngine engine)
+    public async Task TestNoFileName(ServerEngine engine)
     {
         var download = Asset.From(Resource.FromAssembly("File.txt"))
                             .AsDownload();
@@ -91,7 +91,7 @@ public sealed class AssetTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFileNameFromResource(TestEngine engine)
+    public async Task TestFileNameFromResource(ServerEngine engine)
     {
         var download = Asset.From(Resource.FromAssembly("File.txt").Name("myfile.txt"))
                             .AsDownload();
@@ -105,7 +105,7 @@ public sealed class AssetTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestTypeCanBeSet(TestEngine engine)
+    public async Task TestTypeCanBeSet(ServerEngine engine)
     {
         var download = Asset.From(Resource.FromString("This;is;CSV"))
                             .Type(ContentType.TextCsv);

@@ -23,7 +23,7 @@ public sealed class DecompressionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestGzipDecompression(TestEngine engine)
+    public async Task TestGzipDecompression(ServerEngine engine)
     {
         await TestDecompressionAsync(engine, "gzip", CompressGzip);
     }
@@ -31,7 +31,7 @@ public sealed class DecompressionTests
 #if NET11_0_OR_GREATER
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestZstandardDecompression(TestEngine engine)
+    public async Task TestZstandardDecompression(ServerEngine engine)
     {
         await TestDecompressionAsync(engine, "zstd", CompressZstd);
     }
@@ -39,7 +39,7 @@ public sealed class DecompressionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestBrotliDecompression(TestEngine engine)
+    public async Task TestBrotliDecompression(ServerEngine engine)
     {
         await TestDecompressionAsync(engine, "br", CompressBrotli);
     }
@@ -49,7 +49,7 @@ public sealed class DecompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoDecompressionWithoutHeader(TestEngine engine)
+    public async Task TestNoDecompressionWithoutHeader(ServerEngine engine)
     {
         var handler = new AsyncFunctionalHandler(responseProvider: async r =>
         {
@@ -62,7 +62,7 @@ public sealed class DecompressionTests
                     .Build();
         });
 
-        await using var runner = new TestHost(handler.Wrap().Build(), defaults: false, engine: engine);
+        await using var runner = new TestHost(handler.Wrap().Build(), defaults: false, serverEngine: engine);
 
         await runner.Host.Decompression(DecompressedContent.Default()).StartAsync();
 
@@ -80,7 +80,7 @@ public sealed class DecompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoDecompressionWithUnknownEncoding(TestEngine engine)
+    public async Task TestNoDecompressionWithUnknownEncoding(ServerEngine engine)
     {
         var handler = new AsyncFunctionalHandler(responseProvider: async r =>
         {
@@ -93,7 +93,7 @@ public sealed class DecompressionTests
                     .Build();
         });
 
-        await using var runner = new TestHost(handler.Wrap().Build(), defaults: false, engine: engine);
+        await using var runner = new TestHost(handler.Wrap().Build(), defaults: false, serverEngine: engine);
 
         await runner.Host.Decompression(DecompressedContent.Default()).StartAsync();
 
@@ -112,7 +112,7 @@ public sealed class DecompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomDecompressionAlgorithm(TestEngine engine)
+    public async Task TestCustomDecompressionAlgorithm(ServerEngine engine)
     {
         var handler = new AsyncFunctionalHandler(responseProvider: async r =>
         {
@@ -125,7 +125,7 @@ public sealed class DecompressionTests
                     .Build();
         });
 
-        await using var runner = new TestHost(handler.Wrap().Build(), defaults: false, engine: engine);
+        await using var runner = new TestHost(handler.Wrap().Build(), defaults: false, serverEngine: engine);
 
         await runner.Host.Decompression(DecompressedContent.Empty().Add(new CustomDecompression())).StartAsync();
 
@@ -146,7 +146,7 @@ public sealed class DecompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDecompressionViaDefaults(TestEngine engine)
+    public async Task TestDecompressionViaDefaults(ServerEngine engine)
     {
         var handler = new AsyncFunctionalHandler(responseProvider: async r =>
         {
@@ -159,7 +159,7 @@ public sealed class DecompressionTests
                     .Build();
         });
 
-        await using var runner = new TestHost(handler.Wrap().Build(), defaults: false, engine: engine);
+        await using var runner = new TestHost(handler.Wrap().Build(), defaults: false, serverEngine: engine);
 
         await runner.Host.Defaults(compression: false, decompression: true, secureUpgrade: false, strictTransport: false, clientCaching: false).StartAsync();
 
@@ -186,7 +186,7 @@ public sealed class DecompressionTests
         return request;
     }
 
-    private static async Task TestDecompressionAsync(TestEngine engine, string encoding, Func<string, byte[]> compressor)
+    private static async Task TestDecompressionAsync(ServerEngine engine, string encoding, Func<string, byte[]> compressor)
     {
         var handler = new AsyncFunctionalHandler(responseProvider: async r =>
         {
@@ -199,7 +199,7 @@ public sealed class DecompressionTests
                     .Build();
         });
 
-        await using var runner = new TestHost(handler.Wrap().Build(), defaults: false, engine: engine);
+        await using var runner = new TestHost(handler.Wrap().Build(), defaults: false, serverEngine: engine);
 
         await runner.Host.Decompression(DecompressedContent.Default()).StartAsync();
 
@@ -259,6 +259,8 @@ public sealed class DecompressionTests
     {
 
         public AlgorithmName Name => new("custom");
+
+        public string FileExtension => "custom";
 
         public Priority Priority => Priority.Low;
 

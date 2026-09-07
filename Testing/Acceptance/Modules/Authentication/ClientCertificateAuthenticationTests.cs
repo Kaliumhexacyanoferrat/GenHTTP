@@ -37,7 +37,7 @@ public class ClientCertificateAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestClientAuthentication(TestEngine engine)
+    public async Task TestClientAuthentication(ServerEngine engine)
     {
         var auth = ClientCertificateAuthentication.Create()
                                        .Authorization((_, c) => new(c != null));
@@ -56,7 +56,7 @@ public class ClientCertificateAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestClientAuthenticationSaysNo(TestEngine engine)
+    public async Task TestClientAuthenticationSaysNo(ServerEngine engine)
     {
         var auth = ClientCertificateAuthentication.Create()
                                        .Authorization((_, _) => new(false));
@@ -75,7 +75,7 @@ public class ClientCertificateAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestAuthenticationOptional(TestEngine engine)
+    public async Task TestAuthenticationOptional(ServerEngine engine)
     {
         var auth = ClientCertificateAuthentication.Create()
                                        .Authorization((_, c) => new(c == null));
@@ -94,7 +94,7 @@ public class ClientCertificateAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestUserMapping(TestEngine engine)
+    public async Task TestUserMapping(ServerEngine engine)
     {
         var auth = ClientCertificateAuthentication.Create()
                                        .UserMapping((_, c) => new((c != null) ? new ClientCertificateUser(c) : null));
@@ -117,9 +117,9 @@ public class ClientCertificateAuthenticationTests
 
     #region Helpers
 
-    private static async ValueTask<HttpResponseMessage> TestAsync(ClientCertificateAuthenticationBuilder auth, ICertificateValidator validator, bool sendCertificate, TestEngine engine)
+    private static async ValueTask<HttpResponseMessage> TestAsync(ClientCertificateAuthenticationBuilder auth, ICertificateValidator validator, bool sendCertificate, ServerEngine engine)
     {
-        if (engine == TestEngine.Ioxide && validator.RequireCertificate)
+        if (engine == ServerEngine.Ioxide && validator.RequireCertificate)
         {
             // ioxide validates the client chain in OpenSSL, which wants the trust anchors before the
             // handshake begins - so requiring a certificate there means naming what it is validated
@@ -138,7 +138,7 @@ public class ClientCertificateAuthenticationTests
                                       .Get((IRequest request) => request.GetUser<IUser>()?.DisplayName ?? "No user")
                                       .Add(auth);
 
-        var runner = new TestHost(content.Build(), engine: engine);
+        var runner = new TestHost(content.Build(), serverEngine: engine);
 
         var port = TestHost.NextPort();
 

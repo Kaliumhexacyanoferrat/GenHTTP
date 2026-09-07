@@ -15,7 +15,7 @@ public sealed class MemoryBodyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSmallContentLength(TestEngine engine)
+    public async Task TestSmallContentLength(ServerEngine engine)
     {
         var payload = "Hello, body!"u8.ToArray();
 
@@ -37,7 +37,7 @@ public sealed class MemoryBodyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSmallChunked(TestEngine engine)
+    public async Task TestSmallChunked(ServerEngine engine)
     {
         var payload = "Hello, chunked body!"u8.ToArray();
 
@@ -61,7 +61,7 @@ public sealed class MemoryBodyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestLargeContentLength(TestEngine engine)
+    public async Task TestLargeContentLength(ServerEngine engine)
     {
         var payload = new byte[256 * 1024];
         new Random(42).NextBytes(payload);
@@ -84,7 +84,7 @@ public sealed class MemoryBodyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestLargeChunked(TestEngine engine)
+    public async Task TestLargeChunked(ServerEngine engine)
     {
         var payload = new byte[256 * 1024];
         new Random(42).NextBytes(payload);
@@ -109,7 +109,7 @@ public sealed class MemoryBodyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestKeepAliveContentLength(TestEngine engine)
+    public async Task TestKeepAliveContentLength(ServerEngine engine)
     {
         var first = "first request body"u8.ToArray();
         var second = "second request body"u8.ToArray();
@@ -137,7 +137,7 @@ public sealed class MemoryBodyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestKeepAliveChunked(TestEngine engine)
+    public async Task TestKeepAliveChunked(ServerEngine engine)
     {
         var first = "first chunked request body"u8.ToArray();
         var second = "second chunked request body"u8.ToArray();

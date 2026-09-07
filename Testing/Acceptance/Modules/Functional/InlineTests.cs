@@ -2,6 +2,7 @@
 using System.Text;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Redirects;
@@ -15,7 +16,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestGetRoot(TestEngine engine, ExecutionMode mode)
+    public async Task TestGetRoot(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get(() => 42).ExecutionMode(mode), engine: engine);
 
@@ -26,7 +27,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestGetPath(TestEngine engine, ExecutionMode mode)
+    public async Task TestGetPath(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get("/blubb", () => 42).ExecutionMode(mode), engine: engine);
 
@@ -37,7 +38,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestGetQueryParam(TestEngine engine, ExecutionMode mode)
+    public async Task TestGetQueryParam(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get((int param) => param + 1).ExecutionMode(mode), engine: engine);
 
@@ -48,7 +49,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestGetEmptyBooleanQueryParam(TestEngine engine, ExecutionMode mode)
+    public async Task TestGetEmptyBooleanQueryParam(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get((bool param) => param).ExecutionMode(mode), engine: engine);
 
@@ -59,7 +60,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestGetEmptyDoubleQueryParam(TestEngine engine, ExecutionMode mode)
+    public async Task TestGetEmptyDoubleQueryParam(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get((double param) => param).ExecutionMode(mode), engine: engine);
 
@@ -70,7 +71,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestGetEmptyStringQueryParam(TestEngine engine, ExecutionMode mode)
+    public async Task TestGetEmptyStringQueryParam(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get((string param) => param).ExecutionMode(mode), engine: engine);
 
@@ -81,7 +82,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestGetEmptyEnumQueryParam(TestEngine engine, ExecutionMode mode)
+    public async Task TestGetEmptyEnumQueryParam(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get((EnumData param) => param).ExecutionMode(mode), engine: engine);
 
@@ -92,7 +93,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestGetPathParam(TestEngine engine, ExecutionMode mode)
+    public async Task TestGetPathParam(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get(":param", (int param) => param + 1).ExecutionMode(mode), engine: engine);
 
@@ -103,7 +104,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestNotFound(TestEngine engine, ExecutionMode mode)
+    public async Task TestNotFound(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get(() => 42).ExecutionMode(mode), engine: engine);
 
@@ -114,7 +115,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestRaw(TestEngine engine, ExecutionMode mode)
+    public async Task TestRaw(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get((IRequest request) =>
         {
@@ -130,7 +131,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestStream(TestEngine engine, ExecutionMode mode)
+    public async Task TestStream(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get(() => new MemoryStream("42"u8.ToArray())).ExecutionMode(mode), engine: engine);
 
@@ -141,7 +142,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestJson(TestEngine engine, ExecutionMode mode)
+    public async Task TestJson(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get(() => new MyClass("42", 42, 42.0)).ExecutionMode(mode), engine: engine);
 
@@ -152,7 +153,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestPostJson(TestEngine engine, ExecutionMode mode)
+    public async Task TestPostJson(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Post((MyClass input) => input).ExecutionMode(mode), engine: engine);
 
@@ -169,7 +170,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestAsync(TestEngine engine, ExecutionMode mode)
+    public async Task TestAsync(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get(async () =>
         {
@@ -189,7 +190,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestHandlerBuilder(TestEngine engine, ExecutionMode mode)
+    public async Task TestHandlerBuilder(ServerEngine engine, ExecutionMode mode)
     {
         var target = "https://www.google.de/";
 
@@ -202,7 +203,7 @@ public sealed class InlineTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestHandler(TestEngine engine, ExecutionMode mode)
+    public async Task TestHandler(ServerEngine engine, ExecutionMode mode)
     {
         var target = "https://www.google.de/";
 
@@ -215,7 +216,7 @@ public sealed class InlineTests
     
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestNullable(TestEngine engine, ExecutionMode mode)
+    public async Task TestNullable(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await TestHost.RunAsync(Inline.Create().Get((int? i) => i ?? 42).ExecutionMode(mode), engine: engine);
 

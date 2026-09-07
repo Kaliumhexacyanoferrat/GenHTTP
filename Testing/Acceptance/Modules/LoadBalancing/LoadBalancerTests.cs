@@ -11,7 +11,7 @@ public sealed class LoadBalancerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestProxy(TestEngine engine)
+    public async Task TestProxy(ServerEngine engine)
     {
         await using var upstream = await TestHost.RunAsync(Content.From(Resource.FromString("Proxy!")), engine: engine);
 
@@ -28,7 +28,7 @@ public sealed class LoadBalancerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRedirect(TestEngine engine)
+    public async Task TestRedirect(ServerEngine engine)
     {
         var loadbalancer = LoadBalancer.Create()
                                        .Redirect("http://node");
@@ -43,7 +43,7 @@ public sealed class LoadBalancerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomHandler(TestEngine engine)
+    public async Task TestCustomHandler(ServerEngine engine)
     {
         var loadbalancer = LoadBalancer.Create()
                                        .Add(Content.From(Resource.FromString("My Content!")));
@@ -58,7 +58,7 @@ public sealed class LoadBalancerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPriorities(TestEngine engine)
+    public async Task TestPriorities(ServerEngine engine)
     {
         var loadbalancer = LoadBalancer.Create()
                                        .Add(Content.From(Resource.FromString("Prio A")), _ => Priority.High)
@@ -73,7 +73,7 @@ public sealed class LoadBalancerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestMultiplePriorities(TestEngine engine)
+    public async Task TestMultiplePriorities(ServerEngine engine)
     {
         var loadbalancer = LoadBalancer.Create()
                                        .Add(Content.From(Resource.FromString("Prio A1")), _ => Priority.High)
@@ -89,7 +89,7 @@ public sealed class LoadBalancerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoNodes(TestEngine engine)
+    public async Task TestNoNodes(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(LoadBalancer.Create(), engine: engine);
 

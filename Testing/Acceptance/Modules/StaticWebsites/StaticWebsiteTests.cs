@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.StaticWebsites;
 using GenHTTP.Testing.Acceptance.Utilities;
@@ -11,7 +12,7 @@ public sealed class StaticWebsiteTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestWithIndex(TestEngine engine)
+    public async Task TestWithIndex(ServerEngine engine)
     {
         var tree = VirtualTree.Create()
                               .Add("index.html", Resource.FromString("Index 1"))
@@ -28,7 +29,7 @@ public sealed class StaticWebsiteTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoIndex(TestEngine engine)
+    public async Task TestNoIndex(ServerEngine engine)
     {
         var tree = VirtualTree.Create()
                               .Add("sub", VirtualTree.Create());

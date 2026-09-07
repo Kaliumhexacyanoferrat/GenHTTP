@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Headers;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Protobuf;
@@ -52,7 +53,7 @@ public sealed class ProtobufTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestGetEntityAsProtobuf(TestEngine engine)
+    public async Task TestGetEntityAsProtobuf(ServerEngine engine)
     {
         TestEntity? result = null;
         await WithResponse(string.Empty, HttpMethod.Get, null, "application/protobuf", "application/protobuf", async r =>
@@ -66,7 +67,7 @@ public sealed class ProtobufTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPostEntityAsProtobuf(TestEngine engine)
+    public async Task TestPostEntityAsProtobuf(ServerEngine engine)
     {
         var entity = new TestEntity
         {
@@ -99,7 +100,7 @@ public sealed class ProtobufTests
 
     #region Helpers
 
-    private async Task WithResponse(string uri, HttpMethod method, byte[]? body, string? contentType, string? accept, Func<HttpResponseMessage, Task> logic, TestEngine engine)
+    private async Task WithResponse(string uri, HttpMethod method, byte[]? body, string? contentType, string? accept, Func<HttpResponseMessage, Task> logic, ServerEngine engine)
     {
         await using var service = await GetService(engine);
 
@@ -131,7 +132,7 @@ public sealed class ProtobufTests
         await logic(response);
     }
 
-    private static async Task<TestHost> GetService(TestEngine engine)
+    private static async Task<TestHost> GetService(ServerEngine engine)
     {
         var service = ServiceResource.From<TestResource>()
                                      .Serializers(Serialization.Default().AddProtobuf())

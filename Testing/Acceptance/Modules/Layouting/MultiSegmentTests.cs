@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Redirects;
@@ -12,7 +12,7 @@ public class MultiSegmentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRegular(TestEngine engine)
+    public async Task TestRegular(ServerEngine engine)
     {
         var app = Layout.Create()
                         .Add(["api", "v1"], Content.From(Resource.FromString("Hello API!")));
@@ -28,7 +28,7 @@ public class MultiSegmentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestExisting(TestEngine engine)
+    public async Task TestExisting(ServerEngine engine)
     {
         var app = Layout.Create()
                         .Add(["api", "v1", "first"], Content.From(Resource.FromString("First")))
@@ -45,7 +45,7 @@ public class MultiSegmentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoSegments(TestEngine engine)
+    public async Task TestNoSegments(ServerEngine engine)
     {
         var app = Layout.Create().Add([], Content.From(Resource.FromString("Content")));
 
@@ -71,7 +71,7 @@ public class MultiSegmentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestEmpty(TestEngine engine)
+    public async Task TestEmpty(ServerEngine engine)
     {
         var app = Layout.Create()
                         .Add([], Content.From(Resource.FromString("Hello Empty!")));

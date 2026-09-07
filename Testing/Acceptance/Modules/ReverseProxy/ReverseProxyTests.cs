@@ -17,7 +17,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestBasics(TestEngine engine)
+    public async Task TestBasics(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r => r.Respond().Content("Hello World!").Build());
 
@@ -29,7 +29,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRedirection(TestEngine engine)
+    public async Task TestRedirection(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -45,7 +45,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestHead(TestEngine engine)
+    public async Task TestHead(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -65,7 +65,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestForwardingChainIsRelayed(TestEngine engine)
+    public async Task TestForwardingChainIsRelayed(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -92,7 +92,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCookies(TestEngine engine)
+    public async Task TestCookies(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -126,7 +126,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestHeaders(TestEngine engine)
+    public async Task TestHeaders(ServerEngine engine)
     {
         var now = DateTime.UtcNow;
 
@@ -151,7 +151,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPost(TestEngine engine)
+    public async Task TestPost(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -174,7 +174,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPathing(TestEngine engine)
+    public async Task TestPathing(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -195,7 +195,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestQuery(TestEngine engine)
+    public async Task TestQuery(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -229,7 +229,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestQuerySpecialChars(TestEngine engine)
+    public async Task TestQuerySpecialChars(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -258,7 +258,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPathSpecialChars(TestEngine engine)
+    public async Task TestPathSpecialChars(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -273,7 +273,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPathPreservesSpecialChars(TestEngine engine)
+    public async Task TestPathPreservesSpecialChars(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -288,7 +288,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestContentLengthPreserved(TestEngine engine)
+    public async Task TestContentLengthPreserved(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -305,7 +305,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestBadGateway(TestEngine engine)
+    public async Task TestBadGateway(ServerEngine engine)
     {
         var proxy = Proxy.Create()
                          .Upstream("http://icertainlydonotexistasadomain");
@@ -319,7 +319,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCompression(TestEngine engine)
+    public async Task TestCompression(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -340,7 +340,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRedirectionToExternalHostIsNotRewritten(TestEngine engine)
+    public async Task TestRedirectionToExternalHostIsNotRewritten(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -354,9 +354,9 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRedirectionFromScopedMount(TestEngine engine)
+    public async Task TestRedirectionFromScopedMount(ServerEngine engine)
     {
-        await using var upstream = new TestHost(Layout.Create().Build(), false, engine: engine);
+        await using var upstream = new TestHost(Layout.Create().Build(), false, serverEngine: engine);
 
         await upstream.Host.Handler(new ProxiedRouter(r =>
                           r.Respond().Header("Location", $"http://localhost:{upstream.Port}/target").Status(ResponseStatus.TemporaryRedirect).Build()))
@@ -377,7 +377,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestForwardingByAddressIsRelayed(TestEngine engine)
+    public async Task TestForwardingByAddressIsRelayed(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -398,7 +398,7 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestForwardingByAddressIsRelayedForIPv6(TestEngine engine)
+    public async Task TestForwardingByAddressIsRelayedForIPv6(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
@@ -452,10 +452,10 @@ public sealed class ReverseProxyTests
 
         public TestHost Runner { get; }
 
-        public static async Task<TestSetup> CreateAsync(TestEngine engine, Func<IRequest, IResponse?> response)
+        public static async Task<TestSetup> CreateAsync(ServerEngine engine, Func<IRequest, IResponse?> response)
         {
             // server hosting the actual web app
-            var testServer = new TestHost(Layout.Create().Build(), false, engine: engine);
+            var testServer = new TestHost(Layout.Create().Build(), false, serverEngine: engine);
 
             await testServer.Host.Handler(new ProxiedRouter(response))
                             .StartAsync();
@@ -466,7 +466,7 @@ public sealed class ReverseProxyTests
                              .ReadTimeout(TimeSpan.FromSeconds(5))
                              .Upstream("http://localhost:" + testServer.Port);
 
-            var runner = new TestHost(Layout.Create().Build(), engine: engine);
+            var runner = new TestHost(Layout.Create().Build(), serverEngine: engine);
 
             await runner.Host.Handler(proxy)
                         .StartAsync();

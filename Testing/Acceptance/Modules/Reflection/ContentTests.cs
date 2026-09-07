@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.Functional;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Reflection;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Reflection;
@@ -9,7 +10,7 @@ public sealed class ContentTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestDeserialization(TestEngine engine, ExecutionMode mode)
+    public async Task TestDeserialization(ServerEngine engine, ExecutionMode mode)
     {
         var expectation = new MyType(42);
 
@@ -26,7 +27,7 @@ public sealed class ContentTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestNull(TestEngine engine, ExecutionMode mode)
+    public async Task TestNull(ServerEngine engine, ExecutionMode mode)
     {
         var handler = Inline.Create()
                             .Get(() => (MyType?)null)
@@ -41,7 +42,7 @@ public sealed class ContentTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestUnsupported(TestEngine engine, ExecutionMode mode)
+    public async Task TestUnsupported(ServerEngine engine, ExecutionMode mode)
     {
         var handler = Inline.Create()
                             .Get(() => new Result<string>("Nah"))

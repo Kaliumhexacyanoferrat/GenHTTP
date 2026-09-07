@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.IO;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Security;
 
@@ -10,9 +11,9 @@ public sealed class ExtensionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task ServerCanBeHardened(TestEngine engine)
+    public async Task ServerCanBeHardened(ServerEngine engine)
     {
-        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Build(), serverEngine: engine);
 
         await runner.Host.Handler(Content.From(Resource.FromString("Hello Eve!")))
               .Harden()

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -19,7 +20,7 @@ public sealed class SeoTests
     /// </summary>
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestActionCasingMatters(TestEngine engine, ExecutionMode mode)
+    public async Task TestActionCasingMatters(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -32,7 +33,7 @@ public sealed class SeoTests
 
     #region Helpers
 
-    private async Task<TestHost> GetRunnerAsync(TestEngine engine, ExecutionMode mode) => await TestHost.RunAsync(Layout.Create().AddController<TestController>("t", mode: mode), engine: engine);
+    private async Task<TestHost> GetRunnerAsync(ServerEngine engine, ExecutionMode mode) => await TestHost.RunAsync(Layout.Create().AddController<TestController>("t", mode: mode), engine: engine);
 
     #endregion
 

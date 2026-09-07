@@ -9,6 +9,8 @@ namespace GenHTTP.Benchmarks.Infrastructure;
 public class BenchmarkServer(IHandler handler) : IServer
 {
     private bool _running = true;
+    
+    public ServerEngine ServerEngine => ServerEngine.Custom;
 
     public string Version => "0.1";
 

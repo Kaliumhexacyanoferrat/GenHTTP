@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.Functional;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Functional.Provider;
 using GenHTTP.Modules.OpenApi;
 using GenHTTP.Modules.OpenApi.Handler;
@@ -11,7 +12,7 @@ public class MetaDataTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDefaultTitleAndVersion(TestEngine engine)
+    public async Task TestDefaultTitleAndVersion(ServerEngine engine)
     {
         var doc = await GetApi(ApiDescription.Create()).GetOpenApiAsync(engine);
 
@@ -21,7 +22,7 @@ public class MetaDataTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomTitleAndVersion(TestEngine engine)
+    public async Task TestCustomTitleAndVersion(ServerEngine engine)
     {
         var desc = ApiDescription.Create()
                                  .Title("My Title")
@@ -35,7 +36,7 @@ public class MetaDataTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerGenerated(TestEngine engine)
+    public async Task TestServerGenerated(ServerEngine engine)
     {
         var doc = await GetApi(ApiDescription.Create()).GetOpenApiAsync(engine);
 
@@ -46,7 +47,7 @@ public class MetaDataTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPostProcessing(TestEngine engine)
+    public async Task TestPostProcessing(ServerEngine engine)
     {
         var desc = ApiDescription.Create()
                                  .PostProcessor((_, doc) => doc.Servers.First().Url = "https://google.de/");

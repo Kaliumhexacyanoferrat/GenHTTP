@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -15,7 +16,7 @@ public sealed class ActionTests
 
     #region Helpers
 
-    private async Task<TestHost> GetRunnerAsync(TestEngine engine, ExecutionMode mode) => await TestHost.RunAsync(Layout.Create().AddController<TestController>("t", mode: mode), engine: engine);
+    private async Task<TestHost> GetRunnerAsync(ServerEngine engine, ExecutionMode mode) => await TestHost.RunAsync(Layout.Create().AddController<TestController>("t", mode: mode), engine: engine);
 
     #endregion
 
@@ -55,7 +56,7 @@ public sealed class ActionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestIndex(TestEngine engine, ExecutionMode mode)
+    public async Task TestIndex(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -67,7 +68,7 @@ public sealed class ActionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestAction(TestEngine engine, ExecutionMode mode)
+    public async Task TestAction(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -79,7 +80,7 @@ public sealed class ActionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestActionWithQuery(TestEngine engine, ExecutionMode mode)
+    public async Task TestActionWithQuery(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -91,7 +92,7 @@ public sealed class ActionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestActionWithBody(TestEngine engine, ExecutionMode mode)
+    public async Task TestActionWithBody(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -110,7 +111,7 @@ public sealed class ActionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestActionWithParameter(TestEngine engine, ExecutionMode mode)
+    public async Task TestActionWithParameter(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -122,7 +123,7 @@ public sealed class ActionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestActionWithBadParameter(TestEngine engine, ExecutionMode mode)
+    public async Task TestActionWithBadParameter(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -133,7 +134,7 @@ public sealed class ActionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestActionWithMixedParameters(TestEngine engine, ExecutionMode mode)
+    public async Task TestActionWithMixedParameters(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -145,7 +146,7 @@ public sealed class ActionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestActionWithNoResult(TestEngine engine, ExecutionMode mode)
+    public async Task TestActionWithNoResult(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -156,7 +157,7 @@ public sealed class ActionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestNonExistingAction(TestEngine engine, ExecutionMode mode)
+    public async Task TestNonExistingAction(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -167,7 +168,7 @@ public sealed class ActionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestHypenCasing(TestEngine engine, ExecutionMode mode)
+    public async Task TestHypenCasing(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -179,7 +180,7 @@ public sealed class ActionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestIndexController(TestEngine engine, ExecutionMode mode)
+    public async Task TestIndexController(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await TestHost.RunAsync(Layout.Create().IndexController<TestController>(mode: mode), engine: engine);
 

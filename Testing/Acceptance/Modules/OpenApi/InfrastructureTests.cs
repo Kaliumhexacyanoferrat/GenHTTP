@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.OpenApi;
 
@@ -10,7 +11,7 @@ public class InfrastructureTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestContentIsPassed(TestEngine engine)
+    public async Task TestContentIsPassed(ServerEngine engine)
     {
         var api = Inline.Create()
                         .Get("/some-path", () => "Hello World")
@@ -27,13 +28,13 @@ public class InfrastructureTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCaching(TestEngine engine) => Assert.AreEqual(1, await RunCachingTest(engine, true));
+    public async Task TestCaching(ServerEngine engine) => Assert.AreEqual(1, await RunCachingTest(engine, true));
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoCaching(TestEngine engine) => Assert.AreEqual(2, await RunCachingTest(engine, false));
+    public async Task TestNoCaching(ServerEngine engine) => Assert.AreEqual(2, await RunCachingTest(engine, false));
 
-    private async Task<int> RunCachingTest(TestEngine engine, bool cacheEnabled)
+    private async Task<int> RunCachingTest(ServerEngine engine, bool cacheEnabled)
     {
         var counter = 0;
 

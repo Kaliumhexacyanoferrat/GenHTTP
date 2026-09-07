@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Testing.Acceptance.Utilities;
@@ -11,7 +12,7 @@ public sealed class CacheValidationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestETagIsGenerated(TestEngine engine)
+    public async Task TestETagIsGenerated(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
@@ -27,7 +28,7 @@ public sealed class CacheValidationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerReturnsUnmodified(TestEngine engine)
+    public async Task TestServerReturnsUnmodified(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
@@ -43,7 +44,7 @@ public sealed class CacheValidationTests
 
         await cached.AssertStatusAsync(HttpStatusCode.NotModified);
 
-        if (engine == TestEngine.Internal)
+        if (engine == ServerEngine.Internal)
         {
             Assert.AreEqual("0", cached.GetContentHeader("Content-Length"));
         }
@@ -51,7 +52,7 @@ public sealed class CacheValidationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerReturnsModified(TestEngine engine)
+    public async Task TestServerReturnsModified(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
@@ -66,7 +67,7 @@ public sealed class CacheValidationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoContentNoEtag(TestEngine engine)
+    public async Task TestNoContentNoEtag(ServerEngine engine)
     {
         var noContent = new FunctionalHandler(responseProvider: r =>
         {
@@ -82,7 +83,7 @@ public sealed class CacheValidationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestOtherMethodNoETag(TestEngine engine)
+    public async Task TestOtherMethodNoETag(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 

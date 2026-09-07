@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.Authentication.Bearer;
@@ -22,7 +23,7 @@ public sealed class BearerAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestValidToken(TestEngine engine)
+    public async Task TestValidToken(ServerEngine engine)
     {
         var auth = BearerAuthentication.Create()
                                        .AllowExpired();
@@ -36,7 +37,7 @@ public sealed class BearerAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomValidator(TestEngine engine)
+    public async Task TestCustomValidator(ServerEngine engine)
     {
         var auth = BearerAuthentication.Create()
                                        .Validation(_ => throw new ProviderException(ResponseStatus.Forbidden, "Nah"))
@@ -49,7 +50,7 @@ public sealed class BearerAuthenticationTests
     
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomKeyResolver(TestEngine engine)
+    public async Task TestCustomKeyResolver(ServerEngine engine)
     {
         var auth = BearerAuthentication.Create()
                                        .Issuer("https://facebook.com")
@@ -63,7 +64,7 @@ public sealed class BearerAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoUser(TestEngine engine)
+    public async Task TestNoUser(ServerEngine engine)
     {
         var auth = BearerAuthentication.Create()
                                        .UserMapping((_, _) => new ValueTask<IUser?>())
@@ -76,7 +77,7 @@ public sealed class BearerAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestUser(TestEngine engine)
+    public async Task TestUser(ServerEngine engine)
     {
         var auth = BearerAuthentication.Create()
                                        .UserMapping((_, _) => new ValueTask<IUser?>(new MyUser
@@ -92,7 +93,7 @@ public sealed class BearerAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoToken(TestEngine engine)
+    public async Task TestNoToken(ServerEngine engine)
     {
         var auth = BearerAuthentication.Create()
                                        .AllowExpired();
@@ -104,7 +105,7 @@ public sealed class BearerAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestMalformedToken(TestEngine engine)
+    public async Task TestMalformedToken(ServerEngine engine)
     {
         var auth = BearerAuthentication.Create()
                                        .AllowExpired();
@@ -116,7 +117,7 @@ public sealed class BearerAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestIssuerFetchesRealSigningKeys(TestEngine engine)
+    public async Task TestIssuerFetchesRealSigningKeys(ServerEngine engine)
     {
         using var rsa = RSA.Create(2048);
 
@@ -135,7 +136,7 @@ public sealed class BearerAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestIssuerRejectsTokenSignedWithUnknownKey(TestEngine engine)
+    public async Task TestIssuerRejectsTokenSignedWithUnknownKey(ServerEngine engine)
     {
         using var rsa = RSA.Create(2048);
         using var otherRsa = RSA.Create(2048);
@@ -155,7 +156,7 @@ public sealed class BearerAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestUnreachableIssuerConfigYieldsInternalServerError(TestEngine engine)
+    public async Task TestUnreachableIssuerConfigYieldsInternalServerError(ServerEngine engine)
     {
         // no ".well-known/openid-configuration" route configured -> the issuer 404s
         await using var issuerHost = await TestHost.RunAsync(Layout.Create(), engine: engine);
@@ -173,7 +174,7 @@ public sealed class BearerAuthenticationTests
         await response.AssertStatusAsync(HttpStatusCode.InternalServerError);
     }
 
-    private static async Task<TestHost> CreateIssuerAsync(TestEngine engine, RSA rsa)
+    private static async Task<TestHost> CreateIssuerAsync(ServerEngine engine, RSA rsa)
     {
         var securityKey = new RsaSecurityKey(rsa) { KeyId = "test-key" };
         var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(securityKey);
@@ -182,7 +183,7 @@ public sealed class BearerAuthenticationTests
 
         // the handler references the host's own port (for jwks_uri), so it's built after the
         // port is known but before the not-yet-started host is actually started
-        var issuerHost = new TestHost(Layout.Create().Build(), engine: engine);
+        var issuerHost = new TestHost(Layout.Create().Build(), serverEngine: engine);
 
         var configJson = $$"""{"jwks_uri":"{{issuerHost.GetUrl("/jwks")}}"}""";
 
@@ -207,7 +208,7 @@ public sealed class BearerAuthenticationTests
         return handler.WriteToken(token);
     }
 
-    private static async Task<HttpResponseMessage> Execute(BearerAuthenticationConcernBuilder builder, TestEngine engine, string? token = null)
+    private static async Task<HttpResponseMessage> Execute(BearerAuthenticationConcernBuilder builder, ServerEngine engine, string? token = null)
     {
         var handler = Inline.Create()
                             .Get(() => "Secured")

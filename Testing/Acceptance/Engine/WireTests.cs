@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.Layouting;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
 
@@ -50,7 +51,7 @@ public class WireTests : WireTest
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestKeepAliveIsCaseInsensitive(TestEngine engine)
+    public async Task TestKeepAliveIsCaseInsensitive(ServerEngine engine)
     {
         await using var host = await TestHost.RunAsync(Layout.Create(), engine: engine);
 

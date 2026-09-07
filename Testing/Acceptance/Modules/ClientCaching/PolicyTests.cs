@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.ClientCaching;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.ClientCaching;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
@@ -12,7 +13,7 @@ public sealed class PolicyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestExpireHeaderSet(TestEngine engine)
+    public async Task TestExpireHeaderSet(ServerEngine engine)
     {
         var content = Content.From(Resource.FromString("Content"))
                              .Add(ClientCache.Policy().Duration(1));
@@ -26,7 +27,7 @@ public sealed class PolicyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestExpireHeaderNotSetForOtherMethods(TestEngine engine)
+    public async Task TestExpireHeaderNotSetForOtherMethods(ServerEngine engine)
     {
         var content = Content.From(Resource.FromString("Content"))
                              .Add(ClientCache.Policy().Duration(1));
@@ -43,7 +44,7 @@ public sealed class PolicyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestExpireHeaderNotSetForOtherStatus(TestEngine engine)
+    public async Task TestExpireHeaderNotSetForOtherStatus(ServerEngine engine)
     {
         var content = Layout.Create()
                             .Add(ClientCache.Policy().Duration(1));
@@ -57,7 +58,7 @@ public sealed class PolicyTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPredicate(TestEngine engine)
+    public async Task TestPredicate(ServerEngine engine)
     {
         var content = Content.From(Resource.FromString("Content"))
                              .Add(ClientCache.Policy().Duration(1).Predicate((_, r) => r.Content?.Type != ApiContentType.TextPlain));

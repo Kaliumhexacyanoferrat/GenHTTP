@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Functional;
@@ -12,7 +13,7 @@ public class ErrorHandlingTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestSerializationNotPossible(TestEngine engine, ExecutionMode mode)
+    public async Task TestSerializationNotPossible(ServerEngine engine, ExecutionMode mode)
     {
         var serialization = Serialization.Empty()
                                          .Default(ContentType.AudioMp4);

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Compression.Algorithms;
 using GenHTTP.Modules.Files;
 using GenHTTP.Modules.Files.Multi;
@@ -13,7 +14,7 @@ public sealed class AssetsFilesTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRegular(TestEngine engine)
+    public async Task TestRegular(ServerEngine engine)
     {
         await RunAsync(engine, async host =>
         {
@@ -27,7 +28,7 @@ public sealed class AssetsFilesTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSubFile(TestEngine engine)
+    public async Task TestSubFile(ServerEngine engine)
     {
         await RunAsync(engine, async host =>
         {
@@ -41,7 +42,7 @@ public sealed class AssetsFilesTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSubFileCompressed(TestEngine engine)
+    public async Task TestSubFileCompressed(ServerEngine engine)
     {
         await RunAsync(engine, async host =>
         {
@@ -67,7 +68,35 @@ public sealed class AssetsFilesTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDirectory(TestEngine engine)
+    public async Task TestSubFileGzip(ServerEngine engine)
+    {
+        await RunAsync(engine, async host =>
+        {
+            var request = host.GetRequest("/SubDir/subfile.txt");
+
+            request.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+
+            using var response = await host.GetResponseAsync(request);
+
+            await response.AssertStatusAsync(HttpStatusCode.OK);
+
+            // Served from the ".gz" sibling, but announced with the "gzip" Content-Encoding.
+            Assert.AreEqual("This is subgzip", await response.GetContentAsync());
+            Assert.AreEqual("gzip", response.GetContentHeader("Content-Encoding"));
+            Assert.AreEqual("Accept-Encoding", response.GetHeader("Vary"));
+        }, Adjustments);
+
+        return;
+
+        void Adjustments(FileAssetsBuilder h)
+        {
+            h.AllowPrecompressed([new BrotliAlgorithm(), new GzipAlgorithm()], '.');
+        }
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestDirectory(ServerEngine engine)
     {
         await RunAsync(engine, async host =>
         {
@@ -80,7 +109,7 @@ public sealed class AssetsFilesTests
     [TestMethod]
     public void TestChaining() => Chain.Works(Assets.From("./"));
 
-    private async ValueTask RunAsync(TestEngine engine, Func<TestHost, ValueTask> logic, Action<FileAssetsBuilder>? customizations = null)
+    private async ValueTask RunAsync(ServerEngine engine, Func<TestHost, ValueTask> logic, Action<FileAssetsBuilder>? customizations = null)
     {
         var dir = Directory.CreateTempSubdirectory();
 
@@ -98,11 +127,16 @@ public sealed class AssetsFilesTests
 
         await File.WriteAllTextAsync(subFileCompressed, "This is subcompressed");
 
+        // gzip's sibling uses the ".gz" extension (its FileExtension), not the ".gzip" encoding name.
+        var subFileGzip = Path.Combine(subDir.FullName, "subfile.txt.gz");
+
+        await File.WriteAllTextAsync(subFileGzip, "This is subgzip");
+
         var assets = Assets.From(dir);
 
         customizations?.Invoke(assets);
 
-        using var handler = (FileAssetsHandler)assets.Build();
+        Assert.IsInstanceOfType<FileAssetsHandler>(assets.Build());
 
         await using var host = await TestHost.RunAsync(assets, engine: engine);
 

@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
@@ -15,7 +16,7 @@ public class DiscoveryTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestTraversal(TestEngine engine)
+    public async Task TestTraversal(ServerEngine engine)
     {
         var api = Layout.Create()
                         .Add("service", Layout.Create().Add(Inline.Create().Get("/method", () => 1)))
@@ -31,7 +32,7 @@ public class DiscoveryTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomExplorer(TestEngine engine)
+    public async Task TestCustomExplorer(ServerEngine engine)
     {
         var discovery = ApiDiscovery.Empty().Add<CustomExplorer>();
 
@@ -44,7 +45,7 @@ public class DiscoveryTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSamePathWithDifferentMethods(TestEngine engine)
+    public async Task TestSamePathWithDifferentMethods(ServerEngine engine)
     {
         var api = Inline.Create()
                         .Get("/method", () => 42)

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -14,7 +15,7 @@ public sealed class LayoutTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestGetIndex(TestEngine engine)
+    public async Task TestGetIndex(ServerEngine engine)
     {
         var layout = Layout.Create()
                            .Index(Content.From(Resource.FromString("Hello World!")));
@@ -36,7 +37,7 @@ public sealed class LayoutTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDefaultContent(TestEngine engine)
+    public async Task TestDefaultContent(ServerEngine engine)
     {
         var layout = Layout.Create().Add(Content.From(Resource.FromString("Hello World!")));
 
@@ -60,7 +61,7 @@ public sealed class LayoutTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRedirect(TestEngine engine)
+    public async Task TestRedirect(ServerEngine engine)
     {
         var layout = Layout.Create()
                            .Add("section", Layout.Create().Index(Content.From(Resource.FromString("Hello World!"))));
@@ -80,7 +81,7 @@ public sealed class LayoutTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestMultiSegmentInName(TestEngine engine)
+    public async Task TestMultiSegmentInName(ServerEngine engine)
     {
         var layout = Layout.Create().Add("/api/v1/", Content.From(Resource.FromString("Hello World")));
 
@@ -106,7 +107,7 @@ public sealed class LayoutTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestLazyBuilding(TestEngine engine)
+    public async Task TestLazyBuilding(ServerEngine engine)
     {
         var inner = Layout.Create();
 

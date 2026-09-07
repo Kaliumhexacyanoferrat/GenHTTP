@@ -55,12 +55,12 @@ public class TestHost : IAsyncDisposable
     /// <param name="handler">The handler to be tested</param>
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
     /// <param name="development">true, if the server should be started in development mode</param>
-    /// <param name="engine">The server engine to use for hosting</param>
-    public TestHost(IHandler handler, bool defaults = true, bool development = true, TestEngine engine = TestEngine.Internal)
+    /// <param name="serverEngine">The server engine to use for hosting</param>
+    public TestHost(IHandler handler, bool defaults = true, bool development = true, ServerEngine serverEngine = ServerEngine.Internal)
     {
         Port = NextPort();
 
-        Host = CreateHost(engine);
+        Host = CreateHost(serverEngine);
 
         Host.Handler(handler);
         Host.Port((ushort)Port);
@@ -84,7 +84,7 @@ public class TestHost : IAsyncDisposable
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
     /// <param name="development">true, if the server should be started in development mode</param>
     /// <param name="engine">The server engine to use for hosting</param>
-    public static async Task<TestHost> RunAsync(IHandler handler, bool defaults = true, bool development = true, TestEngine engine = TestEngine.Internal)
+    public static async Task<TestHost> RunAsync(IHandler handler, bool defaults = true, bool development = true, ServerEngine engine = ServerEngine.Internal)
     {
         var runner = new TestHost(handler, defaults, development, engine);
 
@@ -101,7 +101,8 @@ public class TestHost : IAsyncDisposable
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
     /// <param name="development">true, if the server should be started in development mode</param>
     /// <param name="engine">The server engine to use for hosting</param>
-    public static Task<TestHost> RunAsync(IHandlerBuilder handler, bool defaults = true, bool development = true, TestEngine engine = TestEngine.Internal) => RunAsync(handler.Build(), defaults, development, engine);
+    public static Task<TestHost> RunAsync(IHandlerBuilder handler, bool defaults = true, bool development = true, ServerEngine engine = ServerEngine.Internal) 
+        => RunAsync(handler.Build(), defaults, development, engine);
 
     /// <summary>
     /// Starts the server managed by this testing host.
@@ -115,19 +116,19 @@ public class TestHost : IAsyncDisposable
         await Host.StartAsync();
     }
 
-    private static IServerHost CreateHost(TestEngine engine)
+    private static IServerHost CreateHost(ServerEngine serverEngine)
     {
-        if (engine == TestEngine.Internal)
+        if (serverEngine == ServerEngine.Internal)
         {
             return Engine.Internal.Host.Create();
         }
         
-        if (engine == TestEngine.Kestrel)
+        if (serverEngine == ServerEngine.Kestrel)
         {
             return Engine.Kestrel.Host.Create();
         }
         
-        if (engine == TestEngine.Ioxide)
+        if (serverEngine == ServerEngine.Ioxide)
         {
             return Engine.Ioxide.Host.Create();
         }

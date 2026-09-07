@@ -1,5 +1,5 @@
 using System.Text;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Websockets;
 using GenHTTP.Modules.Websockets.Protocol;
 
@@ -13,7 +13,7 @@ public sealed class FrameEdgeCaseTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPingInterruptsSegmentedMessage(TestEngine engine)
+    public async Task TestPingInterruptsSegmentedMessage(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Imperative().Handler(new EchoAllHandler());
 
@@ -40,7 +40,7 @@ public sealed class FrameEdgeCaseTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCloseInterruptsSegmentedMessage(TestEngine engine)
+    public async Task TestCloseInterruptsSegmentedMessage(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Imperative().Handler(new EchoAllHandler());
 
@@ -69,7 +69,7 @@ public sealed class FrameEdgeCaseTests
         // transport behavior, not something specific to this (engine-agnostic) code path.
         var websocket = GenHTTP.Modules.Websockets.Websocket.Imperative().Handler(new EchoAllHandler());
 
-        await using var host = await TestHost.RunAsync(websocket, engine: TestEngine.Internal);
+        await using var host = await TestHost.RunAsync(websocket, engine: ServerEngine.Internal);
 
         await using var client = new RawWebSocketClient();
         await client.ConnectAsync("127.0.0.1", host.Port);

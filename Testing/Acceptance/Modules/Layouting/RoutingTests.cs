@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Layouting;
@@ -12,7 +13,7 @@ public sealed class RoutingTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task NotFoundForUnknownRoute(TestEngine engine)
+    public async Task NotFoundForUnknownRoute(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
 

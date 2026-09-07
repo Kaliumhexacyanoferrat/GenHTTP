@@ -1,6 +1,7 @@
 ﻿using System.Net;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Files;
@@ -15,7 +16,7 @@ public class WebResourceTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestLifecycle(TestEngine engine)
+    public async Task TestLifecycle(ServerEngine engine)
     {
         var port = TestHost.NextPort();
 
@@ -34,7 +35,7 @@ public class WebResourceTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestOverwrites(TestEngine engine)
+    public async Task TestOverwrites(ServerEngine engine)
     {
         var port = TestHost.NextPort();
 
@@ -74,13 +75,13 @@ public class WebResourceTests
         Assert.ThrowsExactly<ArgumentException>(() => Resource.FromWeb("http://").Build());
     }
 
-    private async Task<HttpResponseMessage> RunAsync(IHandlerBuilder source, IHandlerBuilder target, TestEngine engine, int port)
+    private async Task<HttpResponseMessage> RunAsync(IHandlerBuilder source, IHandlerBuilder target, ServerEngine engine, int port)
     {
         var app = Layout.Create()
                         .Add("source", source)
                         .Add("target", target);
 
-        var runner = new TestHost(app.Build(), engine: engine);
+        var runner = new TestHost(app.Build(), serverEngine: engine);
 
         runner.Host.Port((ushort)port).Handler(app);
 

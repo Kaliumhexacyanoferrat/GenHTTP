@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.ServerSentEvents;
 using GenHTTP.Testing.Acceptance.Utilities;
@@ -11,7 +12,7 @@ public sealed class IntegrationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomFormatting(TestEngine engine)
+    public async Task TestCustomFormatting(ServerEngine engine)
     {
         var source = EventSource.Create()
                                 .Formatting(Formatting.Empty())

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Reflection;
 
@@ -12,7 +13,7 @@ public sealed class ParameterTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestCanReadSimpleTypesFromBody(TestEngine engine, ExecutionMode mode)
+    public async Task TestCanReadSimpleTypesFromBody(ServerEngine engine, ExecutionMode mode)
     {
         var inline = Inline.Create()
                            .Post(([FromBody] string body) => body)
@@ -29,7 +30,7 @@ public sealed class ParameterTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestConversionError(TestEngine engine, ExecutionMode mode)
+    public async Task TestConversionError(ServerEngine engine, ExecutionMode mode)
     {
         var inline = Inline.Create()
                            .Post(([FromBody] int number) => number)

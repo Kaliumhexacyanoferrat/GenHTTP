@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.VirtualHosting;
@@ -16,7 +17,7 @@ public sealed class VirtualHostsTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDomains(TestEngine engine)
+    public async Task TestDomains(ServerEngine engine)
     {
         var hosts = VirtualHosts.Create()
                                 .Add("domain1.com", Content.From(Resource.FromString("domain1.com")))
@@ -37,7 +38,7 @@ public sealed class VirtualHostsTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoDefault(TestEngine engine)
+    public async Task TestNoDefault(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(VirtualHosts.Create(), engine: engine);
 

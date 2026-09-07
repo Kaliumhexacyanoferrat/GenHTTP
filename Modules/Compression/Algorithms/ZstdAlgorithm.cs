@@ -16,6 +16,8 @@ public sealed class ZstdAlgorithm : ICompressionAlgorithm
 
     public AlgorithmName Name => CachedName;
 
+    public string FileExtension => "zst";
+
     public Priority Priority => Priority.High;
 
     public IResponseContent Compress(IResponseContent content, CompressionLevel level)

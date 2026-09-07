@@ -1,51 +1,41 @@
-﻿using fdout;
-
+﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-
-using GenHTTP.Modules.Files.Serving;
 
 namespace GenHTTP.Modules.Files.Multi;
 
-public sealed class FileAssetsHandler : AbstractAssetsHandler, IDisposable
+public sealed class FileAssetsHandler : IHandler
 {
-    private readonly RandomAccessCache _cache;
+    private readonly DirectoryInfo _directory;
 
-    public FileAssetsHandler(DirectoryInfo directory, List<ICompressionAlgorithm> algorithms, char separator) : base(algorithms, separator)
+    private readonly List<ICompressionAlgorithm> _algorithms;
+
+    private readonly char _separator;
+
+    private readonly TimeSpan _refreshInterval;
+
+    private IHandler? _inner;
+
+    private IHandler Inner => _inner ?? throw new InvalidOperationException("Handler has not been prepared");
+
+    public FileAssetsHandler(DirectoryInfo directory, List<ICompressionAlgorithm> algorithms, char separator, TimeSpan refreshInterval)
     {
-        _cache = new RandomAccessCache(directory.FullName);
+        _directory = directory;
+        _algorithms = algorithms;
+        _separator = separator;
+        _refreshInterval = refreshInterval;
     }
 
-    protected override ValueTask<IResponseContent?> Resolve(IRequestTarget target, ContentType? contentType = null, ReadOnlyMemory<byte>? contentEncoding = null)
+    public ValueTask PrepareAsync(IServer server)
     {
-        var path = target.AsString(decode: true, remainingOnly: true);
+        _inner = server.ServerEngine == ServerEngine.Ioxide
+            ? new IoxideFilesHandler(_directory.FullName, _refreshInterval, _algorithms, _separator)
+            : new BuiltInFileAssetHandler(_directory, _algorithms, _separator);
 
-        var normalized = Normalize(path);
-
-        if (_cache.TryGet(normalized, out var entry))
-        {
-            return new(new EntryResponseContent(_cache, entry, contentType, contentEncoding));
-        }
-
-        return default;
+        return _inner.PrepareAsync(server);
     }
 
-    public void Dispose()
-    {
-        _cache.Dispose();
-    }
-
-    private static string Normalize(string path)
-    {
-        var needsSlash = path.Length == 0 || path[0] != '/';
-        var needsReplace = path.Contains('\\');
-
-        if (!needsSlash && !needsReplace)
-        {
-            return path;
-        }
-
-        return (needsSlash ? "/" : "") + path.Replace('\\', '/');
-    }
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => Inner.HandleAsync(request);
 
 }

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
@@ -32,7 +33,7 @@ public class ResultTypeTests
 
     #region Helpers
 
-    private async Task<TestHost> GetRunnerAsync(TestEngine engine, ExecutionMode mode) => await TestHost.RunAsync(Layout.Create().AddService<TestResource>("t", serializers: Serialization.Default(),
+    private async Task<TestHost> GetRunnerAsync(ServerEngine engine, ExecutionMode mode) => await TestHost.RunAsync(Layout.Create().AddService<TestResource>("t", serializers: Serialization.Default(),
                                                                                                                       injectors: Injection.Default(),
                                                                                                                       formatters: Formatting.Default(),
                                                                                                                       mode: mode), engine: engine);
@@ -43,7 +44,7 @@ public class ResultTypeTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task ControllerMayReturnTask(TestEngine engine, ExecutionMode mode)
+    public async Task ControllerMayReturnTask(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -54,7 +55,7 @@ public class ResultTypeTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task ControllerMayReturnValueTask(TestEngine engine, ExecutionMode mode)
+    public async Task ControllerMayReturnValueTask(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -65,7 +66,7 @@ public class ResultTypeTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task ControllerMayReturnGenericTask(TestEngine engine, ExecutionMode mode)
+    public async Task ControllerMayReturnGenericTask(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 
@@ -77,7 +78,7 @@ public class ResultTypeTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task ControllerMayReturnGenericValueTask(TestEngine engine, ExecutionMode mode)
+    public async Task ControllerMayReturnGenericValueTask(ServerEngine engine, ExecutionMode mode)
     {
         await using var runner = await GetRunnerAsync(engine, mode);
 

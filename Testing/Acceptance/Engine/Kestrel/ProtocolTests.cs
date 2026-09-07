@@ -50,7 +50,7 @@ public class ProtocolTests
 
         var certificate = CertificateProvider.From(await Utilities.Security.GetCertificateAsync());
 
-        var runner = new TestHost(logic.Build(), engine: TestEngine.Kestrel);
+        var runner = new TestHost(logic.Build(), serverEngine: ServerEngine.Kestrel);
 
         var port = TestHost.NextPort();
 
@@ -93,7 +93,7 @@ public class ProtocolTests
     {
         var certificate = CertificateProvider.From(await Utilities.Security.GetCertificateAsync());
 
-        var runner = new TestHost(handler.Build(), engine: TestEngine.Kestrel);
+        var runner = new TestHost(handler.Build(), serverEngine: ServerEngine.Kestrel);
 
         var port = TestHost.NextPort();
 

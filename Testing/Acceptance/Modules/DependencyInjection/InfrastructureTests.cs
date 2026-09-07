@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.DependencyInjection;
@@ -13,7 +13,7 @@ public class InfrastructureTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServiceAvailability(TestEngine engine)
+    public async Task TestServiceAvailability(ServerEngine engine)
     {
         var app = Inline.Create()
                         .Get((IRequest r) =>

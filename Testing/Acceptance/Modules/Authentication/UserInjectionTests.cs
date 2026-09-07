@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.Authentication.Basic;
 using GenHTTP.Modules.Functional;
@@ -13,7 +14,7 @@ public class UserInjectionTests
 
     #region Helpers
 
-    private static async Task<TestHost> GetRunnerAsync(TestEngine engine)
+    private static async Task<TestHost> GetRunnerAsync(ServerEngine engine)
     {
         var auth = BasicAuthentication.Create()
                                       .Add("abc", "def");
@@ -35,7 +36,7 @@ public class UserInjectionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestUserInjected(TestEngine engine)
+    public async Task TestUserInjected(ServerEngine engine)
     {
         await using var runner = await GetRunnerAsync(engine);
 
@@ -49,7 +50,7 @@ public class UserInjectionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoUser(TestEngine engine)
+    public async Task TestNoUser(ServerEngine engine)
     {
         await using var runner = await GetRunnerAsync(engine);
 

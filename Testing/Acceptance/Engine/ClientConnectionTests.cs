@@ -1,6 +1,6 @@
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Functional;
@@ -13,7 +13,7 @@ public sealed class ClientConnectionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestClientIsExposed(TestEngine engine)
+    public async Task TestClientIsExposed(ServerEngine engine)
     {
         // the client connection is a pooled instance that gets reset once the request has
         // been handled, so its state must be captured immediately while handling the request
@@ -41,7 +41,7 @@ public sealed class ClientConnectionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestClientIsResetBetweenRequests(TestEngine engine)
+    public async Task TestClientIsResetBetweenRequests(ServerEngine engine)
     {
         // the client connection is a pooled instance reused across requests on the same
         // connection, so its state must be captured immediately while handling each request

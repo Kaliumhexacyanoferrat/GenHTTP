@@ -1,3 +1,4 @@
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Conversion.Serializers.Json;
 using GenHTTP.Modules.Websockets;
 using GenHTTP.Modules.Websockets.Protocol;
@@ -12,7 +13,7 @@ public sealed class IntegrationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerReactive(TestEngine engine)
+    public async Task TestServerReactive(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
                                .HandleContinuationFramesManually()
@@ -28,7 +29,7 @@ public sealed class IntegrationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSerialization(TestEngine engine)
+    public async Task TestSerialization(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
                                .Serialization(new JsonFormat())
@@ -42,7 +43,7 @@ public sealed class IntegrationTests
     // Automatic segmented handling
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerReactiveSegmented(TestEngine engine)
+    public async Task TestServerReactiveSegmented(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
             .Handler(new ReactiveHandler());
@@ -58,7 +59,7 @@ public sealed class IntegrationTests
     // Plus TCP fragmentation
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerReactiveFragmented(TestEngine engine)
+    public async Task TestServerReactiveFragmented(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
             .Handler(new ReactiveHandlerFragmented());
@@ -75,7 +76,7 @@ public sealed class IntegrationTests
     // Plus segmented message
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerReactiveFragmentedSegmented(TestEngine engine)
+    public async Task TestServerReactiveFragmentedSegmented(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
             .Handler(new ReactiveHandlerFragmented());
@@ -93,7 +94,7 @@ public sealed class IntegrationTests
     // No allocations
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerReactiveFragmentedSegmentedNoAllocations(TestEngine engine)
+    public async Task TestServerReactiveFragmentedSegmentedNoAllocations(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Reactive()
             .DoNotAllocateFrameData()

@@ -13,7 +13,7 @@ public sealed class ProtocolTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPost(TestEngine engine)
+    public async Task TestPost(ServerEngine engine)
     {
         var recorder = new ValueRecorder();
 
@@ -36,7 +36,7 @@ public sealed class ProtocolTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPutLarge(TestEngine engine)
+    public async Task TestPutLarge(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(new ContentLengthResponder().Wrap(), engine: engine);
 

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Functional;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Conversion;
@@ -12,7 +13,7 @@ public class ErrorHandlingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task UndeserializableBodyReturnsWithBadRequest(TestEngine engine)
+    public async Task UndeserializableBodyReturnsWithBadRequest(ServerEngine engine)
     {
         var inline = Inline.Create()
                            .Post("/t", (MyEntity entity) => entity.Data);
