@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
@@ -8,11 +10,15 @@ namespace GenHTTP.Modules.Files.Multi;
 
 internal sealed class BuiltInFileAssetHandler : AbstractAssetsHandler
 {
-    private readonly string _root;
+    // Root directory including a trailing separator, so resolving a request is a single
+    // concatenation with the (slash-trimmed) relative path - no Path.Combine needed.
+    private readonly string _rootPrefix;
 
     public BuiltInFileAssetHandler(DirectoryInfo directory, List<ICompressionAlgorithm> algorithms, char separator) : base(algorithms, separator)
     {
-        _root = directory.FullName;
+        var root = directory.FullName;
+
+        _rootPrefix = root.EndsWith(Path.DirectorySeparatorChar) ? root : root + Path.DirectorySeparatorChar;
     }
 
     protected override ValueTask<IResponseContent?> Resolve(IRequestTarget target, ContentType? contentType = null, ReadOnlyMemory<byte>? contentEncoding = null)
@@ -31,18 +37,17 @@ internal sealed class BuiltInFileAssetHandler : AbstractAssetsHandler
         return default;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FileInfo? ResolveFile(string requestPath)
     {
-        var relative = requestPath.TrimStart('/', '\\');
+        var relative = requestPath.AsSpan().TrimStart('/').TrimStart('\\');
 
-        if (relative.Length == 0)
+        if (relative.IsEmpty)
         {
             return null;
         }
 
-        var full = Path.GetFullPath(Path.Combine(_root, relative));
-
-        var file = new FileInfo(full);
+        var file = new FileInfo(string.Concat(_rootPrefix.AsSpan(), relative));
 
         return file.Exists ? file : null;
     }
