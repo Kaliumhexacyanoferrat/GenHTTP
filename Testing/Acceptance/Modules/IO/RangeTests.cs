@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
 
@@ -11,7 +12,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRangesAreOptional(TestEngine engine)
+    public async Task TestRangesAreOptional(ServerEngine engine)
     {
         using var response = await GetResponse(engine, null);
 
@@ -21,7 +22,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFullRangeIsSatisfied(TestEngine engine)
+    public async Task TestFullRangeIsSatisfied(ServerEngine engine)
     {
         using var response = await GetResponse(engine, "bytes=1-8");
 
@@ -32,7 +33,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRangeFromStartIsSatisfied(TestEngine engine)
+    public async Task TestRangeFromStartIsSatisfied(ServerEngine engine)
     {
         using var response = await GetResponse(engine, "bytes=4-");
 
@@ -43,7 +44,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRangeFromEndIsSatisfied(TestEngine engine)
+    public async Task TestRangeFromEndIsSatisfied(ServerEngine engine)
     {
         using var response = await GetResponse(engine, "bytes=-4");
 
@@ -54,7 +55,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSingleRangeIsSatisfied(TestEngine engine)
+    public async Task TestSingleRangeIsSatisfied(ServerEngine engine)
     {
         using var response = await GetResponse(engine, "bytes=1-1");
 
@@ -65,7 +66,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFullRangeNotSatisfied(TestEngine engine)
+    public async Task TestFullRangeNotSatisfied(ServerEngine engine)
     {
         using var response = await GetResponse(engine, "bytes=9-13");
 
@@ -75,7 +76,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRangeFromStartNotSatisfied(TestEngine engine)
+    public async Task TestRangeFromStartNotSatisfied(ServerEngine engine)
     {
         using var response = await GetResponse(engine, "bytes=12-");
 
@@ -85,7 +86,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRangeFromEndNotSatisfied(TestEngine engine)
+    public async Task TestRangeFromEndNotSatisfied(ServerEngine engine)
     {
         using var response = await GetResponse(engine, "bytes=-12");
 
@@ -95,7 +96,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestMultipleRangesNotSatisfied(TestEngine engine)
+    public async Task TestMultipleRangesNotSatisfied(ServerEngine engine)
     {
         using var response = await GetResponse(engine, "bytes=1-2,3-4");
 
@@ -105,7 +106,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestOneBasedIndexDoesNotWork(TestEngine engine)
+    public async Task TestOneBasedIndexDoesNotWork(ServerEngine engine)
     {
         using var response = await GetResponse(engine, "bytes=1-10");
 
@@ -115,7 +116,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestHeadRequest(TestEngine engine)
+    public async Task TestHeadRequest(ServerEngine engine)
     {
         using var response = await GetResponse(engine, "bytes=1-8", HttpMethod.Head);
 
@@ -129,7 +130,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRangesIgnoredOnPostRequests(TestEngine engine)
+    public async Task TestRangesIgnoredOnPostRequests(ServerEngine engine)
     {
         using var response = await GetResponse(engine, "bytes=1-8", HttpMethod.Post);
 
@@ -139,7 +140,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRangesAreTaggedDifferently(TestEngine engine)
+    public async Task TestRangesAreTaggedDifferently(ServerEngine engine)
     {
         using var withRange = await GetResponse(engine, "bytes=1-8");
         using var withoutRange = await GetResponse(engine, null);
@@ -149,7 +150,7 @@ public class RangeTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestAddSupportForSingleFile(TestEngine engine)
+    public async Task TestAddSupportForSingleFile(ServerEngine engine)
     {
         var download = Asset.From(Resource.FromString("Hello World!"))
                             .AddRangeSupport();
@@ -161,7 +162,7 @@ public class RangeTests
         Assert.AreEqual("bytes", response.GetHeader("Accept-Ranges"));
     }
 
-    private static async Task<HttpResponseMessage> GetResponse(TestEngine engine, string? requestedRange, HttpMethod? method = null)
+    private static async Task<HttpResponseMessage> GetResponse(ServerEngine engine, string? requestedRange, HttpMethod? method = null)
     {
         await using var runner = await GetRunnerAsync(engine);
 
@@ -175,7 +176,7 @@ public class RangeTests
         return await runner.GetResponseAsync(request);
     }
 
-    private static async Task<TestHost> GetRunnerAsync(TestEngine engine)
+    private static async Task<TestHost> GetRunnerAsync(ServerEngine engine)
     {
         var content = GenHTTP.Modules.IO.Content.From(Resource.FromString(Content));
 

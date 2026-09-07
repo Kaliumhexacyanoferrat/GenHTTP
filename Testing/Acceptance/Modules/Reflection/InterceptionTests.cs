@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Functional;
@@ -61,7 +62,7 @@ public class InterceptionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestInterception(TestEngine engine, ExecutionMode mode)
+    public async Task TestInterception(ServerEngine engine, ExecutionMode mode)
     {
         var app = Inline.Create().Get([My("intercept")] (int? q) => 42).ExecutionMode(mode);
 
@@ -76,7 +77,7 @@ public class InterceptionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestPassThrough(TestEngine engine, ExecutionMode mode)
+    public async Task TestPassThrough(ServerEngine engine, ExecutionMode mode)
     {
         var app = Inline.Create().Get([My("pass")] () => 42).ExecutionMode(mode);
 
@@ -91,7 +92,7 @@ public class InterceptionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestException(TestEngine engine, ExecutionMode mode)
+    public async Task TestException(ServerEngine engine, ExecutionMode mode)
     {
         var app = Inline.Create().Get([My("throw")] () => 42).ExecutionMode(mode);
 

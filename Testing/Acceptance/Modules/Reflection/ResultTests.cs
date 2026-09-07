@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Functional;
@@ -21,7 +21,7 @@ public sealed class ResultTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestResponseCanBeModified(TestEngine engine, ExecutionMode mode)
+    public async Task TestResponseCanBeModified(ServerEngine engine, ExecutionMode mode)
     {
         var result = new Result<MyPayload>(new MyPayload("Hello World!"))
                      .Status(ResponseStatus.Created)
@@ -48,7 +48,7 @@ public sealed class ResultTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestStreamsCanBeWrapped(TestEngine engine, ExecutionMode mode)
+    public async Task TestStreamsCanBeWrapped(ServerEngine engine, ExecutionMode mode)
     {
         var stream = new MemoryStream("Hello World!"u8.ToArray());
 

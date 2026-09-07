@@ -117,11 +117,8 @@
 	    <ProjectReference Include="..\..\Modules\Websockets\GenHTTP.Modules.Websockets.csproj" />
         <ProjectReference Include="..\..\Modules\Inspection\GenHTTP.Modules.Inspection.csproj" />
         <ProjectReference Include="..\..\Modules\ServerSentEvents\GenHTTP.Modules.ServerSentEvents.csproj" />
-
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
         <ProjectReference Include="..\..\Modules\IoxideFiles\GenHTTP.Modules.IoxideFiles.csproj" />
+
     </ItemGroup>
 
 </Project>

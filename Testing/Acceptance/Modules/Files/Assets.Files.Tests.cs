@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Compression.Algorithms;
 using GenHTTP.Modules.Files;
 using GenHTTP.Modules.Files.Multi;
@@ -13,7 +14,7 @@ public sealed class AssetsFilesTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRegular(TestEngine engine)
+    public async Task TestRegular(ServerEngine engine)
     {
         await RunAsync(engine, async host =>
         {
@@ -27,7 +28,7 @@ public sealed class AssetsFilesTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSubFile(TestEngine engine)
+    public async Task TestSubFile(ServerEngine engine)
     {
         await RunAsync(engine, async host =>
         {
@@ -41,7 +42,7 @@ public sealed class AssetsFilesTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSubFileCompressed(TestEngine engine)
+    public async Task TestSubFileCompressed(ServerEngine engine)
     {
         await RunAsync(engine, async host =>
         {
@@ -67,7 +68,7 @@ public sealed class AssetsFilesTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDirectory(TestEngine engine)
+    public async Task TestDirectory(ServerEngine engine)
     {
         await RunAsync(engine, async host =>
         {
@@ -80,7 +81,7 @@ public sealed class AssetsFilesTests
     [TestMethod]
     public void TestChaining() => Chain.Works(Assets.From("./"));
 
-    private async ValueTask RunAsync(TestEngine engine, Func<TestHost, ValueTask> logic, Action<FileAssetsBuilder>? customizations = null)
+    private async ValueTask RunAsync(ServerEngine engine, Func<TestHost, ValueTask> logic, Action<FileAssetsBuilder>? customizations = null)
     {
         var dir = Directory.CreateTempSubdirectory();
 

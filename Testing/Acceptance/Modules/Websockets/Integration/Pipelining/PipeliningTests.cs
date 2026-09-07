@@ -1,5 +1,5 @@
 using System.Text;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Websockets;
 using GenHTTP.Modules.Websockets.Protocol;
 
@@ -17,7 +17,7 @@ public sealed class PipeliningTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestBatchedWritesWithExplicitFlush(TestEngine engine)
+    public async Task TestBatchedWritesWithExplicitFlush(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
@@ -44,7 +44,7 @@ public sealed class PipeliningTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestBatchedWritesFlushedByLastWrite(TestEngine engine)
+    public async Task TestBatchedWritesFlushedByLastWrite(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
@@ -73,7 +73,7 @@ public sealed class PipeliningTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestBufferedFrameNotDeliveredBeforeFlush(TestEngine engine)
+    public async Task TestBufferedFrameNotDeliveredBeforeFlush(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
@@ -107,7 +107,7 @@ public sealed class PipeliningTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestTryReadFrameDrainsBufferedFrames(TestEngine engine)
+    public async Task TestTryReadFrameDrainsBufferedFrames(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
@@ -143,7 +143,7 @@ public sealed class PipeliningTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestTryReadFrameReturnsFalseOnPartialFrame(TestEngine engine)
+    public async Task TestTryReadFrameReturnsFalseOnPartialFrame(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
@@ -188,7 +188,7 @@ public sealed class PipeliningTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPongOverloads(TestEngine engine)
+    public async Task TestPongOverloads(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()

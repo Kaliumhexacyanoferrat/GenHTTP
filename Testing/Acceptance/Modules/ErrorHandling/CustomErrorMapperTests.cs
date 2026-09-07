@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.ErrorHandling;
@@ -36,7 +37,7 @@ public sealed class CustomErrorMapperTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task Test404Mapped(TestEngine engine)
+    public async Task Test404Mapped(ServerEngine engine)
     {
         var test = Layout.Create()
                          .Add(ErrorHandler.From(new ErrorLengthMapper()));
@@ -49,7 +50,7 @@ public sealed class CustomErrorMapperTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestExceptionMapped(TestEngine engine)
+    public async Task TestExceptionMapped(ServerEngine engine)
     {
         Action thrower = () => throw new Exception("Nope!");
 

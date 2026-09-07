@@ -12,7 +12,7 @@ public sealed class ParserTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestEndodedUri(TestEngine engine)
+    public async Task TestEndodedUri(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(new PathReturner().Wrap(), engine: engine);
 
@@ -23,7 +23,7 @@ public sealed class ParserTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestEncodedQuery(TestEngine engine)
+    public async Task TestEncodedQuery(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(new QueryReturner().Wrap(), engine: engine);
 
@@ -44,7 +44,7 @@ public sealed class ParserTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestEmptyQuery(TestEngine engine)
+    public async Task TestEmptyQuery(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(new QueryReturner().Wrap(), engine: engine);
 
@@ -55,7 +55,7 @@ public sealed class ParserTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestUnkeyedQuery(TestEngine engine)
+    public async Task TestUnkeyedQuery(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(new QueryReturner().Wrap(), engine: engine);
 
@@ -66,7 +66,7 @@ public sealed class ParserTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestQueryWithSlashes(TestEngine engine)
+    public async Task TestQueryWithSlashes(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(new QueryReturner().Wrap(), engine: engine);
 

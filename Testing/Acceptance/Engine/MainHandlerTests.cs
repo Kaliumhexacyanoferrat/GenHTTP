@@ -37,7 +37,7 @@ public class MainHandlerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestHandlerPreparation(TestEngine engine)
+    public async Task TestHandlerPreparation(ServerEngine engine)
     {
         await using var host = await TestHost.RunAsync(new PreparationHandler(), engine: engine);
 
@@ -48,7 +48,7 @@ public class MainHandlerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestLayoutHandlerPreparation(TestEngine engine)
+    public async Task TestLayoutHandlerPreparation(ServerEngine engine)
     {
         var app = Layout.Create().Add("sub", new PreparationHandler());
 

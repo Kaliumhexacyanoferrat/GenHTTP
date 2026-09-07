@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Testing.Acceptance.Modules.IO;
@@ -9,7 +10,7 @@ public sealed class ContentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestContent(TestEngine engine)
+    public async Task TestContent(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
@@ -21,7 +22,7 @@ public sealed class ContentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestContentIgnoresRouting(TestEngine engine)
+    public async Task TestContentIgnoresRouting(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 
@@ -29,4 +30,5 @@ public sealed class ContentTests
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
+    
 }

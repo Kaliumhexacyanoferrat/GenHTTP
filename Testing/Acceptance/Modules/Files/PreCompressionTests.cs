@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Compression.Algorithms;
 using GenHTTP.Modules.Files;
 using GenHTTP.Modules.IO;
@@ -13,7 +14,7 @@ public class PreCompressionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRegular(TestEngine engine)
+    public async Task TestRegular(ServerEngine engine)
     {
         await using var runner = await RunAsync(engine);
 
@@ -36,7 +37,7 @@ public class PreCompressionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNonSupportedAlgorithm(TestEngine engine)
+    public async Task TestNonSupportedAlgorithm(ServerEngine engine)
     {
         await using var runner = await RunAsync(engine);
 
@@ -53,7 +54,7 @@ public class PreCompressionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoCompressionRequested(TestEngine engine)
+    public async Task TestNoCompressionRequested(ServerEngine engine)
     {
         await using var runner = await RunAsync(engine);
 
@@ -66,7 +67,7 @@ public class PreCompressionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFolderNotFound(TestEngine engine)
+    public async Task TestFolderNotFound(ServerEngine engine)
     {
         await using var runner = await RunAsync(engine);
 
@@ -88,7 +89,7 @@ public class PreCompressionTests
         Chain.Works(handler);
     }
 
-    private static async ValueTask<TestHost> RunAsync(TestEngine engine)
+    private static async ValueTask<TestHost> RunAsync(ServerEngine engine)
     {
         var handler = Assets.From(ResourceTree.FromAssembly())
                             .AllowPrecompressed([new BrotliAlgorithm()], '+');

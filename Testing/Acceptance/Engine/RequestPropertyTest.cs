@@ -15,7 +15,7 @@ public class RequestPropertyTest
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRequestProperties(TestEngine engine)
+    public async Task TestRequestProperties(ServerEngine engine)
     {
         var app = Inline.Create().Get((IRequest request) =>
         {
@@ -41,7 +41,7 @@ public class RequestPropertyTest
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestGetBodyTwiceThrows(TestEngine engine)
+    public async Task TestGetBodyTwiceThrows(ServerEngine engine)
     {
         var app = Inline.Create().Get((IRequest request) =>
         {
@@ -61,7 +61,7 @@ public class RequestPropertyTest
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestHeaderAccessibleAfterBodyLoaded(TestEngine engine)
+    public async Task TestHeaderAccessibleAfterBodyLoaded(ServerEngine engine)
     {
         var app = Inline.Create().Get((IRequest request) =>
         {

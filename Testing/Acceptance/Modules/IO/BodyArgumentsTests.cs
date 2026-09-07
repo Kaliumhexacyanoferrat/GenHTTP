@@ -1,3 +1,4 @@
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Functional;
@@ -12,7 +13,7 @@ public sealed class BodyArgumentsTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestArgumentsAreInjected(TestEngine engine, ExecutionMode mode)
+    public async Task TestArgumentsAreInjected(ServerEngine engine, ExecutionMode mode)
     {
         var handler = Inline.Create()
                             .Post((BodyArguments args) => $"{args.GetEntry("name")}-{args.GetEntry("age")}")
@@ -31,7 +32,7 @@ public sealed class BodyArgumentsTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestEncodedCharactersAreDecoded(TestEngine engine, ExecutionMode mode)
+    public async Task TestEncodedCharactersAreDecoded(ServerEngine engine, ExecutionMode mode)
     {
         var handler = Inline.Create()
                             .Post((BodyArguments args) => args.GetEntry("value"))
@@ -48,7 +49,7 @@ public sealed class BodyArgumentsTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestNoBody(TestEngine engine, ExecutionMode mode)
+    public async Task TestNoBody(ServerEngine engine, ExecutionMode mode)
     {
         var handler = Inline.Create()
                             .Get((BodyArguments args) => args.Count)

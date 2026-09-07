@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Reflection;
 
@@ -12,7 +12,7 @@ public class MethodTest
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestAnyMethod(TestEngine engine, ExecutionMode mode)
+    public async Task TestAnyMethod(ServerEngine engine, ExecutionMode mode)
     {
         var app = Inline.Create()
                         .Any((List<int> data) => data.Count)
@@ -40,7 +40,7 @@ public class MethodTest
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestDelete(TestEngine engine, ExecutionMode mode)
+    public async Task TestDelete(ServerEngine engine, ExecutionMode mode)
     {
         var app = Inline.Create()
                         .Delete(() => { })
@@ -57,7 +57,7 @@ public class MethodTest
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestHead(TestEngine engine, ExecutionMode mode)
+    public async Task TestHead(ServerEngine engine, ExecutionMode mode)
     {
         var app = Inline.Create()
                         .Head(() => "42")

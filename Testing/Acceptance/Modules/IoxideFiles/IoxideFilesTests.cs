@@ -1,7 +1,7 @@
-#if NET11_0_OR_GREATER
-
 using System.Net;
 using System.Net.Http.Headers;
+
+using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Testing.Acceptance.Engine;
 using GenHTTP.Testing.Acceptance.Utilities;
@@ -104,7 +104,7 @@ public sealed class IoxideFilesTests
             await response.AssertStatusAsync(HttpStatusCode.OK);
 
             Assert.AreEqual("", await response.GetContentAsync());
-            Assert.AreEqual((long)"This is root".Length, response.Content.Headers.ContentLength);
+            Assert.AreEqual("This is root".Length, response.Content.Headers.ContentLength);
         });
     }
 
@@ -200,7 +200,7 @@ public sealed class IoxideFilesTests
 
         var handler = IoxideFilesModule.From(dir.FullName);
 
-        await using var host = await TestHost.RunAsync(handler, engine: TestEngine.Ioxide);
+        await using var host = await TestHost.RunAsync(handler, engine: ServerEngine.Ioxide);
 
         for (var i = 0; i < 3; i++)
         {
@@ -228,7 +228,7 @@ public sealed class IoxideFilesTests
         // Edited after the cache snapshot was taken, with a different length so IsFresh's size check fails.
         await File.WriteAllTextAsync(file, "This is the updated content");
 
-        await using var host = await TestHost.RunAsync(handler, engine: TestEngine.Ioxide);
+        await using var host = await TestHost.RunAsync(handler, engine: ServerEngine.Ioxide);
 
         using var response = await host.GetResponseAsync("/file.txt");
 
@@ -247,10 +247,10 @@ public sealed class IoxideFilesTests
         await File.WriteAllTextAsync(Path.Combine(dir.FullName, "file.txt"), "This is root");
 
         // Timeout.InfiniteTimeSpan pins the snapshot taken at startup: the tree is never walked
-        // again, so a file that appears afterwards is not part of the mount.
+        // again, so a file that appears afterward is not part of the mount.
         var handler = IoxideFilesModule.From(dir.FullName).RefreshInterval(Timeout.InfiniteTimeSpan);
 
-        await using var host = await TestHost.RunAsync(handler, engine: TestEngine.Ioxide);
+        await using var host = await TestHost.RunAsync(handler, engine: ServerEngine.Ioxide);
 
         await File.WriteAllTextAsync(Path.Combine(dir.FullName, "added.txt"), "Added after the snapshot");
 
@@ -277,7 +277,7 @@ public sealed class IoxideFilesTests
         // for an interval to elapse, which is what makes this assertion safe to make immediately.
         var handler = IoxideFilesModule.From(dir.FullName).RefreshInterval(TimeSpan.Zero);
 
-        await using var host = await TestHost.RunAsync(handler, engine: TestEngine.Ioxide);
+        await using var host = await TestHost.RunAsync(handler, engine: ServerEngine.Ioxide);
 
         await File.WriteAllTextAsync(Path.Combine(dir.FullName, "added.txt"), "Added after the snapshot");
 
@@ -334,11 +334,9 @@ public sealed class IoxideFilesTests
 
         var handler = IoxideFilesModule.From(dir.FullName);
 
-        await using var host = await TestHost.RunAsync(handler, engine: TestEngine.Ioxide);
+        await using var host = await TestHost.RunAsync(handler, engine: ServerEngine.Ioxide);
 
         await logic(host);
     }
 
 }
-
-#endif

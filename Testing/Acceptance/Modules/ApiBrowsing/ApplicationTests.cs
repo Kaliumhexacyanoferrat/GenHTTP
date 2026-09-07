@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.ApiBrowsing;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Layouting;
@@ -12,7 +13,7 @@ public class ApplicationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSwagger(TestEngine engine)
+    public async Task TestSwagger(ServerEngine engine)
     {
         var app = Layout.Create()
                         .Add(Inline.Create().Get(() => 42))
@@ -30,7 +31,7 @@ public class ApplicationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRedoc(TestEngine engine)
+    public async Task TestRedoc(ServerEngine engine)
     {
         var app = Layout.Create()
                         .Add(Inline.Create().Get(() => 42))
@@ -48,7 +49,7 @@ public class ApplicationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestScalar(TestEngine engine)
+    public async Task TestScalar(ServerEngine engine)
     {
         var app = Layout.Create()
                         .Add(Inline.Create().Get(() => 42))

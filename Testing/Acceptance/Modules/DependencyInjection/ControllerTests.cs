@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.DependencyInjection;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.DependencyInjection;
 using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.DependencyInjection;
@@ -22,7 +23,7 @@ public class ControllerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServiceDependencyInjection(TestEngine engine)
+    public async Task TestServiceDependencyInjection(ServerEngine engine)
     {
         var app = Layout.Create()
                         .AddDependentController<TestController>("t");

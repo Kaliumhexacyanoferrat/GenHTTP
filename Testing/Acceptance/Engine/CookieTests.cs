@@ -1,4 +1,5 @@
-﻿using GenHTTP.Api.Protocol;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
 
 using GenHTTP.Testing.Acceptance.Utilities;
 
@@ -10,7 +11,7 @@ public sealed class CookieTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCookieCanBeRead(TestEngine engine)
+    public async Task TestCookieCanBeRead(ServerEngine engine)
     {
         string? cookie = null;
 
@@ -33,7 +34,7 @@ public sealed class CookieTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestMissingCookieReturnsNull(TestEngine engine)
+    public async Task TestMissingCookieReturnsNull(ServerEngine engine)
     {
         string? cookie = "not-null";
 
@@ -56,7 +57,7 @@ public sealed class CookieTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCookiesCanBeIterated(TestEngine engine)
+    public async Task TestCookiesCanBeIterated(ServerEngine engine)
     {
         List<(string, string)>? cookies = null;
 
@@ -88,7 +89,7 @@ public sealed class CookieTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCookiesCanBeLookedUpByName(TestEngine engine)
+    public async Task TestCookiesCanBeLookedUpByName(ServerEngine engine)
     {
         string? cookie = null;
 
@@ -111,7 +112,7 @@ public sealed class CookieTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCookieCanBeWritten(TestEngine engine)
+    public async Task TestCookieCanBeWritten(ServerEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r => r.Respond().Cookie("session", "abc123").Build());
 
@@ -126,7 +127,7 @@ public sealed class CookieTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCookieWithOptionsCanBeWritten(TestEngine engine)
+    public async Task TestCookieWithOptionsCanBeWritten(ServerEngine engine)
     {
         var expires = new DateTimeOffset(2030, 1, 2, 3, 4, 5, TimeSpan.Zero);
 
@@ -156,7 +157,7 @@ public sealed class CookieTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCookieWithExpiresOnlyCanBeWritten(TestEngine engine)
+    public async Task TestCookieWithExpiresOnlyCanBeWritten(ServerEngine engine)
     {
         var expires = new DateTimeOffset(2030, 1, 2, 3, 4, 5, TimeSpan.Zero);
 
@@ -177,7 +178,7 @@ public sealed class CookieTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestMultipleCookiesCanBeWritten(TestEngine engine)
+    public async Task TestMultipleCookiesCanBeWritten(ServerEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r => r.Respond().Cookie("first", "1").Cookie("second", "2").Build());
 

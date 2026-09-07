@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Files;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
@@ -13,7 +13,7 @@ public class WildcardTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestRouting(TestEngine engine, ExecutionMode mode)
+    public async Task TestRouting(ServerEngine engine, ExecutionMode mode)
     {
         var tree = ResourceTree.FromAssembly("Resources");
 

@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.ServerSentEvents;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ServerSentEvents;
@@ -13,15 +13,15 @@ public sealed class ProtocolTests
 
     [TestMethod]
     [MultiEngineTest]
-    public Task TestComment(TestEngine engine) => TestAsync(engine, async c => await c.CommentAsync("invisible"), ": invisible");
+    public Task TestComment(ServerEngine engine) => TestAsync(engine, async c => await c.CommentAsync("invisible"), ": invisible");
 
     [TestMethod]
     [MultiEngineTest]
-    public Task TestRetry(TestEngine engine) => TestAsync(engine, async c => await c.RetryAsync(10000), "retry: 10000");
+    public Task TestRetry(ServerEngine engine) => TestAsync(engine, async c => await c.RetryAsync(10000), "retry: 10000");
 
     [TestMethod]
     [MultiEngineTest]
-    public Task TestRetryTwice(TestEngine engine) => TestAsync(engine, async c =>
+    public Task TestRetryTwice(ServerEngine engine) => TestAsync(engine, async c =>
     {
         await c.RetryAsync(10000);
         await c.RetryAsync(1);
@@ -29,19 +29,19 @@ public sealed class ProtocolTests
 
     [TestMethod]
     [MultiEngineTest]
-    public Task TestType(TestEngine engine) => TestAsync(engine, async c => await c.DataAsync("data", eventType: "TYPE"), $"event: TYPE{NL}data: data");
+    public Task TestType(ServerEngine engine) => TestAsync(engine, async c => await c.DataAsync("data", eventType: "TYPE"), $"event: TYPE{NL}data: data");
 
     [TestMethod]
     [MultiEngineTest]
-    public Task TestId(TestEngine engine) => TestAsync(engine, async c => await c.DataAsync("data", eventId: "4711"), $"id: 4711{NL}data: data");
+    public Task TestId(ServerEngine engine) => TestAsync(engine, async c => await c.DataAsync("data", eventId: "4711"), $"id: 4711{NL}data: data");
 
     [TestMethod]
     [MultiEngineTest]
-    public Task TestNull(TestEngine engine) => TestAsync(engine, async c => await c.DataAsync((int?)null), $"data: ");
+    public Task TestNull(ServerEngine engine) => TestAsync(engine, async c => await c.DataAsync((int?)null), $"data: ");
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestResume(TestEngine engine)
+    public async Task TestResume(ServerEngine engine)
     {
         var source = EventSource.Create()
                                 .Inspector((r, id) =>
@@ -68,7 +68,7 @@ public sealed class ProtocolTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoContent(TestEngine engine)
+    public async Task TestNoContent(ServerEngine engine)
     {
         var source = EventSource.Create()
                                 .Inspector((r, id) => new (false))
@@ -87,11 +87,11 @@ public sealed class ProtocolTests
 
     [TestMethod]
     [MultiEngineTest]
-    public Task TestException(TestEngine engine) => TestAsync(engine, c => throw new InvalidOperationException("Nope"), $"retry: 30000");
+    public Task TestException(ServerEngine engine) => TestAsync(engine, c => throw new InvalidOperationException("Nope"), $"retry: 30000");
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestGetOnly(TestEngine engine)
+    public async Task TestGetOnly(ServerEngine engine)
     {
         var source = EventSource.Create()
                                 .Generator(_ => new());
@@ -109,7 +109,7 @@ public sealed class ProtocolTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRequestAccess(TestEngine engine)
+    public async Task TestRequestAccess(ServerEngine engine)
     {
         var source = EventSource.Create()
                                 .Generator(c =>
@@ -125,7 +125,7 @@ public sealed class ProtocolTests
         await response.AssertStatusAsync(HttpStatusCode.OK);
     }
 
-    private static async Task TestAsync(TestEngine engine, Func<IEventConnection, ValueTask> generator, string expected)
+    private static async Task TestAsync(ServerEngine engine, Func<IEventConnection, ValueTask> generator, string expected)
     {
         var source = EventSource.Create()
                                 .Generator(generator);

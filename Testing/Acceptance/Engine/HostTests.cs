@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Internal;
 using GenHTTP.Modules.Layouting;
 
@@ -28,9 +29,9 @@ public sealed class HostTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestStart(TestEngine engine)
+    public async Task TestStart(ServerEngine engine)
     {
-        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Build(), serverEngine: engine);
 
         await runner.Host.StartAsync();
 
@@ -41,9 +42,9 @@ public sealed class HostTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRestart(TestEngine engine)
+    public async Task TestRestart(ServerEngine engine)
     {
-        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Build(), serverEngine: engine);
 
         await runner.Host.RestartAsync();
 

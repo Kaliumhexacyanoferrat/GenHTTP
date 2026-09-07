@@ -2,7 +2,9 @@
 using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Authentication;
+
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Authentication;

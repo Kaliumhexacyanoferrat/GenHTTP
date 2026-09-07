@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.IO;
@@ -15,7 +15,7 @@ public sealed class CorsTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPreflight(TestEngine engine)
+    public async Task TestPreflight(ServerEngine engine)
     {
         await using var runner = await GetRunnerAsync(CorsPolicy.Permissive(), engine);
 
@@ -28,7 +28,7 @@ public sealed class CorsTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPermissive(TestEngine engine)
+    public async Task TestPermissive(ServerEngine engine)
     {
         await using var runner = await GetRunnerAsync(CorsPolicy.Permissive(), engine);
 
@@ -51,7 +51,7 @@ public sealed class CorsTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPermissiveWithoutDefaultAuthorizationHeader(TestEngine engine)
+    public async Task TestPermissiveWithoutDefaultAuthorizationHeader(ServerEngine engine)
     {
         await using var runner = await GetRunnerAsync(CorsPolicy.Permissive(false), engine);
 
@@ -74,7 +74,7 @@ public sealed class CorsTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRestrictive(TestEngine engine)
+    public async Task TestRestrictive(ServerEngine engine)
     {
         await using var runner = await GetRunnerAsync(CorsPolicy.Restrictive(), engine);
 
@@ -95,7 +95,7 @@ public sealed class CorsTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustom(TestEngine engine)
+    public async Task TestCustom(ServerEngine engine)
     {
         var policy = CorsPolicy.Restrictive()
                                .Add("http://google.de", [RequestMethod.Get], null, ["Accept"], false);
@@ -118,7 +118,7 @@ public sealed class CorsTests
         Assert.AreEqual("Origin", response.GetHeader("Vary"));
     }
 
-    private static async Task<TestHost> GetRunnerAsync(CorsPolicyBuilder policy, TestEngine engine)
+    private static async Task<TestHost> GetRunnerAsync(CorsPolicyBuilder policy, ServerEngine engine)
     {
         var handler = Layout.Create()
                             .Add("t", Content.From(Resource.FromString("Hello World")))

@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Redirects;
 
@@ -11,7 +11,7 @@ public sealed class RedirectTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestTemporary(TestEngine engine)
+    public async Task TestTemporary(ServerEngine engine)
     {
         var redirect = Redirect.To("https://google.de/", true);
 
@@ -25,7 +25,7 @@ public sealed class RedirectTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestTemporaryPost(TestEngine engine)
+    public async Task TestTemporaryPost(ServerEngine engine)
     {
         var redirect = Redirect.To("https://google.de/", true);
 
@@ -42,7 +42,7 @@ public sealed class RedirectTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPermanent(TestEngine engine)
+    public async Task TestPermanent(ServerEngine engine)
     {
         var redirect = Redirect.To("https://google.de/");
 
@@ -56,7 +56,7 @@ public sealed class RedirectTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestPermanentPost(TestEngine engine)
+    public async Task TestPermanentPost(ServerEngine engine)
     {
         var redirect = Redirect.To("https://google.de/");
 
@@ -73,7 +73,7 @@ public sealed class RedirectTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestAbsoluteRoute(TestEngine engine)
+    public async Task TestAbsoluteRoute(ServerEngine engine)
     {
         var layout = Layout.Create()
                            .Add("redirect", Redirect.To("/me/to/"));

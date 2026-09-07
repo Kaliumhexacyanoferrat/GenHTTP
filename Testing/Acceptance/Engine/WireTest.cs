@@ -1,7 +1,7 @@
 ﻿using System.Net.Sockets;
 
 using GenHTTP.Api.Content;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
@@ -10,9 +10,9 @@ public abstract class WireTest
 {
     protected const string NL = "\r\n";
 
-    protected static ValueTask TestAsync(string[] request, string assertion, IHandlerBuilder? handler = null, TestEngine engine = TestEngine.Internal) => TestAsync(string.Join(NL, request) + NL, assertion, handler);
+    protected static ValueTask TestAsync(string[] request, string assertion, IHandlerBuilder? handler = null, ServerEngine engine = ServerEngine.Internal) => TestAsync(string.Join(NL, request) + NL, assertion, handler);
 
-    protected static async ValueTask TestAsync(string request, string assertion, IHandlerBuilder? handler = null, TestEngine engine = TestEngine.Internal)
+    protected static async ValueTask TestAsync(string request, string assertion, IHandlerBuilder? handler = null, ServerEngine engine = ServerEngine.Internal)
     {
         await using var host = await TestHost.RunAsync(handler ?? Layout.Create(), engine: engine);
 

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
@@ -15,7 +16,7 @@ public sealed class AmbiguityTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestSpecificPreferred(TestEngine engine, ExecutionMode mode)
+    public async Task TestSpecificPreferred(ServerEngine engine, ExecutionMode mode)
     {
         var app = Layout.Create()
                         .AddService<TestService>("c", mode: mode);

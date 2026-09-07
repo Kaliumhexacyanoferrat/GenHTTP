@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Inspection;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
@@ -12,7 +12,7 @@ public sealed class InspectionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestInspection(TestEngine engine)
+    public async Task TestInspection(ServerEngine engine)
     {
         var app = Content.From(Resource.FromString("Hello World")).AddInspector();
 
@@ -29,7 +29,7 @@ public sealed class InspectionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoInspection(TestEngine engine)
+    public async Task TestNoInspection(ServerEngine engine)
     {
         var app = Content.From(Resource.FromString("Hello World")).AddInspector();
 
@@ -44,7 +44,7 @@ public sealed class InspectionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNotFoundInspected(TestEngine engine)
+    public async Task TestNotFoundInspected(ServerEngine engine)
     {
         var app = Layout.Create().AddInspector();
 

@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Conversion;
@@ -15,7 +15,7 @@ public sealed class SerializationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomFormat(TestEngine engine)
+    public async Task TestCustomFormat(ServerEngine engine)
     {
         var serialization = Serialization.Empty()
                                          .Default(ContentType.ApplicationJson)
@@ -37,7 +37,7 @@ public sealed class SerializationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoFormats(TestEngine engine)
+    public async Task TestNoFormats(ServerEngine engine)
     {
         var serialization = Serialization.Empty()
                                          .Default(ContentType.AudioMp4)

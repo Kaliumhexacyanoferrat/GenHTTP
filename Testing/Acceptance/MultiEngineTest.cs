@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Testing.Acceptance;
 
@@ -22,21 +23,21 @@ public class MultiEngineTestAttribute : Attribute, ITestDataSource
         {
             var engines = new List<object[]>
             {
-                new object[] { TestEngine.Internal },
-                new object[] { TestEngine.Kestrel }
+                new object[] { ServerEngine.Internal },
+                new object[] { ServerEngine.Kestrel }
             };
 
             if (IoxideSupported)
             {
-                engines.Add([TestEngine.Ioxide]);
+                engines.Add([ServerEngine.Ioxide]);
             }
 
             return engines;
         }
 
-        if (Enum.TryParse(engine, out TestEngine found))
+        if (Enum.TryParse(engine, out ServerEngine found))
         {
-            if (found == TestEngine.Ioxide && !IoxideSupported)
+            if (found == ServerEngine.Ioxide && !IoxideSupported)
             {
                 throw new InvalidOperationException("The ioxide engine is Linux-only and cannot be tested on this platform");
             }
@@ -52,7 +53,7 @@ public class MultiEngineTestAttribute : Attribute, ITestDataSource
 
     public string GetDisplayName(MethodInfo methodInfo, object?[]? data)
     {
-        if (data?[0] is TestEngine engine)
+        if (data?[0] is ServerEngine engine)
         {
             return $"{methodInfo.Name} ({engine.ToString()})";
         }

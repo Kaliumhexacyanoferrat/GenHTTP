@@ -1,7 +1,7 @@
 ﻿using System.Net;
 
 using GenHTTP.Api.Content.Authentication;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Authentication;
 using GenHTTP.Modules.Authentication.Basic;
 using GenHTTP.Modules.Layouting;
@@ -15,7 +15,7 @@ public sealed class BasicAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoUser(TestEngine engine)
+    public async Task TestNoUser(ServerEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create());
 
@@ -28,7 +28,7 @@ public sealed class BasicAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestValidUser(TestEngine engine)
+    public async Task TestValidUser(ServerEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create()
                                                                      .Add("user", "password"));
@@ -42,7 +42,7 @@ public sealed class BasicAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestInvalidPassword(TestEngine engine)
+    public async Task TestInvalidPassword(ServerEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create()
                                                                      .Add("user", "password"));
@@ -56,7 +56,7 @@ public sealed class BasicAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestInvalidUser(TestEngine engine)
+    public async Task TestInvalidUser(ServerEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create());
 
@@ -69,7 +69,7 @@ public sealed class BasicAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomUser(TestEngine engine)
+    public async Task TestCustomUser(ServerEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create((_, _) => new ValueTask<IUser?>(new BasicAuthenticationUser("my"))));
 
@@ -82,7 +82,7 @@ public sealed class BasicAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoCustomUser(TestEngine engine)
+    public async Task TestNoCustomUser(ServerEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create((_, _) => new ValueTask<IUser?>()));
 
@@ -95,7 +95,7 @@ public sealed class BasicAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestOtherAuthenticationIsNotAccepted(TestEngine engine)
+    public async Task TestOtherAuthenticationIsNotAccepted(ServerEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create());
 
@@ -111,7 +111,7 @@ public sealed class BasicAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoValidBase64(TestEngine engine)
+    public async Task TestNoValidBase64(ServerEngine engine)
     {
         var content = GetContent().Authentication(BasicAuthentication.Create());
 

@@ -26,7 +26,7 @@ public sealed class CompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCompression(TestEngine engine)
+    public async Task TestCompression(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(CreateLargeContentHandler().Build(), engine: engine);
 
@@ -44,7 +44,7 @@ public sealed class CompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSpecificAlgorithms(TestEngine engine)
+    public async Task TestSpecificAlgorithms(ServerEngine engine)
     {
         var list = new List<string>()
         {
@@ -74,7 +74,7 @@ public sealed class CompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCompressionDisabled(TestEngine engine)
+    public async Task TestCompressionDisabled(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Layout.Create(), false, engine: engine);
 
@@ -88,9 +88,9 @@ public sealed class CompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomCompression(TestEngine engine)
+    public async Task TestCustomCompression(ServerEngine engine)
     {
-        await using var runner = new TestHost(CreateLargeContentHandler().Build(), defaults: false, engine: engine);
+        await using var runner = new TestHost(CreateLargeContentHandler().Build(), defaults: false, serverEngine: engine);
 
         await runner.Host.Compression(CompressedContent.Default().Add(new CustomAlgorithm()).Level(CompressionLevel.Optimal)).StartAsync();
 
@@ -107,7 +107,7 @@ public sealed class CompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoAdditionalCompression(TestEngine engine)
+    public async Task TestNoAdditionalCompression(ServerEngine engine)
     {
         var image = Resource.FromString("Image!").Type(ContentType.ImageJpg);
 
@@ -120,7 +120,7 @@ public sealed class CompressionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestVariyHeaderAdded(TestEngine engine)
+    public async Task TestVariyHeaderAdded(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(CreateLargeContentHandler(), engine: engine);
 
@@ -134,7 +134,7 @@ public sealed class CompressionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestVaryHeaderExtendedAdded(TestEngine engine)
+    public async Task TestVaryHeaderExtendedAdded(ServerEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {
@@ -157,7 +157,7 @@ public sealed class CompressionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestContentType(TestEngine engine)
+    public async Task TestContentType(ServerEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {
@@ -181,7 +181,7 @@ public sealed class CompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCompressionThreshold_SmallContent_NotCompressed(TestEngine engine)
+    public async Task TestCompressionThreshold_SmallContent_NotCompressed(ServerEngine engine)
     {
         // Creating content smaller than the default threshold (256 bytes)
         var smallContent = CreateLargeString(100);
@@ -209,7 +209,7 @@ public sealed class CompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCompressionThreshold_LargeContent_Compressed(TestEngine engine)
+    public async Task TestCompressionThreshold_LargeContent_Compressed(ServerEngine engine)
     {
         // Creating content larger than the default threshold (256 bytes)
         var largeContent = CreateLargeString(500);
@@ -238,7 +238,7 @@ public sealed class CompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCompressionThreshold_ExactThreshold_Compressed(TestEngine engine)
+    public async Task TestCompressionThreshold_ExactThreshold_Compressed(ServerEngine engine)
     {
         // Creating content exactly at the default threshold (256 bytes)
         var exactContent = CreateLargeString(256);
@@ -267,14 +267,14 @@ public sealed class CompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCompressionThreshold_CustomThreshold(TestEngine engine)
+    public async Task TestCompressionThreshold_CustomThreshold(ServerEngine engine)
     {
         // Creating content well below the threshold to ensure it's not compressed
         var smallContent = CreateLargeString(100);
 
         var handler = Content.From(Resource.FromString(smallContent).Type(ContentType.TextHtml));
 
-        var runner = new TestHost(handler.Build(), engine: engine);
+        var runner = new TestHost(handler.Build(), serverEngine: engine);
 
         // Set custom threshold to 500 bytes - content should NOT be compressed
         await runner.Host.Compression(CompressedContent.Default().MinimumSize(500)).StartAsync();
@@ -295,7 +295,7 @@ public sealed class CompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCompressionThreshold_UnknownLength_AlwaysCompressed(TestEngine engine)
+    public async Task TestCompressionThreshold_UnknownLength_AlwaysCompressed(ServerEngine engine)
     {
         // Creating a custom content provider that returns null for length
         var handler = new FunctionalHandler(responseProvider: r =>
@@ -324,14 +324,14 @@ public sealed class CompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCompressionThreshold_MethodChaining(TestEngine engine)
+    public async Task TestCompressionThreshold_MethodChaining(ServerEngine engine)
     {
         // Verifying that the example usage pattern works: CompressedContent.Default().MinimumSize(512)
         var smallContent = CreateLargeString(100);
 
         var handler = Content.From(Resource.FromString(smallContent).Type(ContentType.TextHtml));
 
-        var runner = new TestHost(handler.Build(), engine: engine);
+        var runner = new TestHost(handler.Build(), serverEngine: engine);
 
         await runner.Host.Compression(CompressedContent.Default()
                                                        .MinimumSize(512)
@@ -355,7 +355,7 @@ public sealed class CompressionTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCompressionThreshold_Disabled_AllContentCompressed(TestEngine engine)
+    public async Task TestCompressionThreshold_Disabled_AllContentCompressed(ServerEngine engine)
     {
         // Creating very small content
         var smallContent = CreateLargeString(10); // 10 bytes when UTF-8 encoded
@@ -367,7 +367,7 @@ public sealed class CompressionTests
                     .Build();
         });
 
-        var runner = new TestHost(handler.Wrap().Build(), engine: engine);
+        var runner = new TestHost(handler.Wrap().Build(), serverEngine: engine);
 
         // Disable threshold by setting it to null
         await runner.Host.Compression(CompressedContent.Default().MinimumSize(null)).StartAsync();
@@ -386,7 +386,7 @@ public sealed class CompressionTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestWeights(TestEngine engine)
+    public async Task TestWeights(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(CreateLargeContentHandler().Build(), engine: engine);
 

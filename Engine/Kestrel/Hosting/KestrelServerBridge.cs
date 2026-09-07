@@ -32,6 +32,8 @@ internal sealed class KestrelServerBridge : IServer
     private readonly KestrelEndpoints _endpoints = new();
 
     #region Get-/Setters
+    
+    public ServerEngine ServerEngine => ServerEngine.Kestrel;
 
     public string Version { get; }
 

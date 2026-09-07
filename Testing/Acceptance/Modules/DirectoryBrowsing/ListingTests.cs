@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.IO;
 using GenHTTP.Testing.Acceptance.Utilities;
@@ -16,7 +16,7 @@ public sealed class ListingTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestGetMainListing(TestEngine engine)
+    public async Task TestGetMainListing(ServerEngine engine)
     {
         await using var runner = await GetEnvironmentAsync(engine);
 
@@ -38,7 +38,7 @@ public sealed class ListingTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestGetSubdirectory(TestEngine engine)
+    public async Task TestGetSubdirectory(ServerEngine engine)
     {
         await using var runner = await GetEnvironmentAsync(engine);
 
@@ -55,7 +55,7 @@ public sealed class ListingTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDownload(TestEngine engine)
+    public async Task TestDownload(ServerEngine engine)
     {
         await using var runner = await GetEnvironmentAsync(engine);
 
@@ -66,7 +66,7 @@ public sealed class ListingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNonExistingFolder(TestEngine engine)
+    public async Task TestNonExistingFolder(ServerEngine engine)
     {
         await using var runner = await GetEnvironmentAsync(engine);
 
@@ -77,7 +77,7 @@ public sealed class ListingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSameListingSameChecksum(TestEngine engine)
+    public async Task TestSameListingSameChecksum(ServerEngine engine)
     {
         await using var runner = await GetEnvironmentAsync(engine);
 
@@ -97,7 +97,7 @@ public sealed class ListingTests
         Chain.Works(listing);
     }
 
-    private static async Task<TestHost> GetEnvironmentAsync(TestEngine engine)
+    private static async Task<TestHost> GetEnvironmentAsync(ServerEngine engine)
     {
         var tempFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
@@ -113,4 +113,5 @@ public sealed class ListingTests
 
         return await TestHost.RunAsync(listing, engine: engine);
     }
+    
 }

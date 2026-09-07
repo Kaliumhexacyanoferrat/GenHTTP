@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Archives;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.StaticWebsites;
@@ -11,7 +12,7 @@ public class IntegrationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestStaticFiles(TestEngine engine)
+    public async Task TestStaticFiles(ServerEngine engine)
     {
         var tree = ArchiveTree.From(Resource.FromAssembly("Archive.zip"));
 

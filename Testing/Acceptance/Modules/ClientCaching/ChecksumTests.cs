@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.IO;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ClientCaching;
@@ -9,7 +10,7 @@ public class ChecksumTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSameErrorSameChecksum(TestEngine engine)
+    public async Task TestSameErrorSameChecksum(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
@@ -23,7 +24,7 @@ public class ChecksumTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSameContentSameChecksum(TestEngine engine)
+    public async Task TestSameContentSameChecksum(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Content.From(Resource.FromString("Hello World!")), engine: engine);
 

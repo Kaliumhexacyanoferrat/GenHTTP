@@ -19,11 +19,11 @@ public sealed class LoggingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRequestsAreLoggedByDefault(TestEngine engine)
+    public async Task TestRequestsAreLoggedByDefault(ServerEngine engine)
     {
         var factory = new CapturingLoggerFactory();
 
-        await using var runner = new TestHost(Layout.Create().Index(new OkHandler()).Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Index(new OkHandler()).Build(), serverEngine: engine);
 
         await runner.Host.Logging(factory).StartAsync();
 
@@ -41,11 +41,11 @@ public sealed class LoggingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestOutermostConcernObservesNotFound(TestEngine engine)
+    public async Task TestOutermostConcernObservesNotFound(ServerEngine engine)
     {
         var factory = new CapturingLoggerFactory();
 
-        await using var runner = new TestHost(Layout.Create().Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Build(), serverEngine: engine);
 
         await runner.Host.Logging(factory).StartAsync();
 
@@ -63,9 +63,9 @@ public sealed class LoggingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestLoggingCanBeDisabled(TestEngine engine)
+    public async Task TestLoggingCanBeDisabled(ServerEngine engine)
     {
-        await using var runner = new TestHost(Layout.Create().Index(new OkHandler()).Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Index(new OkHandler()).Build(), serverEngine: engine);
 
         await runner.Host.Logging(NullLoggerFactory.Instance).StartAsync();
 
@@ -78,9 +78,9 @@ public sealed class LoggingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNullLoggerFactoryAlsoDisablesLogging(TestEngine engine)
+    public async Task TestNullLoggerFactoryAlsoDisablesLogging(ServerEngine engine)
     {
-        await using var runner = new TestHost(Layout.Create().Index(new OkHandler()).Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Index(new OkHandler()).Build(), serverEngine: engine);
 
         await runner.Host.Logging(NullLoggerFactory.Instance).StartAsync();
 
@@ -93,11 +93,11 @@ public sealed class LoggingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestRequestLoggingCanBeDisabledWhileKeepingInfrastructure(TestEngine engine)
+    public async Task TestRequestLoggingCanBeDisabledWhileKeepingInfrastructure(ServerEngine engine)
     {
         var factory = new CapturingLoggerFactory();
 
-        await using var runner = new TestHost(Layout.Create().Index(new OkHandler()).Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Index(new OkHandler()).Build(), serverEngine: engine);
 
         await runner.Host.Logging(factory, logRequests: false).StartAsync();
 
@@ -115,11 +115,11 @@ public sealed class LoggingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerLifecycleIsLogged(TestEngine engine)
+    public async Task TestServerLifecycleIsLogged(ServerEngine engine)
     {
         var factory = new CapturingLoggerFactory();
 
-        await using var runner = new TestHost(Layout.Create().Index(new OkHandler()).Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Index(new OkHandler()).Build(), serverEngine: engine);
 
         await runner.Host.Logging(factory).StartAsync();
 
@@ -133,11 +133,11 @@ public sealed class LoggingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestHeaderIsCapturedBeforeBodyIsReleased(TestEngine engine)
+    public async Task TestHeaderIsCapturedBeforeBodyIsReleased(ServerEngine engine)
     {
         var factory = new CapturingLoggerFactory();
 
-        await using var runner = new TestHost(Layout.Create().Index(new ReleasingHandler()).Build(), engine: engine);
+        await using var runner = new TestHost(Layout.Create().Index(new ReleasingHandler()).Build(), serverEngine: engine);
 
         await runner.Host.Logging(factory).StartAsync();
 

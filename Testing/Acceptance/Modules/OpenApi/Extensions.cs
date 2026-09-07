@@ -1,7 +1,7 @@
 ﻿using System.Net;
 
 using GenHTTP.Api.Content;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Functional.Provider;
 using GenHTTP.Modules.OpenApi;
 
@@ -13,7 +13,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
 internal static class Extensions
 {
 
-    internal static async Task<((string, IOpenApiPathItem), OpenApiOperation)> GetOperationAsync(TestEngine engine, InlineBuilder api)
+    internal static async Task<((string, IOpenApiPathItem), OpenApiOperation)> GetOperationAsync(ServerEngine engine, InlineBuilder api)
     {
         var doc = (await api.Add(ApiDescription.Create()).GetOpenApiAsync(engine)).Document!;
 
@@ -35,7 +35,7 @@ internal static class Extensions
         return await OpenApiDocument.LoadAsync(content, settings: settings);
     }
 
-    internal static async Task<ReadResult> GetOpenApiAsync(this IHandlerBuilder api, TestEngine engine, bool validate = true)
+    internal static async Task<ReadResult> GetOpenApiAsync(this IHandlerBuilder api, ServerEngine engine, bool validate = true)
     {
         await using var host = await TestHost.RunAsync(api, engine: engine);
 

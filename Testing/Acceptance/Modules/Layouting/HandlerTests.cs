@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
@@ -11,7 +11,7 @@ public class HandlerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestHandlerDirect(TestEngine engine)
+    public async Task TestHandlerDirect(ServerEngine engine)
     {
         var layout = Layout.Create()
                            .Add("section", Content.From(Resource.FromString("Hello World")).Build());
@@ -27,7 +27,7 @@ public class HandlerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestIndexDirect(TestEngine engine)
+    public async Task TestIndexDirect(ServerEngine engine)
     {
         var layout = Layout.Create()
                            .Index(Content.From(Resource.FromString("Hello World")).Build());
@@ -43,7 +43,7 @@ public class HandlerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFallbackDirect(TestEngine engine)
+    public async Task TestFallbackDirect(ServerEngine engine)
     {
         var layout = Layout.Create()
                            .Add(Content.From(Resource.FromString("Hello World")).Build());

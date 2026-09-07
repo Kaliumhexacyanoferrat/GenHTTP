@@ -1,9 +1,13 @@
 ﻿using System.Net;
+
+using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Modules.ApiBrowsing;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Layouting.Provider;
 using GenHTTP.Modules.OpenApi;
+
 using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ApiBrowsing;
@@ -14,7 +18,7 @@ public class HandlerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestGetOnly(TestEngine engine)
+    public async Task TestGetOnly(ServerEngine engine)
     {
         await using var host = await TestHost.RunAsync(GetApi().AddSwaggerUi(), engine: engine);
 
@@ -32,7 +36,7 @@ public class HandlerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestResourceAccess(TestEngine engine)
+    public async Task TestResourceAccess(ServerEngine engine)
     {
         await using var host = await TestHost.RunAsync(GetApi().AddSwaggerUi(), engine: engine);
 
@@ -43,7 +47,7 @@ public class HandlerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNotFound(TestEngine engine)
+    public async Task TestNotFound(ServerEngine engine)
     {
         await using var host = await TestHost.RunAsync(GetApi().AddSwaggerUi(), engine: engine);
 
@@ -54,7 +58,7 @@ public class HandlerTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCustomMeta(TestEngine engine)
+    public async Task TestCustomMeta(ServerEngine engine)
     {
         var api = GetApi().AddSwaggerUi("docs", "https://localhost:5001/swagger.json", "My API");
 

@@ -1,3 +1,4 @@
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Serializers.Json;
 using GenHTTP.Modules.Websockets;
@@ -12,7 +13,7 @@ public sealed class IntegrationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerFunctional(TestEngine engine)
+    public async Task TestServerFunctional(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
                                .HandleContinuationFramesManually()
@@ -32,7 +33,7 @@ public sealed class IntegrationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestText(TestEngine engine)
+    public async Task TestText(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
                                .Formatters(Formatting.Default().Build())
@@ -49,7 +50,7 @@ public sealed class IntegrationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSerialization(TestEngine engine)
+    public async Task TestSerialization(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
                                .Serialization(new JsonFormat())
@@ -67,7 +68,7 @@ public sealed class IntegrationTests
     // Automatic segmented handling
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerFunctionalSegmented(TestEngine engine)
+    public async Task TestServerFunctionalSegmented(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
             .OnConnected(c => c.PingAsync())
@@ -88,7 +89,7 @@ public sealed class IntegrationTests
     // Plus TCP fragmentation
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerFunctionalFragmented(TestEngine engine)
+    public async Task TestServerFunctionalFragmented(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
             .OnConnected(_ => ValueTask.CompletedTask)
@@ -110,7 +111,7 @@ public sealed class IntegrationTests
     // Plus segmented message
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerFunctionalFragmentedSegmented(TestEngine engine)
+    public async Task TestServerFunctionalFragmentedSegmented(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
             .OnConnected(_ => ValueTask.CompletedTask)
@@ -133,7 +134,7 @@ public sealed class IntegrationTests
     // No allocations
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerFunctionalFragmentedSegmentedNoAllocations(TestEngine engine)
+    public async Task TestServerFunctionalFragmentedSegmentedNoAllocations(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
             .OnConnected(_ => ValueTask.CompletedTask)

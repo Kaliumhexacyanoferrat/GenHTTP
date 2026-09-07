@@ -65,7 +65,7 @@ public class RoleTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoUser(TestEngine engine)
+    public async Task TestNoUser(ServerEngine engine)
     {
         using var response = await RunAsync(null, engine);
 
@@ -74,7 +74,7 @@ public class RoleTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoRoles(TestEngine engine)
+    public async Task TestNoRoles(ServerEngine engine)
     {
         using var response = await RunAsync(new RoleUser(null), engine);
 
@@ -83,7 +83,7 @@ public class RoleTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestInsufficientRoles(TestEngine engine)
+    public async Task TestInsufficientRoles(ServerEngine engine)
     {
         using var response = await RunAsync(new RoleUser(["ADMIN"]), engine);
 
@@ -92,7 +92,7 @@ public class RoleTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSufficientRoles(TestEngine engine)
+    public async Task TestSufficientRoles(ServerEngine engine)
     {
         using var response = await RunAsync(new RoleUser(["ADMIN", "SUPER_ADMIN"]), engine);
 
@@ -101,7 +101,7 @@ public class RoleTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestCasingDoesNotMatter(TestEngine engine)
+    public async Task TestCasingDoesNotMatter(ServerEngine engine)
     {
         using var response = await RunAsync(new RoleUser(["admin", "Super_Admin"]), engine);
 
@@ -111,7 +111,7 @@ public class RoleTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestOtherRolesDoNotMatter(TestEngine engine)
+    public async Task TestOtherRolesDoNotMatter(ServerEngine engine)
     {
         using var response = await RunAsync(new RoleUser(["ADMIN", "USER", "SUPER_ADMIN"]), engine);
 
@@ -122,7 +122,7 @@ public class RoleTests
 
     #region Helpers
 
-    private static async Task<HttpResponseMessage> RunAsync(IUser? user, TestEngine engine)
+    private static async Task<HttpResponseMessage> RunAsync(IUser? user, ServerEngine engine)
     {
         var app = Inline.Create()
                         .Get([RequireRole("ADMIN", "SUPER_ADMIN")]() => 42)

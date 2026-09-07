@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Functional;
@@ -62,7 +62,7 @@ public sealed class ChangeTrackingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestContentExposure(TestEngine engine)
+    public async Task TestContentExposure(ServerEngine engine)
     {
         var resource = Resource.FromString("Inner").BuildWithTracking();
 

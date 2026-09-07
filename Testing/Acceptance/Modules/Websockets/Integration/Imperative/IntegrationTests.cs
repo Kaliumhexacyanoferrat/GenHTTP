@@ -1,3 +1,4 @@
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Websockets;
 using GenHTTP.Modules.Websockets.Protocol;
 using GenHTTP.Testing.Acceptance.Utilities;
@@ -10,7 +11,7 @@ public sealed class IntegrationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerImperative(TestEngine engine)
+    public async Task TestServerImperative(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()
@@ -27,7 +28,7 @@ public sealed class IntegrationTests
     // Automatic segmented handling
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerImperativeSegmented(TestEngine engine)
+    public async Task TestServerImperativeSegmented(ServerEngine engine)
     {
         var websocket = GenHTTP.Modules.Websockets.Websocket
             .Imperative()

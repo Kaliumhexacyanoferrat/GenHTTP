@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Layouting;
 
 namespace GenHTTP.Testing.Acceptance.Engine;
@@ -10,7 +10,7 @@ public sealed class BasicTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestLegacyHttp(TestEngine engine)
+    public async Task TestLegacyHttp(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
@@ -23,7 +23,7 @@ public sealed class BasicTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestConnectionClose(TestEngine engine)
+    public async Task TestConnectionClose(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
@@ -38,7 +38,7 @@ public sealed class BasicTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestEmptyQuery(TestEngine engine)
+    public async Task TestEmptyQuery(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
@@ -49,7 +49,7 @@ public sealed class BasicTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoKeepAliveHeaderOn11(TestEngine engine)
+    public async Task TestNoKeepAliveHeaderOn11(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
 
@@ -60,7 +60,7 @@ public sealed class BasicTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServerHeader(TestEngine engine)
+    public async Task TestServerHeader(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Layout.Create(), engine: engine);
 

@@ -3,15 +3,17 @@ using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.I18n;
 using GenHTTP.Modules.I18n.Provider;
 using System.Globalization;
+using GenHTTP.Api.Infrastructure;
 
 namespace GenHTTP.Testing.Acceptance.Modules.I18n;
 
 [TestClass]
 public sealed class LocalizationTests
 {
+    
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDefaultBehavior(TestEngine engine)
+    public async Task TestDefaultBehavior(ServerEngine engine)
     {
         var currentCulture = CultureInfo.CurrentUICulture;
 
@@ -25,7 +27,7 @@ public sealed class LocalizationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDefault(TestEngine engine)
+    public async Task TestDefault(ServerEngine engine)
     {
         var localization = Localization
             .Create()
@@ -39,7 +41,7 @@ public sealed class LocalizationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFromStatic(TestEngine engine)
+    public async Task TestFromStatic(ServerEngine engine)
     {
         var localization = Localization
             .Create()
@@ -53,7 +55,7 @@ public sealed class LocalizationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFromQuery(TestEngine engine)
+    public async Task TestFromQuery(ServerEngine engine)
     {
         var localization = Localization
             .Create()
@@ -69,7 +71,7 @@ public sealed class LocalizationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFromHeader(TestEngine engine)
+    public async Task TestFromHeader(ServerEngine engine)
     {
         var localization = Localization
             .Create()
@@ -88,7 +90,7 @@ public sealed class LocalizationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestFromCookie(TestEngine engine)
+    public async Task TestFromCookie(ServerEngine engine)
     {
         var localization = Localization
             .Create()
@@ -107,7 +109,7 @@ public sealed class LocalizationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSupportsList(TestEngine engine)
+    public async Task TestSupportsList(ServerEngine engine)
     {
         var localization = Localization
             .Create()
@@ -123,7 +125,7 @@ public sealed class LocalizationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSupportsPredicate(TestEngine engine)
+    public async Task TestSupportsPredicate(ServerEngine engine)
     {
         var localization = Localization
             .Create()
@@ -139,7 +141,7 @@ public sealed class LocalizationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSetterCurrentCulture(TestEngine engine)
+    public async Task TestSetterCurrentCulture(ServerEngine engine)
     {
         var localization = Localization
             .Create()
@@ -154,7 +156,7 @@ public sealed class LocalizationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSetterCustom(TestEngine engine)
+    public async Task TestSetterCustom(ServerEngine engine)
     {
         var localization = Localization
             .Create()
@@ -169,7 +171,7 @@ public sealed class LocalizationTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestMultipleMixed(TestEngine engine)
+    public async Task TestMultipleMixed(ServerEngine engine)
     {
         var localization = Localization
             .Create()
@@ -199,14 +201,14 @@ public sealed class LocalizationTests
     }
 
     private static Task TestLocalization(
-        TestEngine engine,
+        ServerEngine engine,
         LocalizationConcernBuilder localization,
         Action<IRequest> requestAssert
         )
         => TestLocalization(engine, localization, null, null, requestAssert);
 
     private static Task TestLocalization(
-        TestEngine engine,
+        ServerEngine engine,
         LocalizationConcernBuilder localization,
         string path,
         Action<IRequest> requestAssert
@@ -214,7 +216,7 @@ public sealed class LocalizationTests
         => TestLocalization(engine, localization, path, null, requestAssert);
 
     private static Task TestLocalization(
-        TestEngine engine,
+        ServerEngine engine,
         LocalizationConcernBuilder localization,
         Action<HttpRequestMessage> requestSetup,
         Action<IRequest> requestAssert
@@ -222,7 +224,7 @@ public sealed class LocalizationTests
         => TestLocalization(engine, localization, null, requestSetup, requestAssert);
 
     private static async Task TestLocalization(
-        TestEngine engine,
+        ServerEngine engine,
         LocalizationConcernBuilder localization,
         string? path,
         Action<HttpRequestMessage>? requestSetup,
@@ -261,4 +263,5 @@ public sealed class LocalizationTests
             throw assertException;
         }
     }
+    
 }

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Controllers;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Layouting;
@@ -12,7 +13,7 @@ public sealed class DataTests
 
     #region Helpers
 
-    private static async Task<TestHost> GetHostAsync(TestEngine engine, ExecutionMode mode)
+    private static async Task<TestHost> GetHostAsync(ServerEngine engine, ExecutionMode mode)
     {
         var app = Layout.Create()
                         .AddController<TestController>("t", serializers: Serialization.Default(),
@@ -40,7 +41,7 @@ public sealed class DataTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestDateOnly(TestEngine engine, ExecutionMode mode)
+    public async Task TestDateOnly(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await GetHostAsync(engine, mode);
 
@@ -53,7 +54,7 @@ public sealed class DataTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestInvalidDateOnly(TestEngine engine, ExecutionMode mode)
+    public async Task TestInvalidDateOnly(ServerEngine engine, ExecutionMode mode)
     {
         await using var host = await GetHostAsync(engine, mode);
         

@@ -13,7 +13,7 @@ public class BindingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestAnyIPv4NoDualStack(TestEngine engine)
+    public async Task TestAnyIPv4NoDualStack(ServerEngine engine)
     {
         await using var runner = await RunWith(IPAddress.Any, false, engine);
 
@@ -23,7 +23,7 @@ public class BindingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestAnyIPv4WithDualStack(TestEngine engine)
+    public async Task TestAnyIPv4WithDualStack(ServerEngine engine)
     {
         await using var runner = await RunWith(IPAddress.Any, true, engine);
 
@@ -36,7 +36,7 @@ public class BindingTests
     [TestMethod]
     public async Task TestAnyIPv6NoDualStack()
     {
-        await using var runner = await RunWith(IPAddress.IPv6Any, false, TestEngine.Internal);
+        await using var runner = await RunWith(IPAddress.IPv6Any, false, ServerEngine.Internal);
 
         Assert.IsFalse(await CanConnectAsync(IPAddress.Loopback, runner.Port));
         Assert.IsTrue(await CanConnectAsync(IPAddress.IPv6Loopback, runner.Port));
@@ -44,7 +44,7 @@ public class BindingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestAnyIPv6WithDualStack(TestEngine engine)
+    public async Task TestAnyIPv6WithDualStack(ServerEngine engine)
     {
         await using var runner = await RunWith(IPAddress.IPv6Any, true, engine);
 
@@ -54,7 +54,7 @@ public class BindingTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDualStackByDefault(TestEngine engine)
+    public async Task TestDualStackByDefault(ServerEngine engine)
     {
         await using var runner = await TestHost.RunAsync(Layout.Create());
 
@@ -66,9 +66,9 @@ public class BindingTests
 
     #region Helpers
 
-    private static async Task<TestHost> RunWith(IPAddress? ip, bool dualStack, TestEngine engine)
+    private static async Task<TestHost> RunWith(IPAddress? ip, bool dualStack, ServerEngine engine)
     {
-        var runner = new TestHost(Layout.Create().Build(), engine: engine);
+        var runner = new TestHost(Layout.Create().Build(), serverEngine: engine);
 
         runner.Host.Bind(ip, (ushort)runner.Port, HttpProtocols.All, dualStack);
 

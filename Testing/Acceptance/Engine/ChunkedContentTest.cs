@@ -19,7 +19,7 @@ public sealed class ChunkedContentTest
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestChunkedUpload(TestEngine engine)
+    public async Task TestChunkedUpload(ServerEngine engine)
     {
         var inline = Inline.Create()
                            .Put((Model model) => model);
@@ -39,7 +39,7 @@ public sealed class ChunkedContentTest
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestChunkedBodyIsRead(TestEngine engine)
+    public async Task TestChunkedBodyIsRead(ServerEngine engine)
     {
         const string payload = "Hello, chunked world!";
 
@@ -65,7 +65,7 @@ public sealed class ChunkedContentTest
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestLargeChunkedBodyIsRead(TestEngine engine)
+    public async Task TestLargeChunkedBodyIsRead(ServerEngine engine)
     {
         var random = new Random(42);
         var payload = new byte[256 * 1024]; // 256 KB across many chunks
@@ -93,7 +93,7 @@ public sealed class ChunkedContentTest
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestChunkedBodyIsDrainedWhenNotRead(TestEngine engine)
+    public async Task TestChunkedBodyIsDrainedWhenNotRead(ServerEngine engine)
     {
         // The engine must drain an unread chunked body so the connection can be reused.
         var handler = new DrainVerifyHandler();

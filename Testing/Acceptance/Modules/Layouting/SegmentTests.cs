@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
@@ -10,7 +11,7 @@ public class SegmentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestSegment(TestEngine engine)
+    public async Task TestSegment(ServerEngine engine)
     {
         var app = Layout.Create();
 
@@ -29,7 +30,7 @@ public class SegmentTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestMultiSegment(TestEngine engine)
+    public async Task TestMultiSegment(ServerEngine engine)
     {
         var app = Layout.Create();
 

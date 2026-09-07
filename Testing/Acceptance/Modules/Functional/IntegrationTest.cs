@@ -1,5 +1,5 @@
 ﻿using System.Net;
-
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.Conversion.Formatters;
 using GenHTTP.Modules.Functional;
@@ -13,7 +13,7 @@ public class IntegrationTest
 
     [TestMethod]
     [MultiEngineFrameworkTest]
-    public async Task TestFormatters(TestEngine engine, ExecutionMode mode)
+    public async Task TestFormatters(ServerEngine engine, ExecutionMode mode)
     {
         var formatting = Formatting.Empty()
                                    .Add<BoolFormatter>();

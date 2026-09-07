@@ -1,6 +1,7 @@
 ﻿using System.Net;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.DependencyInjection;
@@ -51,7 +52,7 @@ public class BasicTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDependentConcern(TestEngine engine)
+    public async Task TestDependentConcern(ServerEngine engine)
     {
         var concern = Dependent.Concern<MyConcern>();
 
@@ -70,7 +71,7 @@ public class BasicTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestDependentHandler(TestEngine engine)
+    public async Task TestDependentHandler(ServerEngine engine)
     {
         var handler = Dependent.Handler<MyHandler>();
 

@@ -1,4 +1,5 @@
 using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.IO.Streaming;
@@ -12,7 +13,7 @@ public class ProviderTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestHandshake(TestEngine engine)
+    public async Task TestHandshake(ServerEngine engine)
     {
         var handler = new WebsocketHandler((r) => new FlushingContent());
 
@@ -35,7 +36,7 @@ public class ProviderTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestBadHandshake(TestEngine engine)
+    public async Task TestBadHandshake(ServerEngine engine)
     {
         var content = new ResourceContent(Resource.FromString("Hello World").Build());
 
@@ -50,7 +51,7 @@ public class ProviderTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestBadMethod(TestEngine engine)
+    public async Task TestBadMethod(ServerEngine engine)
     {
         var content = new ResourceContent(Resource.FromString("Hello World").Build());
 
@@ -69,7 +70,7 @@ public class ProviderTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestBadVersion(TestEngine engine)
+    public async Task TestBadVersion(ServerEngine engine)
     {
         var content = new ResourceContent(Resource.FromString("Hello World").Build());
 

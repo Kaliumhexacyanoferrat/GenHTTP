@@ -1,4 +1,5 @@
-﻿using GenHTTP.Modules.Conversion;
+﻿using GenHTTP.Api.Infrastructure;
+using GenHTTP.Modules.Conversion;
 using GenHTTP.Modules.DependencyInjection;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Reflection;
@@ -26,7 +27,7 @@ public class WebserviceTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestServiceDependencyInjection(TestEngine engine)
+    public async Task TestServiceDependencyInjection(ServerEngine engine)
     {
         var app = Layout.Create()
                         .AddDependentService<TestService>("service");

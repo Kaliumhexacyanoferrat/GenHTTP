@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Testing.Acceptance.Utilities;
 
 namespace GenHTTP.Testing.Acceptance.Modules.ErrorHandling;
@@ -9,7 +10,7 @@ public sealed class ErrorHandlingTest
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestGenericError(TestEngine engine)
+    public async Task TestGenericError(ServerEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {
@@ -25,7 +26,7 @@ public sealed class ErrorHandlingTest
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestEscaping(TestEngine engine)
+    public async Task TestEscaping(ServerEngine engine)
     {
         var handler = new FunctionalHandler(responseProvider: r =>
         {

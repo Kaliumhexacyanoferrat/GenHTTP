@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.ErrorHandling.Mappers;
 using GenHTTP.Modules.Functional;
@@ -12,7 +13,7 @@ public sealed class StructuredErrorMapperTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNotFound(TestEngine engine)
+    public async Task TestNotFound(ServerEngine engine)
     {
         await using var host = await TestHost.RunAsync(Inline.Create(), engine: engine);
 
@@ -29,7 +30,7 @@ public sealed class StructuredErrorMapperTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestGeneralError(TestEngine engine)
+    public async Task TestGeneralError(ServerEngine engine)
     {
         var handler = Inline.Create()
                             .Get(() => DoThrow(new Exception("Oops")));
@@ -49,7 +50,7 @@ public sealed class StructuredErrorMapperTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestProviderError(TestEngine engine)
+    public async Task TestProviderError(ServerEngine engine)
     {
         var handler = Inline.Create()
                             .Get(() => DoThrow(new ProviderException(ResponseStatus.Locked, "Locked up!")));
@@ -69,7 +70,7 @@ public sealed class StructuredErrorMapperTests
 
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestNoTraceInProduction(TestEngine engine)
+    public async Task TestNoTraceInProduction(ServerEngine engine)
     {
         var handler = Inline.Create()
                             .Get(() => DoThrow(new Exception("Oops")));

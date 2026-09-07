@@ -23,7 +23,7 @@ public sealed class SecurityTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public Task TestSecure(TestEngine engine)
+    public Task TestSecure(ServerEngine engine)
     {
         return RunSecure(async (_, sec) =>
         {
@@ -42,7 +42,7 @@ public sealed class SecurityTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public Task TestDefaultRedirection(TestEngine engine)
+    public Task TestDefaultRedirection(ServerEngine engine)
     {
         return RunSecure(async (insec, sec) =>
         {
@@ -61,7 +61,7 @@ public sealed class SecurityTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public Task TestNoRedirectionWithAllowed(TestEngine engine)
+    public Task TestNoRedirectionWithAllowed(ServerEngine engine)
     {
         return RunSecure(async (insec, _) =>
         {
@@ -79,7 +79,7 @@ public sealed class SecurityTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public Task TestRedirectionWhenRequested(TestEngine engine)
+    public Task TestRedirectionWhenRequested(ServerEngine engine)
     {
         return RunSecure(async (insec, sec) =>
         {
@@ -105,7 +105,7 @@ public sealed class SecurityTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public Task TestTransportPolicy(TestEngine engine)
+    public Task TestTransportPolicy(ServerEngine engine)
     {
         return RunSecure(async (insec, sec) =>
         {
@@ -130,7 +130,7 @@ public sealed class SecurityTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public Task TestSecurityError(TestEngine engine)
+    public Task TestSecurityError(ServerEngine engine)
     {
         return RunSecure(async (_, sec) =>
         {
@@ -154,7 +154,7 @@ public sealed class SecurityTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public Task TestNoCertificate(TestEngine engine)
+    public Task TestNoCertificate(ServerEngine engine)
     {
         return RunSecure(async (_, sec) =>
         {
@@ -174,9 +174,9 @@ public sealed class SecurityTests
     /// </summary>
     [TestMethod]
     [MultiEngineTest]
-    public async Task TestValidatorVerdictIsHonoured(TestEngine engine)
+    public async Task TestValidatorVerdictIsHonoured(ServerEngine engine)
     {
-        if (engine == TestEngine.Kestrel)
+        if (engine == ServerEngine.Kestrel)
         {
             // Kestrel only calls ClientCertificateValidation when a certificate actually arrives, so
             // under AllowCertificate a client offering none is admitted without the validator being
@@ -194,11 +194,11 @@ public sealed class SecurityTests
         await accepted.AssertStatusAsync(HttpStatusCode.OK);
     }
 
-    private static async Task<HttpResponseMessage> RunWithVerdictAsync(bool verdict, TestEngine engine)
+    private static async Task<HttpResponseMessage> RunWithVerdictAsync(bool verdict, ServerEngine engine)
     {
         var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
 
-        await using var runner = new TestHost(Layout.Create().Build(), false, engine: engine);
+        await using var runner = new TestHost(Layout.Create().Build(), false, serverEngine: engine);
 
         var port = TestHost.NextPort();
 
@@ -227,11 +227,11 @@ public sealed class SecurityTests
         public bool Validate(X509Certificate? certificate, X509Chain? chain, SslPolicyErrors policyErrors) => verdict;
     }
 
-    private static async Task RunSecure(Func<ushort, ushort, Task> logic, TestEngine engine, SecureUpgrade? mode = null, string host = "localhost")
+    private static async Task RunSecure(Func<ushort, ushort, Task> logic, ServerEngine engine, SecureUpgrade? mode = null, string host = "localhost")
     {
         var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
 
-        await using var runner = new TestHost(Layout.Create().Build(), mode is null, engine: engine);
+        await using var runner = new TestHost(Layout.Create().Build(), mode is null, serverEngine: engine);
 
         var port = TestHost.NextPort();
 

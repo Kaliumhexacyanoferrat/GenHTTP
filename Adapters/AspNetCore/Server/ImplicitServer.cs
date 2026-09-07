@@ -17,6 +17,8 @@ internal sealed class ImplicitServer : IServer
 
     #region Get-/Setters
 
+    public ServerEngine ServerEngine => ServerEngine.Kestrel;
+    
     public string Version => RuntimeInformation.FrameworkDescription;
 
     public bool Running { get; } = true;
