@@ -83,7 +83,7 @@ public class TestHost : IAsyncDisposable
     /// <param name="handler">The handler to be tested</param>
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
     /// <param name="development">true, if the server should be started in development mode</param>
-    /// <param name="serverEngine">The server engine to use for hosting</param>
+    /// <param name="engine">The server engine to use for hosting</param>
     public static async Task<TestHost> RunAsync(IHandler handler, bool defaults = true, bool development = true, ServerEngine engine = ServerEngine.Internal)
     {
         var runner = new TestHost(handler, defaults, development, engine);
@@ -100,7 +100,7 @@ public class TestHost : IAsyncDisposable
     /// <param name="handler">The handler to be tested</param>
     /// <param name="defaults">true, if the defaults (such as compression) should be added to this handler</param>
     /// <param name="development">true, if the server should be started in development mode</param>
-    /// <param name="serverEngine">The server engine to use for hosting</param>
+    /// <param name="engine">The server engine to use for hosting</param>
     public static Task<TestHost> RunAsync(IHandlerBuilder handler, bool defaults = true, bool development = true, ServerEngine engine = ServerEngine.Internal) 
         => RunAsync(handler.Build(), defaults, development, engine);
 
