@@ -6,11 +6,11 @@ using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.Files.Multi;
 
-internal sealed class RegularFileAssetHandler : AbstractAssetsHandler
+internal sealed class BuiltInFileAssetHandler : AbstractAssetsHandler
 {
     private readonly string _root;
 
-    public RegularFileAssetHandler(DirectoryInfo directory, List<ICompressionAlgorithm> algorithms, char separator) : base(algorithms, separator)
+    public BuiltInFileAssetHandler(DirectoryInfo directory, List<ICompressionAlgorithm> algorithms, char separator) : base(algorithms, separator)
     {
         _root = directory.FullName;
     }

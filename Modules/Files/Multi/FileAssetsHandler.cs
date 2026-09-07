@@ -17,6 +17,8 @@ public sealed class FileAssetsHandler : IHandler
 
     private IHandler? _inner;
 
+    private IHandler Inner => _inner ?? throw new InvalidOperationException("Handler has not been prepared");
+
     public FileAssetsHandler(DirectoryInfo directory, List<ICompressionAlgorithm> algorithms, char separator, TimeSpan refreshInterval)
     {
         _directory = directory;
@@ -29,11 +31,11 @@ public sealed class FileAssetsHandler : IHandler
     {
         _inner = server.ServerEngine == ServerEngine.Ioxide
             ? new IoxideFilesHandler(_directory.FullName, _refreshInterval, _algorithms, _separator)
-            : new RegularFileAssetHandler(_directory, _algorithms, _separator);
+            : new BuiltInFileAssetHandler(_directory, _algorithms, _separator);
 
         return _inner.PrepareAsync(server);
     }
 
-    public ValueTask<IResponse?> HandleAsync(IRequest request) => _inner!.HandleAsync(request);
+    public ValueTask<IResponse?> HandleAsync(IRequest request) => Inner.HandleAsync(request);
 
 }
