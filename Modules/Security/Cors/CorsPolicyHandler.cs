@@ -122,7 +122,7 @@ public sealed class CorsPolicyHandler : IConcern
 
     private (ByteString origin, OriginPolicy? policy) GetPolicy(IRequest request)
     {
-        var origin = request.Header.Headers.GetEntry(OriginHeader);
+        var origin = request.Header.Headers.GetEntry(OriginHeader).PreAllocate(request);
 
         if (origin is not null)
         {

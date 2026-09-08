@@ -32,7 +32,7 @@ public sealed class ErrorSentry<T> : IConcern where T : Exception
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept);
+        var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept).PreAllocate(request);
 
         try
         {

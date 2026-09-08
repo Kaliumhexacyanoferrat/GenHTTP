@@ -35,7 +35,7 @@ public sealed class Request : IRequest
 
     private bool _bodyLoaded;
 
-    private bool _bodyPresent;
+    private bool _hasBody;
 
     private bool _resetRequired = true;
 
@@ -76,6 +76,8 @@ public sealed class Request : IRequest
         }
     }
 
+    public bool HasBody => _hasBody;
+
     #endregion
 
     #region Initialization
@@ -100,27 +102,21 @@ public sealed class Request : IRequest
             throw new InvalidOperationException("Request body can only be fetched once.");
         }
 
-        var headers = Header.Headers;
-
         if (headerAccess == HeaderAccess.Retain && _retainedHeader == null)
         {
             _retainedHeader = new RetainedRequestHeader(_header);
         }
 
-        var hasBody = false;
-
-        if (headers.ContainsKey(KnownHeaders.ContentLength) || headers.ContainsKey(KnownHeaders.TransferEncoding))
+        if (_hasBody)
         {
-            hasBody = true;
             _body.Apply(Reader);
         }
 
         Reader.AdvanceTo(_bodyStart);
 
         _bodyLoaded = true;
-        _bodyPresent = hasBody;
 
-        if (!hasBody)
+        if (!_hasBody)
         {
             return null;
         }
@@ -147,12 +143,15 @@ public sealed class Request : IRequest
         _properties.Clear();
 
         _bodyLoaded = false;
-        _bodyPresent = false;
         _bodyStart = bodyStart;
         _retainedHeader = null;
 
         _wrappedBody = null;
         _bodyWrapper = null;
+
+        var headers = _header.Headers;
+
+        _hasBody = headers.ContainsKey(KnownHeaders.ContentLength) || headers.ContainsKey(KnownHeaders.TransferEncoding);
     }
 
     public void Apply(IServer server)
@@ -166,7 +165,7 @@ public sealed class Request : IRequest
         _properties.Clear();
 
         _bodyLoaded = false;
-        _bodyPresent = false;
+        _hasBody = false;
         _bodyStart = default;
         _retainedHeader = null;
 
@@ -198,7 +197,7 @@ public sealed class Request : IRequest
     {
         if (_bodyLoaded)
         {
-            return _bodyPresent ? _body.DrainAsync() : default;
+            return _hasBody ? _body.DrainAsync() : default;
         }
 
         if (GetBody(HeaderAccess.Release) != null)
@@ -233,7 +232,7 @@ public sealed class Request : IRequest
         Reader.AdvanceTo(_bodyStart);
 
         _bodyLoaded = true;
-        _bodyPresent = false;
+        _hasBody = false;
 
         return Reader;
     }

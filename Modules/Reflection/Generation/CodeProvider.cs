@@ -60,7 +60,7 @@ public static class CodeProvider
 
         if (operation.Result.Sink == OperationResultSink.Serializer || operation.Interceptors.Count > 0)
         {
-            sb.AppendLine("        var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept);");
+            sb.AppendLine("        var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept).PreAllocate(request);");
             sb.AppendLine();
         }
 

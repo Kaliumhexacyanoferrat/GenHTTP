@@ -41,7 +41,7 @@ public sealed class Request : IRequest
 
     private Func<IRequestBody, IRequestBody>? _bodyWrapper;
 
-    private bool _bodyLoaded;
+    private bool _bodyLoaded, _hasBody;
 
     // Populated once the response has been upgraded, see SetUpgraded() below.
     private Stream? _upgradedStream;
@@ -79,6 +79,8 @@ public sealed class Request : IRequest
         }
     }
 
+    public bool HasBody => _hasBody;
+
     #endregion
 
     #region Initialization
@@ -104,6 +106,10 @@ public sealed class Request : IRequest
         _upgradedStream = null;
         _upgradedWriter = null;
         _upgradedReader = null;
+
+        var headers = Header.Headers;
+
+        _hasBody = headers.ContainsKey(KnownHeaders.ContentLength) || headers.ContainsKey(KnownHeaders.TransferEncoding);
     }
 
     #endregion
@@ -133,11 +139,9 @@ public sealed class Request : IRequest
             length = parsed;
         }
 
-        var hasBody = length is not null || headers.ContainsKey(KnownHeaders.TransferEncoding);
-
         _bodyLoaded = true;
 
-        if (!hasBody)
+        if (!_hasBody)
         {
             return null;
         }
@@ -189,6 +193,7 @@ public sealed class Request : IRequest
         _wrappedBody = null;
         _bodyWrapper = null;
 
+        _hasBody = false;
         _body.Reset();
 
         _upgradedStream = null;
