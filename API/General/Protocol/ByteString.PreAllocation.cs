@@ -2,7 +2,7 @@
 
 namespace GenHTTP.Api.Protocol;
 
-public static class IKeyValueListPreAllocationExtensions
+public static class ByteStringPreAllocationExtensions
 {
 
     /// <summary>

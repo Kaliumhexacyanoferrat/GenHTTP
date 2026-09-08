@@ -11,9 +11,9 @@ namespace GenHTTP.Modules.IO.Ranges;
 public sealed partial class RangeSupportConcern : IConcern
 {
     private static readonly Regex Pattern = CreatePattern();
-    
+
     private static readonly ByteString AcceptRangesHeader = new("Accept-Ranges");
-    
+
     private static readonly ByteString BytesValue = new("bytes");
 
     #region Get-/Setters
@@ -41,9 +41,11 @@ public sealed partial class RangeSupportConcern : IConcern
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         var header = request.Header;
-        
+
         if (header.Method == RequestMethod.Get || header.Method == RequestMethod.Head)
         {
+            var requested = header.Headers.GetEntry("Range");
+
             var response = await Content.HandleAsync(request);
 
             if (response != null)
@@ -60,8 +62,6 @@ public sealed partial class RangeSupportConcern : IConcern
                         {
                             response.Rebuild().Header(AcceptRangesHeader, BytesValue);
 
-                            var requested = header.Headers.GetEntry("Range");
-                            
                             if (requested != null)
                             {
                                 var match = Pattern.Match(requested);
@@ -98,7 +98,7 @@ public sealed partial class RangeSupportConcern : IConcern
             }
 
             return response;
-        }       
+        }
 
 
         return await Content.HandleAsync(request);
