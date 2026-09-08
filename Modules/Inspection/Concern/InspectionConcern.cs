@@ -38,7 +38,7 @@ public sealed class InspectionConcern : IConcern
     {
         if (request.Header.Query.ContainsKey(InspectInstruction))
         {
-            var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept);
+            var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept).PreAllocate(request);
 
             var response = await Content.HandleAsync(request);
 

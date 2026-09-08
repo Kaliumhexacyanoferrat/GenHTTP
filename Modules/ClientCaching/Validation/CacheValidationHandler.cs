@@ -30,9 +30,9 @@ public sealed class CacheValidationHandler : IConcern
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         var isSupported = request.HasType(SupportedMethods);
-        
-        var cached = request.Header.Headers.GetEntry(KnownHeaders.IfNoneMatch);
-        
+
+        var cached = request.Header.Headers.GetEntry(KnownHeaders.IfNoneMatch).PreAllocate(request);
+
         var response = await Content.HandleAsync(request);
 
         if (response != null && isSupported)

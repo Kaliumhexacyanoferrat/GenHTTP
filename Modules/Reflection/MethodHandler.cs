@@ -149,7 +149,7 @@ public sealed class MethodHandler : IHandler
 
     private async ValueTask<IResponse?> RunViaReflection(IRequest request, RoutingMatch match)
     {
-        var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept);
+        var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept).PreAllocate(request);
 
         var arguments = await GetArguments(request, match);
 
@@ -236,7 +236,7 @@ public sealed class MethodHandler : IHandler
             throw;
         }
     }
-    
+
     [RuntimeAsyncMethodGenerationAttribute(false)]
     private static async ValueTask<object?> UnwrapAsync(object? result)
     {

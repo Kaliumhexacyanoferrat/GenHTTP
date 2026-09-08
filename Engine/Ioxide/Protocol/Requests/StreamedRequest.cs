@@ -100,7 +100,7 @@ internal sealed class StreamedRequest : IRequest
         // A stream carries a body only when it declares one: HTTP/2 and HTTP/3 forbid Transfer-Encoding,
         // so Content-Length is the signal - and its absence means no body, matching what the other engines
         // report for a request that carries neither header.
-        _hasBody = read is not null && HasBody(_headerEntries);
+        _hasBody = read is not null && CheckForBody(_headerEntries);
 
         if (_hasBody)
         {
@@ -185,6 +185,8 @@ internal sealed class StreamedRequest : IRequest
 
     public IRequestHeader Header => _header;
 
+    public bool HasBody => _hasBody;
+
     // The body, once - a stream cannot be read twice.
     public IRequestBody? GetBody(HeaderAccess headerAccess = HeaderAccess.Retain)
     {
@@ -250,7 +252,7 @@ internal sealed class StreamedRequest : IRequest
     }
 
     // Whether the request declares a body, which over these protocols means a Content-Length header.
-    private static bool HasBody(List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers)
+    private static bool CheckForBody(List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers)
     {
         foreach (var (name, _) in headers)
         {

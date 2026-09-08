@@ -61,7 +61,7 @@ public sealed class CompressionConcern : IConcern
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var acceptEncoding = request.Header.Headers.GetEntry(KnownHeaders.AcceptEncoding);
+        var acceptEncoding = request.Header.Headers.GetEntry(KnownHeaders.AcceptEncoding).PreAllocate(request);
 
         var response = await Content.HandleAsync(request);
 

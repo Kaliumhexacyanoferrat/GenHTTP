@@ -35,6 +35,11 @@ public interface IRequest
     IRequestHeader Header { get;}
 
     /// <summary>
+    /// Specifies whether this request has a body.
+    /// </summary>
+    bool HasBody { get; }
+
+    /// <summary>
     /// Attempts to fetch the body of the HTTP request (if any). Can only be called once.
     /// </summary>
     /// <param name="headerAccess">Specifies access to the header should be retained or not</param>
