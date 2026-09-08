@@ -102,8 +102,6 @@ public sealed class Request : IRequest
             throw new InvalidOperationException("Request body can only be fetched once.");
         }
 
-        var headers = Header.Headers;
-
         if (headerAccess == HeaderAccess.Retain && _retainedHeader == null)
         {
             _retainedHeader = new RetainedRequestHeader(_header);
