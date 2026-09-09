@@ -1,7 +1,13 @@
-using GenHTTP.Playground.Samples.Ioxide;
+using GenHTTP.Engine.Internal;
 
-// dotnet run -c Release --project Playground
+using GenHTTP.Modules.Practices;
 
-var server = ShowcaseSample.Create();
+using GenHTTP.Playground.Samples;
 
-return await server.RunAsync();
+var sample = LayoutingSample.Create();
+
+return await Host.Create()
+                 .Handler(sample)
+                 .Development()
+                 .Defaults()
+                 .RunAsync();
