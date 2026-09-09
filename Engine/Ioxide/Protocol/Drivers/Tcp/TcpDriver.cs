@@ -14,6 +14,8 @@ using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 
 using ioxide.tls;
 
+using IoxideTls = ioxide.tls;
+
 using IoConnection = ioxide.TcpConnection;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Drivers.Tcp;
@@ -117,7 +119,7 @@ internal static partial class TcpDriver
     }
 
     // Asks the endpoint's validator about the peer certificate OpenSSL ended up with.
-    private static bool Accepts(ICertificateValidator validator, TlsSession session)
+    private static bool Accepts(ICertificateValidator validator, IoxideTls.TlsSession session)
     {
         var der = session.PeerCertificateDer;
 
