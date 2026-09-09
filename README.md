@@ -37,11 +37,11 @@ var host = await Host.Create()
 
 Running this snippet will provide the following endpoints:
 
-| Endpoint                           | Description                                                            |
-|------------------------------------|------------------------------------------------------------------------|
-| http://localhost:8080?a=1&b=2      | Serves the API, answering requests by calculating the sum of two query arguments.      |
-| http://localhost:8080/openapi.json | Serves the automatically generated Open API specification of the API.  |
-| http://localhost:8080/scalar/      | Servers a graphical viewer of the API, using Scalar.                   |
+| Endpoint                           | Description                                                                       |
+|------------------------------------|-----------------------------------------------------------------------------------|
+| http://localhost:8080/?a=1&b=2     | Serves the API, answering requests by calculating the sum of two query arguments. |
+| http://localhost:8080/openapi.json | Serves the automatically generated Open API specification of the API.             |
+| http://localhost:8080/scalar/      | Servers a graphical viewer of the API, using Scalar.                              |
 
 ## Samples
 
@@ -59,10 +59,8 @@ built with GenHTTP. See [the documentation](https://genhttp.org/documentation/co
 ## Support
 
 If you encounter issues implementing your application, feel free
-to [join our Discord community](https://discord.gg/PRkwKrnrB4) to get help.
-
-For commercial products and projects, GenHTTP provides additional support options
-[on request](https://genhttp.org/support/).
+to [join our Discord community](https://discord.gg/PRkwKrnrB4) to get help. For commercial products 
+and projects, GenHTTP provides additional support options [on request](https://genhttp.org/support/).
 
 ## Building the Server
 
