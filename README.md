@@ -48,14 +48,6 @@ Running this snippet will provide the following endpoints:
 The [playground](./Playground/) project provides a quick starting point to view sample code and find more complex apps
 built with GenHTTP. See [the documentation](https://genhttp.org/documentation/content/) for all available capabilities.
 
-
-| Sample                                                                          | Description                                               |
-|---------------------------------------------------------------------------------|-----------------------------------------------------------|
-| [Layouting](./Playground/Samples/LayoutingSample.cs)                            | Allows an app to use multiple handlers by adding routing. |
-| [Static Files](./Playground/Samples/StaticFileSample.cs)                        | Serves static files from a directory.                     |
-| [Static Websites](./Playground/Samples/StaticWebsiteSample.cs)                  | Hosts a static website (with `index.html` support).       |
-| [Single Page Applications](./Playground/Samples/SinglePageApplicationSample.cs) | Hosts a SPA such as a React or Angular application.       |
-
 ## Support
 
 If you encounter issues implementing your application, feel free
