@@ -65,10 +65,19 @@ public sealed class OpenApiConcernBuilder : IConcernBuilder
     /// Registers a function that will be called when an OpenAPI document has been
     /// generated, directly before it is served to the client.
     /// </summary>
+    /// <remarks>
+    /// This method can be called multiple times. All registered post processors
+    /// will be invoked in the order of registration.
+    /// </remarks>
     /// <param name="action">The method to be invoked to adjust the generated document</param>
     public OpenApiConcernBuilder PostProcessor(Action<IRequest, OpenApiDocument> action)
     {
-        _postProcessor = action;
+        if (action is null)
+        {
+            throw new ArgumentNullException(nameof(action));
+        }
+
+        _postProcessor += action;
         return this;
     }
 
