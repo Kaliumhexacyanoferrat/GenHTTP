@@ -44,7 +44,9 @@ public sealed class SinglePageProvider : IHandler
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        if (request.Header.Target.Current == null)
+        var target = request.Header.Target;
+        
+        if (target.Current == null)
         {
             var index = await GetIndex();
 
@@ -55,6 +57,8 @@ public sealed class SinglePageProvider : IHandler
         }
         else
         {
+            target.DenyPathTraversal();
+            
             var result = await Resources.HandleAsync(request);
 
             if (result == null)

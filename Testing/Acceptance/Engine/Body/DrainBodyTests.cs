@@ -2,7 +2,6 @@ using System.Net;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 
 namespace GenHTTP.Testing.Acceptance.Engine.Body;
 
