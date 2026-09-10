@@ -98,7 +98,7 @@ internal sealed class ChunkedBodyStream : Stream, IDrainableStream
 
                         if (result.IsCompleted)
                         {
-                            throw new InvalidDataException("Unexpected end of chunked body");
+                            throw new ProviderException(ResponseStatus.BadRequest, "Unexpected end of chunked body");
                         }
 
                         continue;
