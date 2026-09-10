@@ -1,4 +1,6 @@
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -171,6 +173,41 @@ public sealed class MemoryBodyTests
         await resp2.AssertStatusAsync(HttpStatusCode.OK);
 
         CollectionAssert.AreEqual(second, await resp2.Content.ReadAsByteArrayAsync());
+    }
+
+    [TestMethod]
+    public async Task TestTruncatedContentLengthDoesNotSpin()
+    {
+        await using var runner = await TestHost.RunAsync(new BodyEchoHandler().Wrap());
+
+        using var client = new TcpClient("127.0.0.1", runner.Port)
+        {
+            ReceiveTimeout = 15000
+        };
+
+        var stream = client.GetStream();
+
+        var request = "POST / HTTP/1.1\r\n" +
+                      "Host: localhost\r\n" +
+                      "Content-Length: 100\r\n" +
+                      "\r\n" +
+                      "short"; // only 5 of the promised 100 bytes
+
+        var bytes = Encoding.ASCII.GetBytes(request);
+
+        await stream.WriteAsync(bytes);
+        await stream.FlushAsync();
+
+        // signal end of the request body without ever sending the rest
+        client.Client.Shutdown(SocketShutdown.Send);
+
+        using var reader = new StreamReader(stream, leaveOpen: true);
+
+        var response = await reader.ReadToEndAsync();
+
+        // the connection is closed cleanly with an error instead of spinning;
+        // an empty response would mean the server never got past the body read
+        Assert.IsTrue(response.StartsWith("HTTP/1.1 400", StringComparison.Ordinal), response);
     }
 
     #endregion

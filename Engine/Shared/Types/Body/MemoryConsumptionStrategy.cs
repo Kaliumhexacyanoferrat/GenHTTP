@@ -1,5 +1,7 @@
 using System.Buffers;
 using System.IO.Pipelines;
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types.Body;
 
@@ -41,7 +43,7 @@ public sealed class MemoryConsumptionStrategy
         {
             return new(_memory.Value);
         }
-        
+
         if (_length is not null)
         {
             return ReadLength();
@@ -55,7 +57,7 @@ public sealed class MemoryConsumptionStrategy
         var reader = Reader;
 
         var length = _length!.Value;
-        
+
         while (true)
         {
             var result = await reader.ReadAsync();
@@ -63,6 +65,12 @@ public sealed class MemoryConsumptionStrategy
             if (result.Buffer.Length < length)
             {
                 reader.AdvanceTo(result.Buffer.Start, result.Buffer.End);
+
+                if (result.IsCompleted)
+                {
+                    throw new ProviderException(ResponseStatus.BadRequest, "Unexpected end of body");
+                }
+
                 continue;
             }
 
@@ -83,15 +91,15 @@ public sealed class MemoryConsumptionStrategy
             return (_memory = linearized).Value;
         }
     }
-    
+
     private async ValueTask<ReadOnlyMemory<byte>> ReadChunked()
     {
         var chunkedStream = new ChunkedBodyStream(Reader);
-        
+
         var writer = new ArrayBufferWriter<byte>();
 
         var pool = ArrayPool<byte>.Shared;
-        
+
         var buffer = pool.Rent(16 * 1024);
 
         try
@@ -115,10 +123,10 @@ public sealed class MemoryConsumptionStrategy
         }
 
         await chunkedStream.DrainAsync();
-        
+
         return (_memory = writer.WrittenMemory).Value;
     }
-    
+
     public ValueTask DrainAsync()
     {
         if (_readResult is not null)

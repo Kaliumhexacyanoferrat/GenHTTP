@@ -1,6 +1,6 @@
 using System.IO.Pipelines;
 using System.Text;
-
+using GenHTTP.Api.Content;
 using GenHTTP.Engine.Shared.Types.Body;
 
 namespace GenHTTP.Testing.Acceptance.Engine.Body;
@@ -87,7 +87,7 @@ public sealed class ChunkedBodyStreamTests
         var stream = await CreateAsync("5\r\nHel");
 
 #pragma warning disable CA2022 // expected to throw before any byte count is returned
-        await Assert.ThrowsExactlyAsync<InvalidDataException>(async () => await stream.ReadAsync(new byte[16]));
+        await Assert.ThrowsExactlyAsync<ProviderException>(async () => await stream.ReadAsync(new byte[16]));
 #pragma warning restore CA2022
     }
 
