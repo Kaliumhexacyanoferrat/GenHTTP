@@ -98,27 +98,39 @@ internal abstract class EndPoint : IEndPoint
     {
         if (Socket == null) throw new InvalidOperationException("The endpoint has not been started");
 
-        try
+        while (!_shuttingDown)
         {
-            do
+            try
             {
                 Handle(await Socket.AcceptAsync());
             }
-            while (!_shuttingDown);
-        }
-        catch (Exception e)
-        {
-            if (!_shuttingDown && !ConnectionExceptions.IsGracefulDisconnect(e))
+            catch (ObjectDisposedException)
             {
-                Logger.LogError(e, "Failed to accept incoming connection");
+                break;
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+            catch (Exception e)
+            {
+                if (_shuttingDown)
+                {
+                    break;
+                }
+                
+                if (!ConnectionExceptions.IsGracefulDisconnect(e))
+                {
+                    Logger.LogError(e, "Failed to accept incoming connection");
+                }
+                
+                await Task.Delay(500);
             }
         }
     }
 
     private void Handle(Socket client)
     {
-        using var _ = ExecutionContext.SuppressFlow();
-
         Task.Run(() => Accept(client));
     }
 
