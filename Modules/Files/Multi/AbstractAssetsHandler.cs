@@ -22,12 +22,14 @@ public abstract class AbstractAssetsHandler : IHandler
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         var target = request.Header.Target;
-
+        
         if (target.HasTrailingSlash)
         {
             return null;
         }
 
+        target.DenyPathTraversal();
+        
         if (_preCompression.Enabled)
         {
             var handled = await TryGetPreCompressed(request);

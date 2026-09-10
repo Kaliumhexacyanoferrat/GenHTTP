@@ -60,6 +60,8 @@ internal sealed class IoxideFilesHandler : IHandler
 
         var target = request.Header.Target;
 
+        target.DenyPathTraversal();
+
         if (target.HasTrailingSlash)
         {
             return default; // a directory request, not a file (no directory index)

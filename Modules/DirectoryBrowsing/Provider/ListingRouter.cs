@@ -29,7 +29,11 @@ public sealed class ListingRouter : IHandler
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var (node, resource) = await Tree.FindAsync(request.Header.Target);
+        var target = request.Header.Target;
+        
+        target.DenyPathTraversal();
+        
+        var (node, resource) = await Tree.FindAsync(target);
 
         if (resource is not null)
         {

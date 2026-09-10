@@ -38,6 +38,8 @@ public sealed class StaticWebsiteHandler : IHandler
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {
         var target = request.Header.Target;
+        
+        target.DenyPathTraversal();
 
         if (target.HasTrailingSlash)
         {
