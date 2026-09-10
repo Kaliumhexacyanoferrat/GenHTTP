@@ -50,6 +50,44 @@ public class RangedStreamTests
     }
 
     [TestMethod]
+    public void TestEndClampsToPositionNotStart()
+    {
+        Assert.AreEqual("01", GetRange(2, 5, 0, 10, 4));
+    }
+
+    [TestMethod]
+    public void TestMultipleBuffersDoNotExceedRange()
+    {
+        using var target = new MemoryStream();
+
+        const int bufferSize = 8;
+        const ulong start = 6;
+        const ulong end = 17; // inclusive -> 12 bytes expected
+
+        using var stream = new RangedStream(target, start, end);
+
+        var source = new byte[32];
+        for (var i = 0; i < source.Length; i++)
+        {
+            source[i] = (byte)i;
+        }
+
+        for (var offset = 0; offset < source.Length; offset += bufferSize)
+        {
+            stream.Write(source, offset, bufferSize);
+        }
+
+        var written = target.ToArray();
+
+        Assert.AreEqual((int)(end - start + 1), written.Length);
+
+        for (var i = 0; i < written.Length; i++)
+        {
+            Assert.AreEqual((byte)(start + (ulong)i), written[i]);
+        }
+    }
+
+    [TestMethod]
     public void TestBasics()
     {
         using var stream = new RangedStream(new MemoryStream(), 0, 10);

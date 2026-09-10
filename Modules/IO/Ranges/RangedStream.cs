@@ -52,31 +52,19 @@ public sealed class RangedStream : Stream
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-        if (Position > End)
+        if (Position > End || (Position + count) <= Start)
         {
+            Position += count;
             return;
         }
 
-        long actualOffset = offset;
-        long actualCount = count;
+        var writeStart = Math.Max(Position, Start);
+        var writeEnd = Math.Min(Position + count - 1, End);
 
-        if (Position < Start)
-        {
-            actualOffset += (int)(Start - Position);
-            actualCount -= (int)(Start - Position);
-        }
+        var actualOffset = offset + (writeStart - Position);
+        var actualCount = writeEnd - writeStart + 1;
 
-        if ((Start + actualCount) > (End + 1))
-        {
-            actualCount = Math.Min(End - Start + 1, actualCount);
-        }
-
-        if (actualOffset < buffer.Length)
-        {
-            var toWrite = Math.Min(buffer.Length - actualOffset, actualCount);
-
-            Target.Write(buffer, (int)actualOffset, (int)toWrite);
-        }
+        Target.Write(buffer, (int)actualOffset, (int)actualCount);
 
         Position += count;
     }
