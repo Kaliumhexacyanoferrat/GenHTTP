@@ -48,6 +48,18 @@ Running this snippet will provide the following endpoints:
 The [playground](./Playground/) project provides a quick starting point to view sample code and find more complex apps
 built with GenHTTP. See [the documentation](https://genhttp.org/documentation/content/) for all available capabilities.
 
+## Engines
+
+GenHTTP runs on different runtime implementations that can simply be switched by changing a single nuget package 
+reference and a `using` statement. Engines are tested to be compatible with all modules, so you can switch the runtime
+without any further adjustments.
+
+| Engine                                                                 | Protocols     | Performance                                                                                                                                 | Use Cases                                                 |
+|------------------------------------------------------------------------|---------------|---------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| [Internal](https://genhttp.org/documentation/server/engines/internal/) | `1.1`         | [![HTTP Arena](https://img.shields.io/endpoint?url=https://www.http-arena.com/badge/genhttp/h1.json)](https://www.http-arena.com/)          | Embedding; web applications behind reverse proxy          |   
+| [Kestrel](https://genhttp.org/documentation/server/engines/kestrel/)   | `1.1` `2` `3` | [![HTTP Arena](https://img.shields.io/endpoint?url=https://www.http-arena.com/badge/genhttp-kestrel/h1.json)](https://www.http-arena.com/)  | Web applications on the edge                              |   
+| [ioxide](https://genhttp.org/documentation/server/engines/ioxide/)     | `1.1` `2` `3` | [![HTTP Arena](https://img.shields.io/endpoint?url=https://www.http-arena.com/badge/genhttp-ioxide/h1.json)](https://www.http-arena.com/)   | High performance web applications on Linux via `io_uring` |   
+
 ## Support
 
 If you encounter issues implementing your application, feel free
