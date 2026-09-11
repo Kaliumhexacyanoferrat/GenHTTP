@@ -92,6 +92,7 @@ public sealed class ReverseProxyBuilder : IHandlerBuilder<ReverseProxyBuilder>
         {
             AllowAutoRedirect = false,
             AutomaticDecompression = DecompressionMethods.None,
+            UseCookies = false,
             ConnectTimeout = _connectTimeout
         };
 

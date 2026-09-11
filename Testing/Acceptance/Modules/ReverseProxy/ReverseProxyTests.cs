@@ -126,6 +126,46 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
+    public async Task TestUpstreamCookiesDoNotBleedAcrossVisitors(ServerEngine engine)
+    {
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
+        {
+            var path = r.Header.Target.AsString(false);
+
+            if (path == "/set")
+            {
+                // upstream issues a session cookie for visitor A
+                return r.Respond()
+                        .Content("set")
+                        .Cookie("bleed", "SECRET")
+                        .Build();
+            }
+
+            // echo back the Cookie header the upstream actually received
+            var cookie = r.Header.Headers.GetEntry("Cookie") ?? "none";
+            return r.Respond().Content(cookie).Build();
+        });
+
+        var runner = setup.Runner;
+
+        // visitor A logs in; the upstream sends Set-Cookie: bleed=SECRET
+        using (var visitorA = TestHost.GetClient())
+        {
+            using var set = await runner.GetResponseAsync("/set", visitorA);
+            await set.AssertStatusAsync(HttpStatusCode.OK);
+        }
+
+        // visitor B is a brand-new client that never sent any cookie
+        using var visitorB = TestHost.GetClient();
+
+        using var echoed = await runner.GetResponseAsync("/echo", visitorB);
+
+        // the upstream must NOT see visitor A's session cookie for visitor B
+        Assert.AreEqual("none", await echoed.GetContentAsync());
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
     public async Task TestHeaders(ServerEngine engine)
     {
         var now = DateTime.UtcNow;
