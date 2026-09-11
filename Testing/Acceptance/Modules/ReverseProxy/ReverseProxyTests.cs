@@ -65,6 +65,26 @@ public sealed class ReverseProxyTests
 
     [TestMethod]
     [MultiEngineTest]
+    public async Task TestContentTypeIsRelayed(ServerEngine engine)
+    {
+        await using var setup = await TestSetup.CreateAsync(engine, r =>
+        {
+            var contentType = r.Header.Headers.GetEntry("Content-Type");
+            return r.Respond().Content(contentType ?? "(none)").Build();
+        });
+
+        var runner = setup.Runner;
+
+        var request = runner.GetRequest(method: new HttpMethod("SEARCH"));
+        request.Content = new StringContent("<x/>", System.Text.Encoding.UTF8, "application/xml");
+
+        using var response = await runner.GetResponseAsync(request);
+
+        Assert.AreEqual("application/xml; charset=utf-8", await response.GetContentAsync());
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
     public async Task TestForwardingChainIsRelayed(ServerEngine engine)
     {
         await using var setup = await TestSetup.CreateAsync(engine, r =>
