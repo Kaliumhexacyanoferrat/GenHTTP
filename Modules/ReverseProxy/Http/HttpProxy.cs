@@ -91,6 +91,14 @@ public sealed class HttpProxy : IHandler
 
         var req = new HttpRequestMessage(new HttpMethod(request.Header.Method.ToString()), GetRequestUri(request));
 
+        // important: set the body before the header so we can override "Content-" related headers here
+        var content = request.GetBody();
+
+        if (content is not null && CanSendBody(request))
+        {
+            req.Content = new RequestBody(content);
+        }
+
         for (var i = 0; i < headers.Count; i++)
         {
             var header = headers.GetStringEntry(i);
@@ -118,13 +126,6 @@ public sealed class HttpProxy : IHandler
         forwardings.Add(new Forwarding(client.Address, null, headers.GetEntry("Host"), client.Protocol));
 
         req.Headers.Add("Forwarded", string.Join(", ", forwardings.Select(GetForwarding)));
-
-        var content = request.GetBody();
-
-        if (content is not null && CanSendBody(request))
-        {
-            req.Content = new RequestBody(content);
-        }
 
         return req;
     }
