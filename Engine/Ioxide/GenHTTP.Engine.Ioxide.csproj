@@ -13,7 +13,9 @@
     <ProjectReference Include="..\..\API\Ioxide\GenHTTP.Api.Ioxide.csproj" />
 
     <ProjectReference Include="..\Shared\GenHTTP.Engine.Shared.csproj" />
-    
+
+    <ProjectReference Include="..\..\Modules\IO\GenHTTP.Modules.IO.csproj" />
+
     <PackageReference Include="ioxide" Version="0.13.225" />
     
     <PackageReference Include="ioxide.http2" Version="0.13.225" />

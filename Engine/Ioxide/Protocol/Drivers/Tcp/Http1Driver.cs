@@ -7,6 +7,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Engine.Shared.Types;
 
+using Glyph11;
 using Glyph11.Parser;
 using Glyph11.Parser.UltraHardened;
 using Glyph11.Pico;
@@ -17,6 +18,8 @@ using Microsoft.Extensions.Logging;
 using Connection = GenHTTP.Api.Protocol.Connection;
 using IoConnection = ioxide.TcpConnection;
 using GenHTTP.Engine.Ioxide.Protocol.Responses;
+
+using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Drivers.Tcp;
 
@@ -105,6 +108,10 @@ internal static class Http1Driver
                 }
             }
         }
+        catch (HttpParseException pe)
+        {
+            await SendErrorAsync(server, writer, pe, (ResponseStatus)pe.StatusCode);
+        }
         finally
         {
             WarnIfThreadHopped(server, reactorThreadId, "before-return");
@@ -112,6 +119,28 @@ internal static class Http1Driver
             await TcpDriver.CloseAsync(pipe, conn);
 
             ReturnRequest(request);
+        }
+    }
+
+    private static async ValueTask SendErrorAsync(IServer server, PipeWriter writer, Exception e, ResponseStatus status)
+    {
+        try
+        {
+            var message = server.Development ? e.ToString() : e.Message;
+
+            var response = new ResponseBuilder()
+                           .Status(status)
+                           .Connection(Connection.Close)
+                           .Content(new StringContent(message))
+                           .Build();
+
+            await Http1Responder.WriteAsync(writer, null, response, keepAlive: false, headRequest: false);
+
+            await writer.FlushAsync();
+        }
+        catch
+        {
+            /* no recovery here */
         }
     }
 
