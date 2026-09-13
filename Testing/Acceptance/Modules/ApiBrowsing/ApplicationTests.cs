@@ -62,6 +62,8 @@ public class ApplicationTests
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
 
+        Assert.AreEqual("text/html", response.Content.Headers.ContentType?.MediaType);
+
         AssertX.Contains("Scalar", await response.GetContentAsync());
     }
 
