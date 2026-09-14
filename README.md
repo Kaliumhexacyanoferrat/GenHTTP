@@ -4,7 +4,7 @@ GenHTTP is a lightweight, modular web server written in pure C# with a strong fo
 purpose of this project is to quickly create web services written in .NET 10 / 11, allowing developers to concentrate on
 the functionality rather than on messing around with configuration files or complex concepts.
 
-[![View - Documentation](https://img.shields.io/badge/view-Documentation-AB54FF)](https://genhttp.org/documentation/) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Full.svg)](https://www.nuget.org/packages/GenHTTP.Full/) [![HTTP Arena](https://img.shields.io/endpoint?url=https://www.http-arena.com/badge/genhttp/h1.json)](https://www.http-arena.com/#type=emerging,flagship&tuned=0) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/PRkwKrnrB4)
+[![Try it - Online](https://img.shields.io/badge/try%20it-Online-AB54FF)](https://genhttp.dev) [![View - Documentation](https://img.shields.io/badge/view-Documentation-AB54FF)](https://genhttp.org/documentation/) [![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Full.svg)](https://www.nuget.org/packages/GenHTTP.Full/) [![HTTP Arena](https://img.shields.io/endpoint?url=https://www.http-arena.com/badge/genhttp/h1.json)](https://www.http-arena.com/#type=emerging,flagship&tuned=0) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GenHTTP&metric=coverage)](https://sonarcloud.io/dashboard?id=GenHTTP) [![Discord](https://discordapp.com/api/guilds/1177529388229734410/widget.png?style=shield)](https://discord.gg/PRkwKrnrB4)
 
 ## Getting Started
 
