@@ -3,7 +3,7 @@
     <PropertyGroup>
 
         <OutputType>Exe</OutputType>
-        <TargetFrameworks>net11.0</TargetFrameworks>
+        <TargetFramework>net11.0</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
         <IsPackable>false</IsPackable>
