@@ -29,6 +29,11 @@ public sealed partial class Server
             PoolMax = _engineOptions.Tcp.PoolMax,
             ZeroCopySend = _engineOptions.Tcp.ZeroCopySend,
             RecvQueueEntries = _engineOptions.Tcp.RecvQueueEntries,
+
+            // Set explicitly, because ioxide defaults both to 60s and this listener carries
+            // upgraded connections too - inheriting that would start closing idle websockets.
+            IdleTimeoutMs = _engineOptions.Tcp.IdleTimeoutMs,
+            SendTimeoutMs = _engineOptions.Tcp.SendTimeoutMs,
         },
     };
 }

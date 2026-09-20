@@ -22,7 +22,7 @@
 
         <ProjectReference Include="..\Compression\GenHTTP.Modules.Compression.csproj" />
 
-        <PackageReference Include="ioxide.file" Version="0.14.236" />
+        <PackageReference Include="ioxide.file" Version="0.14.239" />
 
     </ItemGroup>
 
