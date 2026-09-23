@@ -229,6 +229,9 @@ public sealed class Request : IRequest
 
     public PipeReader Upgrade()
     {
+        // the upgraded connection outlives the pipe buffer the header was parsed from
+        _retainedHeader ??= new RetainedRequestHeader(_header);
+
         Reader.AdvanceTo(_bodyStart);
 
         _bodyLoaded = true;
