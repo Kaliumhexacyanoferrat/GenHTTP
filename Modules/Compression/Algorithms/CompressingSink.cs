@@ -18,7 +18,7 @@ internal sealed class CompressingSink : IResponseSink, IAsyncDisposable, IDispos
     private readonly ICompressor _compressor;
     private readonly IBufferWriter<byte> _writer;
 
-    private readonly byte[] _inputBuffer;
+    private byte[] _inputBuffer;
 
     private bool _disposed;
 
@@ -31,25 +31,9 @@ internal sealed class CompressingSink : IResponseSink, IAsyncDisposable, IDispos
             _sink = sink;
         }
 
-        public Span<byte> GetSpan(int sizeHint = 0)
-        {
-            if ((uint)sizeHint > (uint)_sink._inputBuffer.Length)
-            {
-                throw new ArgumentOutOfRangeException(nameof(sizeHint));
-            }
+        public Span<byte> GetSpan(int sizeHint = 0) => _sink.EnsureInputBuffer(sizeHint);
 
-            return _sink._inputBuffer;
-        }
-
-        public Memory<byte> GetMemory(int sizeHint = 0)
-        {
-            if ((uint)sizeHint > (uint)_sink._inputBuffer.Length)
-            {
-                throw new ArgumentOutOfRangeException(nameof(sizeHint));
-            }
-
-            return _sink._inputBuffer;
-        }
+        public Memory<byte> GetMemory(int sizeHint = 0) => _sink.EnsureInputBuffer(sizeHint);
 
         public void Advance(int count)
         {
@@ -74,6 +58,30 @@ internal sealed class CompressingSink : IResponseSink, IAsyncDisposable, IDispos
     }
 
     public IBufferWriter<byte> Writer => _writer;
+
+    /// <summary>
+    /// Returns the input buffer, replacing it with a larger one if the caller
+    /// requests more space than it offers (e.g. a serializer writing a large value).
+    /// </summary>
+    /// <remarks>
+    /// Everything written so far has already been handed to the compressor
+    /// on <see cref="IBufferWriter{T}.Advance"/>, so there is nothing to preserve.
+    /// </remarks>
+    private byte[] EnsureInputBuffer(int sizeHint)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(sizeHint);
+
+        if (sizeHint > _inputBuffer.Length)
+        {
+            var larger = Pool.Rent(sizeHint);
+
+            Pool.Return(_inputBuffer);
+
+            _inputBuffer = larger;
+        }
+
+        return _inputBuffer;
+    }
 
     public Stream Stream => _stream ??= new WriterStreamAdapter(_writer);
 
