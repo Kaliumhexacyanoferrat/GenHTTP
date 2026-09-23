@@ -48,6 +48,10 @@ Running this snippet will provide the following endpoints:
 The [playground](./Playground/) project provides a quick starting point to view sample code and find more complex apps
 built with GenHTTP. See [the documentation](https://genhttp.org/documentation/content/) for all available capabilities.
 
+## Agentic Coding
+
+GenHTTP powers [genhttp.dev](https://genhttp.dev), a public platform that can be used for agentic, spec-driven coding. You can connect your favorite agent via MCP and let it create and directly publish apps.
+
 ## Engines
 
 GenHTTP runs on different runtime implementations that can simply be switched by changing a single nuget package 
