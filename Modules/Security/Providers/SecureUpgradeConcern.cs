@@ -1,7 +1,9 @@
 ﻿using System.Text;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+
 using GenHTTP.Modules.Redirects;
 using GenHTTP.Modules.IO;
 
@@ -14,6 +16,8 @@ public sealed class SecureUpgradeConcern : IConcern
     private static readonly ByteString VaryHeader = new("Vary");
 
     private static readonly ByteString YesValue = new("1");
+
+    private static readonly byte[] AcmeChallengePrefix = "/.well-known/acme-challenge/"u8.ToArray();
 
     #region Get-/Setters
 
@@ -47,12 +51,11 @@ public sealed class SecureUpgradeConcern : IConcern
 
                 if (endpoints.Count > 0)
                 {
-                    if (Mode == SecureUpgrade.Force)
+                    if (Mode == SecureUpgrade.Force && !IsAcmeChallenge(request))
                     {
                         return await Redirect.To(GetRedirectLocation(request, endpoints))
                                              .Build()
-                                             .HandleAsync(request)
-                            ;
+                                             .HandleAsync(request);
                     }
                     if (Mode == SecureUpgrade.Allow)
                     {
@@ -89,10 +92,38 @@ public sealed class SecureUpgradeConcern : IConcern
 
         var hostString = (host != null) ? host.Value.ToString() : string.Empty;
 
-        var pathString = Encoding.ASCII.GetString(request.Header.Path.Bytes.Span);
+        var location = new StringBuilder();
 
-        return $"https://{hostString}{port}{pathString}";
+        location.Append("https://")
+                .Append(hostString)
+                .Append(port)
+                .Append(request.Header.Path.ToString());
+
+        AppendQuery(location, request.Header.Query);
+
+        return location.ToString();
     }
+
+    private static void AppendQuery(StringBuilder location, IRequestQuery query)
+    {
+        for (var i = 0; i < query.Count; i++)
+        {
+            var entry = query.GetStringEntry(i);
+
+            location.Append(i == 0 ? '?' : '&')
+                    .Append(entry.Key.ToString());
+
+            if (!entry.Value.Bytes.IsEmpty)
+            {
+                location.Append('=')
+                        .Append(entry.Value.ToString());
+            }
+        }
+    }
+
+    private static bool IsAcmeChallenge(IRequest request)
+        => request.Header.Method == RequestMethod.Get
+           && request.Header.Path.Bytes.Span.StartsWith(AcmeChallengePrefix);
 
     private static ushort GetTargetPort(IRequest request, List<IEndPoint> endPoints)
     {
