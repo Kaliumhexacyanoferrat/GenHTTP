@@ -100,6 +100,85 @@ public sealed class SecurityTests
     }
 
     /// <summary>
+    /// As a developer, I expect the query of the original request to be
+    /// preserved when a request is redirected to the secure endpoint.
+    /// </summary>
+    [TestMethod]
+    [MultiEngineTest]
+    public Task TestRedirectionPreservesQuery(ServerEngine engine)
+    {
+        return RunSecure(async (insec, sec) =>
+        {
+            using var client = TestHost.GetClient(followRedirects: false);
+
+            using var response = await client.GetAsync($"http://localhost:{insec}/some/path?a=1&b=hello%20world&flag&c=x%26y");
+
+            await response.AssertStatusAsync(HttpStatusCode.MovedPermanently);
+            Assert.AreEqual($"https://localhost:{sec}/some/path?a=1&b=hello%20world&flag&c=x%26y", response.Headers.GetValues("Location").First());
+        }, engine);
+    }
+
+    /// <summary>
+    /// As a developer, I expect the query to be preserved when the client
+    /// requests an upgrade to the secure endpoint.
+    /// </summary>
+    [TestMethod]
+    [MultiEngineTest]
+    public Task TestRequestedRedirectionPreservesQuery(ServerEngine engine)
+    {
+        return RunSecure(async (insec, sec) =>
+        {
+            using var client = TestHost.GetClient(followRedirects: false);
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"http://localhost:{insec}/?q=search");
+            request.Headers.Add("Upgrade-Insecure-Requests", "1");
+
+            using var response = await client.SendAsync(request);
+
+            await response.AssertStatusAsync(HttpStatusCode.TemporaryRedirect);
+            Assert.AreEqual($"https://localhost:{sec}/?q=search", response.Headers.GetValues("Location").First());
+        }, engine, SecureUpgrade.Allow);
+    }
+
+    /// <summary>
+    /// As the operator of a server, I would like to issue certificates via certbot,
+    /// so ACME challenges must be answered via HTTP instead of being redirected.
+    /// </summary>
+    [TestMethod]
+    [MultiEngineTest]
+    public Task TestAcmeChallengeNotRedirected(ServerEngine engine)
+    {
+        return RunSecure(async (insec, _) =>
+        {
+            using var client = TestHost.GetClient(followRedirects: false);
+
+            using var response = await client.GetAsync($"http://localhost:{insec}/.well-known/acme-challenge/token");
+
+            await response.AssertStatusAsync(HttpStatusCode.OK);
+            Assert.AreEqual("challenge-response", await response.Content.ReadAsStringAsync());
+        }, engine, SecureUpgrade.Force);
+    }
+
+    /// <summary>
+    /// As a developer, I expect other well-known resources to still be
+    /// redirected to the secure endpoint.
+    /// </summary>
+    [TestMethod]
+    [MultiEngineTest]
+    public Task TestOtherWellKnownRedirected(ServerEngine engine)
+    {
+        return RunSecure(async (insec, sec) =>
+        {
+            using var client = TestHost.GetClient(followRedirects: false);
+
+            using var response = await client.GetAsync($"http://localhost:{insec}/.well-known/security.txt");
+
+            await response.AssertStatusAsync(HttpStatusCode.MovedPermanently);
+            Assert.AreEqual($"https://localhost:{sec}/.well-known/security.txt", response.Headers.GetValues("Location").First());
+        }, engine, SecureUpgrade.Force);
+    }
+
+    /// <summary>
     /// As the host of a web application, I want my application to enforce strict
     /// transport security, so that man-in-the-middle attacks can be avoided to some extent.
     /// </summary>
@@ -229,7 +308,11 @@ public sealed class SecurityTests
 
     private static async Task RunSecure(Func<ushort, ushort, Task> logic, ServerEngine engine, SecureUpgrade? mode = null, string host = "localhost")
     {
-        var content = Layout.Create().Index(Content.From(Resource.FromString("Hello Alice!")));
+        var challenges = Layout.Create().Add("token", Content.From(Resource.FromString("challenge-response")));
+
+        var content = Layout.Create()
+                            .Index(Content.From(Resource.FromString("Hello Alice!")))
+                            .Add(".well-known", Layout.Create().Add("acme-challenge", challenges));
 
         await using var runner = new TestHost(Layout.Create().Build(), mode is null, serverEngine: engine);
 
