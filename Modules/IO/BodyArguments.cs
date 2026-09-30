@@ -82,25 +82,7 @@ public sealed class BodyArguments : IKeyValueList
                                 : new(Decode(pair[..separator]), Decode(pair[(separator + 1)..]));
     }
 
-    /// <summary>
-    /// Decodes a percent- and "+"-encoded token, only allocating a new
-    /// buffer if the token actually requires decoding.
-    /// </summary>
-    private static ReadOnlyMemory<byte> Decode(ReadOnlyMemory<byte> raw)
-    {
-        var source = raw.Span;
-
-        if (source.IndexOfAny((byte)'%', (byte)'+') < 0)
-        {
-            return raw;
-        }
-
-        var target = new byte[source.Length];
-
-        var written = PercentEncoding.Decode(source, target, decodePlus: true);
-
-        return target.AsMemory(0, written);
-    }
+    private static ReadOnlyMemory<byte> Decode(ReadOnlyMemory<byte> raw) => PercentEncoding.Decode(raw, decodePlus: true);
 
     #endregion
 

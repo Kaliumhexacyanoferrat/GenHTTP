@@ -12,6 +12,6 @@ public struct PathArgumentSink
     internal Dictionary<ByteString, ByteString>? Arguments;
 
     public void Add(ByteString key, ByteString value)
-        => (Arguments ??= new()).Add(key, value);
+        => (Arguments ??= new()).Add(key, new(PercentEncoding.Decode(value.Bytes)));
 
 }

@@ -37,6 +37,31 @@ public static class PercentEncoding
     }
 
     /// <summary>
+    /// Decodes a percent-encoded ("URL encoded") sequence of bytes, only allocating
+    /// a new buffer if the sequence actually contains encoded characters.
+    /// </summary>
+    /// <param name="source">The encoded bytes to decode</param>
+    /// <param name="decodePlus">Whether a "+" character should be decoded into a space (as used by form encoded content)</param>
+    /// <returns>The decoded bytes or <paramref name="source"/>, if there was nothing to decode</returns>
+    public static ReadOnlyMemory<byte> Decode(ReadOnlyMemory<byte> source, bool decodePlus = false)
+    {
+        var span = source.Span;
+
+        var index = decodePlus ? span.IndexOfAny((byte)'%', (byte)'+') : span.IndexOf((byte)'%');
+
+        if (index < 0)
+        {
+            return source;
+        }
+
+        var target = new byte[span.Length];
+
+        var written = Decode(span, target, decodePlus);
+
+        return target.AsMemory(0, written);
+    }
+
+    /// <summary>
     /// Decodes a percent-encoded ("URL encoded") sequence of bytes into the given buffer.
     /// </summary>
     /// <param name="source">The encoded bytes to decode</param>
