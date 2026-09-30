@@ -69,10 +69,10 @@ public static class ContentTypeGuessingExtensions
         },
         // Scripts
         {
-            "js", ContentType.ApplicationJavaScript
+            "js", ContentType.TextJavaScript
         },
         {
-            "mjs", ContentType.ApplicationJavaScript
+            "mjs", ContentType.TextJavaScript
         },
         // Images
         {
@@ -82,10 +82,10 @@ public static class ContentTypeGuessingExtensions
             "gif", ContentType.ImageGif
         },
         {
-            "jpeg", ContentType.ImageJpg
+            "jpeg", ContentType.ImageJpeg
         },
         {
-            "jpg", ContentType.ImageJpg
+            "jpg", ContentType.ImageJpeg
         },
         {
             "png", ContentType.ImagePng
@@ -178,7 +178,7 @@ public static class ContentTypeGuessingExtensions
             "csv", ContentType.TextCsv
         },
         {
-            "rtf", ContentType.TextRichText
+            "rtf", ContentType.ApplicationRtf
         },
         {
             "docx", ContentType.ApplicationOfficeDocumentWordProcessing
@@ -200,10 +200,10 @@ public static class ContentTypeGuessingExtensions
             "xml", ContentType.TextXml
         },
         {
-            "yml", ContentType.TextYaml
+            "yml", ContentType.ApplicationYaml
         },
         {
-            "yaml", ContentType.TextYaml
+            "yaml", ContentType.ApplicationYaml
         }
     };
 
