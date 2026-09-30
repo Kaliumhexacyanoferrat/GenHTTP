@@ -159,6 +159,8 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
     private async ValueTask<WebsocketFrame> ReadSegmentedFrameAsync(CancellationToken token = default)
     {
+        var faulted = false;
+
         try
         {
             if (!_skipFrameInit) // When picking up an ongoing segmented frame after being interrupted by a Ping/Pong
@@ -222,9 +224,15 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
             return new WebsocketFrame(this, new FrameError("Unable to receive or assemble the segmented frame.", FrameErrorType.UndefinedBehavior));
         }
+        catch
+        {
+            faulted = true;
+            throw;
+        }
         finally
         {
-            if (Settings.AllocateFrameData)
+            // a read that threw left _frame at the previous frame (or none), whose buffer is no longer ours
+            if (Settings.AllocateFrameData && !faulted)
             {
                 _frame.SetCachedData();
             }
