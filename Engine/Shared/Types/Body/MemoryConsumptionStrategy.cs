@@ -44,9 +44,10 @@ public sealed class MemoryConsumptionStrategy
             return new(_memory.Value);
         }
 
-        if (_length is not null)
+        if (_length is { } length)
         {
-            return ReadLength();
+            // there is nothing to read, so do not wait for data that never arrives
+            return (length == 0) ? new(ReadOnlyMemory<byte>.Empty) : ReadLength();
         }
 
         return ReadChunked();

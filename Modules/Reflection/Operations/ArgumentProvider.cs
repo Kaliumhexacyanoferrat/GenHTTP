@@ -59,7 +59,8 @@ public static class ArgumentProvider
     {
         var queryValue = request.Header.Query.GetEntry(argument.Name);
 
-        if (queryValue is not null)
+        // an empty value falls back to the default value of the parameter, if any
+        if (queryValue is not null && (argument.DefaultValue is null || !queryValue.Value.Bytes.IsEmpty))
         {
             return queryValue.ConvertTo(argument.Type, registry.Formatting);
         }

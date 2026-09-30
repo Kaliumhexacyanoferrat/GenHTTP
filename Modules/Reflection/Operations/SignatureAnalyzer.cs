@@ -15,54 +15,84 @@ public static class SignatureAnalyzer
 
         foreach (var param in method.GetParameters())
         {
-            if (param.Name == null)
+            var name = param.Name;
+
+            if (name == null)
             {
                 continue;
             }
 
-            if (pathArguments.Contains(param.Name))
+            if (pathArguments.Contains(name))
             {
-                result.Add(param.Name, new OperationArgument(param.Name, param.ParameterType, OperationArgumentSource.Path));
+                result.Add(name, CreateArgument(name, param, OperationArgumentSource.Path));
                 continue;
             }
 
-            if (TryInject(server, param, registry, out var injectedArg))
+            if (TryInject(server, name, param, registry, out var injectedArg))
             {
-                result.Add(param.Name, injectedArg);
+                result.Add(name, injectedArg);
                 continue;
             }
 
-            if (TryStream(param, out var streamedArg))
+            if (TryStream(name, param, out var streamedArg))
             {
-                result.Add(param.Name, streamedArg);
+                result.Add(name, streamedArg);
                 continue;
             }
 
             if (param.CanFormat(registry.Formatting))
             {
-                if (TryFromBody(param, out var bodyArg))
+                if (TryFromBody(name, param, out var bodyArg))
                 {
-                    result.Add(param.Name, bodyArg);
+                    result.Add(name, bodyArg);
                 }
                 else
                 {
-                    result.Add(param.Name, new OperationArgument(param.Name, param.ParameterType, OperationArgumentSource.Query));
+                    result.Add(name, CreateArgument(name, param, OperationArgumentSource.Query));
                 }
             }
             else
             {
-                result.Add(param.Name, new OperationArgument(param.Name, param.ParameterType, OperationArgumentSource.Content));
+                result.Add(name, CreateArgument(name, param, OperationArgumentSource.Content));
             }
         }
 
         return result;
     }
 
-    private static bool TryStream(ParameterInfo param, [NotNullWhen(true)] out OperationArgument? argument)
+    private static OperationArgument CreateArgument(string name, ParameterInfo param, OperationArgumentSource source)
+        => new(name, param.ParameterType, source, GetDefaultValue(param));
+
+    private static object? GetDefaultValue(ParameterInfo param)
+    {
+        if (!param.HasDefaultValue)
+        {
+            return null;
+        }
+
+        var value = param.DefaultValue;
+
+        if (value is null or DBNull or Missing)
+        {
+            return null;
+        }
+
+        // enum defaults are stored as their underlying integral value
+        var type = Nullable.GetUnderlyingType(param.ParameterType) ?? param.ParameterType;
+
+        if (type.IsEnum && value.GetType() != type)
+        {
+            return Enum.ToObject(type, value);
+        }
+
+        return value;
+    }
+
+    private static bool TryStream(string name, ParameterInfo param, [NotNullWhen(true)] out OperationArgument? argument)
     {
         if (param.ParameterType == typeof(Stream))
         {
-            argument = new OperationArgument(param.Name!, param.ParameterType, OperationArgumentSource.Streamed);
+            argument = CreateArgument(name, param, OperationArgumentSource.Streamed);
             return true;
         }
 
@@ -70,13 +100,13 @@ public static class SignatureAnalyzer
         return false;
     }
 
-    private static bool TryInject(IServer server, ParameterInfo param, MethodRegistry registry, [NotNullWhen(true)] out OperationArgument? argument)
+    private static bool TryInject(IServer server, string name, ParameterInfo param, MethodRegistry registry, [NotNullWhen(true)] out OperationArgument? argument)
     {
         foreach (var injector in registry.Injection)
         {
             if (injector.Supports(server, param.ParameterType))
             {
-                argument = new OperationArgument(param.Name!, param.ParameterType, OperationArgumentSource.Injected);
+                argument = CreateArgument(name, param, OperationArgumentSource.Injected);
                 return true;
             }
         }
@@ -85,13 +115,13 @@ public static class SignatureAnalyzer
         return false;
     }
 
-    private static bool TryFromBody(ParameterInfo param, [NotNullWhen(true)] out OperationArgument? argument)
+    private static bool TryFromBody(string name, ParameterInfo param, [NotNullWhen(true)] out OperationArgument? argument)
     {
         var fromBody = param.GetCustomAttribute<FromBodyAttribute>();
 
         if (fromBody != null)
         {
-            argument = new OperationArgument(param.Name!, param.ParameterType, OperationArgumentSource.Body);
+            argument = CreateArgument(name, param, OperationArgumentSource.Body);
             return true;
         }
 
