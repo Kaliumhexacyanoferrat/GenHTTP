@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Services;
 using GenHTTP.Api.Protocol;
 
 using NSwag;
@@ -10,11 +11,13 @@ public sealed class ConcernExplorer : IApiExplorer
 
     public bool CanExplore(IHandler handler) => handler is IConcern;
 
-    public async ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
+    public async ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, InheritedDocumentation documentation, ApiDiscoveryRegistry registry)
     {
         if (handler is IConcern concern)
         {
-            await registry.ExploreAsync(request, concern.Content, path, document, schemata);
+            var inner = concern is IDocumentedConcern documented ? documentation.Push(documented) : documentation;
+
+            await registry.ExploreAsync(request, concern.Content, path, document, schemata, inner);
         }
     }
 

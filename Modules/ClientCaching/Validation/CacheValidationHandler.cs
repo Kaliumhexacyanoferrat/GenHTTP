@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Services;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
@@ -6,7 +7,7 @@ using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.ClientCaching.Validation;
 
-public sealed class CacheValidationHandler : IConcern
+public sealed class CacheValidationHandler : IDocumentedConcern
 {
     private static readonly RequestMethod[] SupportedMethods = [RequestMethod.Get, RequestMethod.Head];
 
@@ -63,6 +64,17 @@ public sealed class CacheValidationHandler : IConcern
     }
 
     public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
+
+    public void AddDocumentation(OperationDocumentation operation)
+    {
+        if (operation.Method == RequestMethod.Get || operation.Method == RequestMethod.Head)
+        {
+            operation.Add(new RequestHeaderAttribute("If-None-Match", "The ETag of a previously received response, to check whether the content has changed since"))
+                     .Add(new ResponseAttribute(ResponseStatus.NotModified, "The content has not changed since it has been received with the given ETag"))
+                     .Add(new ResponseHeaderAttribute(ResponseStatus.Ok, "ETag", "Identifies the version of the returned content"))
+                     .Add(new ResponseHeaderAttribute(ResponseStatus.NotModified, "ETag", "Identifies the version of the content"));
+        }
+    }
 
     private static async ValueTask<ByteString?> CalculateETag(IResponse response)
     {

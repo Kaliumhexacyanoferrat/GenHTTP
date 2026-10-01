@@ -1,4 +1,7 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Reflection;
+
+using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Services;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Reflection;
@@ -12,9 +15,16 @@ namespace GenHTTP.Modules.OpenApi.Discovery;
 public sealed class MethodHandlerExplorer : IApiExplorer
 {
 
+    /// <summary>
+    /// Describes the content of a request or response body.
+    /// </summary>
+    /// <param name="Schema">The schema of the content, if known</param>
+    /// <param name="MediaTypes">The media types the content can be represented with</param>
+    private sealed record BodyDescription(JsonSchema? Schema, string[] MediaTypes);
+
     public bool CanExplore(IHandler handler) => handler is MethodHandler;
 
-    public ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
+    public ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, InheritedDocumentation documentation, ApiDiscoveryRegistry registry)
     {
         if (handler is MethodHandler methodHandler)
         {
@@ -22,32 +32,32 @@ public sealed class MethodHandlerExplorer : IApiExplorer
 
             if (tag != null)
             {
-                if (document.Tags.All(t => t.Name != tag))
-                {
-                    document.Tags.Add(new OpenApiTag
-                    {
-                        Name = tag
-                    });
-                }
+                AddTag(document, tag);
             }
 
             var pathItem = OpenApiExtensions.GetPathItem(document, path, methodHandler.Operation);
 
-            foreach (var method in methodHandler.Operation.Configuration.SupportedMethods)
+            var method = methodHandler.Operation.Method;
+
+            foreach (var requestMethod in methodHandler.Operation.Configuration.SupportedMethods)
             {
-                if (method == RequestMethod.Head && methodHandler.Operation.Configuration.SupportedMethods.Count > 1)
+                if (requestMethod == RequestMethod.Head && methodHandler.Operation.Configuration.SupportedMethods.Count > 1)
                 {
                     continue;
                 }
 
+                var inherited = documentation.GetDocumentation(requestMethod);
+
                 var operation = new OpenApiOperation
                 {
-                    IsDeprecated = methodHandler.Operation.Method.GetCustomAttributes(typeof(ObsoleteAttribute), true).Length > 0
+                    Summary = Documentation.GetSummary(method),
+                    Description = Documentation.GetRemarks(method),
+                    IsDeprecated = method.GetCustomAttributes(typeof(ObsoleteAttribute), true).Length > 0
                 };
 
                 if (tag != null)
                 {
-                    operation.Tags.Add(tag);
+                    operation.Tags.Add(tag.Name);
                 }
 
                 foreach (var arg in methodHandler.Operation.Arguments)
@@ -57,36 +67,27 @@ public sealed class MethodHandlerExplorer : IApiExplorer
                         continue;
                     }
 
+                    var description = GetParameterSummary(method, arg.Key);
+
                     if (arg.Value.Source == OperationArgumentSource.Body)
                     {
-                        if (method != RequestMethod.Get)
+                        if (requestMethod != RequestMethod.Get)
                         {
-                            operation.RequestBody = GetRequestBody(schemata, typeof(string), "text/plain");
+                            operation.RequestBody = GetRequestBody(new BodyDescription(schemata.GetOrCreateSchema(typeof(string)), ["text/plain"]), description);
                         }
                     }
                     else if (arg.Value.Source == OperationArgumentSource.Content)
                     {
-                        if (method != RequestMethod.Get)
+                        if (requestMethod != RequestMethod.Get)
                         {
-                            var supportedTypes = methodHandler.Registry.Serialization.Formats.Select(s => s.Key.ToString()).ToArray();
-                            operation.RequestBody = GetRequestBody(schemata, arg.Value.Type, supportedTypes);
+                            operation.RequestBody = GetRequestBody(new BodyDescription(schemata.GetOrCreateSchema(arg.Value.Type), GetFormats(methodHandler.Registry)), description);
                         }
                     }
                     else if (arg.Value.Source == OperationArgumentSource.Streamed)
                     {
-                        if (method != RequestMethod.Get)
+                        if (requestMethod != RequestMethod.Get)
                         {
-                            var body = new OpenApiRequestBody();
-
-                            body.Content.Add("*/*", new OpenApiMediaType
-                            {
-                                Schema = new JsonSchema
-                                {
-                                    Format = "binary"
-                                }
-                            });
-
-                            operation.RequestBody = body;
+                            operation.RequestBody = GetRequestBody(new BodyDescription(GetBinarySchema(), ["*/*"]), description);
                         }
                     }
                     else
@@ -94,6 +95,7 @@ public sealed class MethodHandlerExplorer : IApiExplorer
                         var param = new OpenApiParameter
                         {
                             Name = arg.Key,
+                            Description = description,
                             Schema = JsonSchema.FromType(arg.Value.Type),
                             Kind = MapArgumentType(arg.Value.Source),
                             IsRequired = MapRequired(arg.Value.Source)
@@ -102,6 +104,13 @@ public sealed class MethodHandlerExplorer : IApiExplorer
                         operation.Parameters.Add(param);
                     }
                 }
+
+                if (requestMethod != RequestMethod.Get)
+                {
+                    ApplyDeclaredRequestBody(operation, method, schemata, methodHandler.Registry);
+                }
+
+                AddRequestHeaders(operation, methodHandler.Operation, inherited);
 
                 if (methodHandler.Operation.Route.IsWildcard)
                 {
@@ -117,12 +126,14 @@ public sealed class MethodHandlerExplorer : IApiExplorer
                     operation.Parameters.Add(param);
                 }
 
-                foreach (var (key, value) in GetResponses(methodHandler.Operation, schemata, methodHandler.Registry))
+                foreach (var (key, value) in GetResponses(methodHandler.Operation, schemata, methodHandler.Registry, inherited))
                 {
                     operation.Responses.Add(key, value);
                 }
 
-                pathItem.Add(method.ToString(), operation);
+                AddResponseHeaders(operation, methodHandler.Operation, inherited);
+
+                pathItem.Add(requestMethod.ToString(), operation);
             }
         }
 
@@ -145,26 +156,276 @@ public sealed class MethodHandlerExplorer : IApiExplorer
         _ => false
     };
 
-    private static string? GetTag(Operation operation)
+    private static string? GetParameterSummary(MethodInfo method, string name)
     {
-        var type = operation.Method.DeclaringType?.Name;
+        var parameter = method.GetParameters().FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
 
-        if (type != null)
-        {
-            return type.Contains("<>") ? "Inline" : type;
-        }
-
-        return null;
+        return parameter != null ? Documentation.GetSummary(parameter) : null;
     }
 
-    private static Dictionary<string, OpenApiResponse> GetResponses(Operation operation, SchemaManager schemata, MethodRegistry registry)
+    private static void AddRequestHeaders(OpenApiOperation operation, Operation source, IReadOnlyList<OperationDocumentation> inherited)
+    {
+        foreach (var header in GetDocumentation<RequestHeaderAttribute>(source, inherited))
+        {
+            if (operation.Parameters.Any(p => p.Kind == OpenApiParameterKind.Header && string.Equals(p.Name, header.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
+            operation.Parameters.Add(new OpenApiParameter
+            {
+                Name = header.Name,
+                Description = header.Description,
+                Kind = OpenApiParameterKind.Header,
+                IsRequired = header.Required,
+                Schema = JsonSchema.FromType(header.Type ?? typeof(string))
+            });
+        }
+    }
+
+    #region Precedence
+
+    /// <summary>
+    /// Collects the documentation of the given kind that applies to the operation, the most specific
+    /// first: the method, the service and the concerns from the innermost to the outermost.
+    /// </summary>
+    private static IEnumerable<T> GetDocumentation<T>(Operation operation, IReadOnlyList<OperationDocumentation> inherited) where T : DocumentationAttribute
+    {
+        foreach (var attribute in operation.Method.GetCustomAttributes<T>(true))
+        {
+            yield return attribute;
+        }
+
+        foreach (var level in GetSharedLevels(operation, inherited))
+        {
+            foreach (var attribute in level.OfType<T>())
+            {
+                yield return attribute;
+            }
+        }
+    }
+
+    /// <summary>
+    /// The documentation shared by multiple operations (declared on the service or provided by
+    /// concerns), grouped by the level it has been declared on, the most specific first.
+    /// </summary>
+    private static IEnumerable<IEnumerable<DocumentationAttribute>> GetSharedLevels(Operation operation, IReadOnlyList<OperationDocumentation> inherited)
+    {
+        if (operation.Method.DeclaringType is { } type)
+        {
+            yield return type.GetCustomAttributes<DocumentationAttribute>(true);
+        }
+
+        foreach (var level in inherited)
+        {
+            yield return level.Entries;
+        }
+    }
+
+    #endregion
+
+    #region Tags
+
+    private static OpenApiTag? GetTag(Operation operation)
+    {
+        var method = operation.Method;
+
+        if (method.GetCustomAttribute<TagAttribute>(true) is { } methodTag)
+        {
+            return new OpenApiTag { Name = methodTag.Name };
+        }
+
+        var type = method.DeclaringType;
+
+        if (type == null)
+        {
+            return null;
+        }
+
+        if (type.Name.Contains("<>"))
+        {
+            return new OpenApiTag { Name = "Inline" };
+        }
+
+        return new OpenApiTag
+        {
+            Name = type.GetCustomAttribute<TagAttribute>(true)?.Name ?? type.Name,
+            Description = Documentation.GetDescription(type)
+        };
+    }
+
+    private static void AddTag(OpenApiDocument document, OpenApiTag tag)
+    {
+        var existing = document.Tags.FirstOrDefault(t => t.Name == tag.Name);
+
+        if (existing == null)
+        {
+            document.Tags.Add(tag);
+        }
+        else if (string.IsNullOrEmpty(existing.Description))
+        {
+            existing.Description = tag.Description;
+        }
+    }
+
+    #endregion
+
+    #region Request
+
+    private static OpenApiRequestBody GetRequestBody(BodyDescription body, string? description)
+    {
+        var requestBody = new OpenApiRequestBody
+        {
+            Description = description
+        };
+
+        foreach (var mediaType in body.MediaTypes)
+        {
+            requestBody.Content.Add(mediaType, new OpenApiMediaType
+            {
+                Schema = body.Schema
+            });
+        }
+
+        return requestBody;
+    }
+
+    private static void ApplyDeclaredRequestBody(OpenApiOperation operation, MethodInfo method, SchemaManager schemata, MethodRegistry registry)
+    {
+        var declarations = method.GetCustomAttributes<RequestBodyAttribute>(true).ToList();
+
+        if (declarations.Count == 0)
+        {
+            return;
+        }
+
+        var inferred = operation.RequestBody;
+
+        var requestBody = new OpenApiRequestBody
+        {
+            Description = declarations.Select(d => d.Description).FirstOrDefault(d => d != null) ?? inferred?.Description
+        };
+
+        foreach (var declaration in declarations)
+        {
+            var body = GetDeclaredBody(declaration.Type, declaration.ContentType, GetInferredBody(inferred), schemata, registry);
+
+            if (body == null)
+            {
+                continue;
+            }
+
+            foreach (var mediaType in body.MediaTypes)
+            {
+                requestBody.Content.TryAdd(mediaType, new OpenApiMediaType
+                {
+                    Schema = body.Schema
+                });
+            }
+        }
+
+        // only the description has been declared, so keep the content as derived from the signature
+        if (requestBody.Content.Count == 0 && inferred != null)
+        {
+            foreach (var (mediaType, content) in inferred.Content)
+            {
+                requestBody.Content.Add(mediaType, content);
+            }
+        }
+
+        if (requestBody.Content.Count > 0)
+        {
+            requestBody.IsRequired = true;
+            operation.RequestBody = requestBody;
+        }
+    }
+
+    private static BodyDescription? GetInferredBody(OpenApiRequestBody? body)
+    {
+        if (body == null || body.Content.Count == 0)
+        {
+            return null;
+        }
+
+        return new BodyDescription(body.Content.Values.First().Schema, body.Content.Keys.ToArray());
+    }
+
+    #endregion
+
+    #region Responses
+
+    private static Dictionary<string, OpenApiResponse> GetResponses(Operation operation, SchemaManager schemata, MethodRegistry registry, IReadOnlyList<OperationDocumentation> inherited)
     {
         var result = new Dictionary<string, OpenApiResponse>();
 
-        var sink = operation.Result.Sink;
-        var type = operation.Result.Type;
+        var method = operation.Method;
 
-        if (sink == OperationResultSink.None || type.MightBeNull())
+        var resultSummary = Documentation.GetSummary(method.ReturnParameter);
+
+        var inferred = GetResultBody(operation, schemata, registry);
+
+        var declared = method.GetCustomAttributes<ResponseAttribute>(true).ToList();
+
+        if (!declared.Any(d => IsSuccess(d.Status)))
+        {
+            AddInferredResponses(result, operation, inferred, resultSummary);
+        }
+
+        foreach (var group in declared.GroupBy(d => d.Status))
+        {
+            result[GetKey(group.Key)] = GetDeclaredResponse(group.Key, group, inferred, resultSummary, schemata, registry);
+        }
+
+        // responses shared by the service or declared by concerns, the most specific level wins
+        foreach (var level in GetSharedLevels(operation, inherited))
+        {
+            foreach (var group in level.OfType<ResponseAttribute>().GroupBy(d => d.Status))
+            {
+                result.TryAdd(GetKey(group.Key), GetDeclaredResponse(group.Key, group, null, null, schemata, registry));
+            }
+        }
+
+        return result;
+    }
+
+    private static void AddResponseHeaders(OpenApiOperation operation, Operation source, IReadOnlyList<OperationDocumentation> inherited)
+    {
+        foreach (var header in GetDocumentation<ResponseHeaderAttribute>(source, inherited))
+        {
+            List<OpenApiResponse> targets;
+
+            if (header.Status is { } status)
+            {
+                targets = operation.Responses.TryGetValue(GetKey(status), out var response) ? [response] : [];
+            }
+            else
+            {
+                targets = operation.Responses.Where(r => int.TryParse(r.Key, out var code) && code is >= 200 and < 300)
+                                             .Select(r => r.Value)
+                                             .ToList();
+            }
+
+            foreach (var target in targets)
+            {
+                if (target.Headers.Keys.Any(k => string.Equals(k, header.Name, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+
+                target.Headers.Add(header.Name, new OpenApiHeader
+                {
+                    Description = header.Description,
+                    Schema = JsonSchema.FromType(header.Type ?? typeof(string))
+                });
+            }
+        }
+    }
+
+    private static void AddInferredResponses(Dictionary<string, OpenApiResponse> result, Operation operation, BodyDescription? body, string? resultSummary)
+    {
+        var sink = operation.Result.Sink;
+
+        if (sink == OperationResultSink.None || operation.Result.Type.MightBeNull())
         {
             result.Add("204", new OpenApiResponse
             {
@@ -172,84 +433,163 @@ public sealed class MethodHandlerExplorer : IApiExplorer
             });
         }
 
-        if (sink == OperationResultSink.Formatter)
+        if (body != null)
         {
-            result.Add("200", GetResponse(schemata, type, "text/plain"));
-        }
-        else if (sink == OperationResultSink.Serializer)
-        {
-            result.Add("200", GetResponse(schemata, type, registry.Serialization.Formats.Select(s => s.Key.ToString()).ToArray()));
-        }
-        else if (sink == OperationResultSink.Binary)
-        {
-            var response = new OpenApiResponse
-            {
-                Description = "A dynamically generated response"
-            };
+            var response = new OpenApiResponse();
 
-            var schema = new JsonSchema
+            if (sink is OperationResultSink.Binary or OperationResultSink.Dynamic)
             {
-                Format = "binary"
-            };
+                response.Description = resultSummary ?? "A dynamically generated response";
+            }
+            else if (resultSummary != null)
+            {
+                response.Description = resultSummary;
+            }
 
-            response.Content.Add("application/octet-stream", new OpenApiMediaType
-            {
-                Schema = schema
-            });
+            AddContent(response, body);
 
             result.Add("200", response);
         }
-        else if (sink == OperationResultSink.Dynamic)
-        {
-            var response = new OpenApiResponse
-            {
-                Description = "A dynamically generated response"
-            };
-
-            response.Content.Add("*/*", new OpenApiMediaType());
-
-            result.Add("200", response);
-        }
-
-        return result;
     }
 
-    private static OpenApiRequestBody GetRequestBody(SchemaManager schemata, Type type, params string[] mediaTypes)
-    {
-        var requestBody = new OpenApiRequestBody();
-
-        var schema = schemata.GetOrCreateSchema(type);
-
-        foreach (var mediaType in mediaTypes)
-        {
-            var media = new OpenApiMediaType
-            {
-                Schema = schema
-            };
-
-            requestBody.Content.Add(mediaType, media);
-        }
-
-        return requestBody;
-    }
-
-    private static OpenApiResponse GetResponse(SchemaManager schemata, Type type, params string[] mediaTypes)
+    private static OpenApiResponse GetDeclaredResponse(ResponseStatus status, IEnumerable<ResponseAttribute> declarations, BodyDescription? inferred, string? resultSummary,
+        SchemaManager schemata, MethodRegistry registry)
     {
         var response = new OpenApiResponse();
 
-        var schema = schemata.GetOrCreateSchema(type);
+        string? description = null;
 
-        foreach (var mediaType in mediaTypes)
+        foreach (var declaration in declarations)
         {
-            var media = new OpenApiMediaType
-            {
-                Schema = schema
-            };
+            description ??= declaration.Description;
 
-            response.Content.Add(mediaType, media);
+            var body = GetDeclaredBody(declaration.Type, declaration.ContentType, IsSuccess(status) ? inferred : null, schemata, registry);
+
+            if (body != null)
+            {
+                AddContent(response, body);
+            }
         }
+
+        response.Description = description ?? resultSummary ?? GetDefaultDescription(status);
 
         return response;
     }
+
+    private static void AddContent(OpenApiResponse response, BodyDescription body)
+    {
+        foreach (var mediaType in body.MediaTypes)
+        {
+            response.Content.TryAdd(mediaType, new OpenApiMediaType
+            {
+                Schema = body.Schema
+            });
+        }
+    }
+
+    /// <summary>
+    /// Describes the content generated by the method, as derived from its signature.
+    /// </summary>
+    private static BodyDescription? GetResultBody(Operation operation, SchemaManager schemata, MethodRegistry registry)
+    {
+        var type = Unwrap(operation.Result.Type);
+
+        return operation.Result.Sink switch
+        {
+            OperationResultSink.Formatter => new BodyDescription(schemata.GetOrCreateSchema(type), ["text/plain"]),
+            OperationResultSink.Serializer => new BodyDescription(schemata.GetOrCreateSchema(type), GetFormats(registry)),
+            OperationResultSink.Binary => new BodyDescription(GetBinarySchema(), ["application/octet-stream"]),
+            OperationResultSink.Dynamic => new BodyDescription(null, ["*/*"]),
+            _ => null
+        };
+    }
+
+    /// <summary>
+    /// Results wrapped into a <see cref="Result{T}" /> are not unwrapped by the signature
+    /// analysis if returned asynchronously (but still serialized, see ResponseProvider).
+    /// </summary>
+    private static Type Unwrap(Type type)
+    {
+        if (type.IsGenericType && typeof(IResultWrapper).IsAssignableFrom(type))
+        {
+            return type.GenericTypeArguments[0];
+        }
+
+        return type;
+    }
+
+    private static bool IsSuccess(ResponseStatus status) => (int)status is >= 200 and < 300;
+
+    private static string GetKey(ResponseStatus status) => ((int)status).ToString();
+
+    private static string GetDefaultDescription(ResponseStatus status) => status switch
+    {
+        ResponseStatus.NoContent => "A response containing no body",
+        _ => System.Text.RegularExpressions.Regex.Replace(status.ToString(), "(?<=[a-z])(?=[A-Z])", " ")
+    };
+
+    #endregion
+
+    #region Bodies
+
+    /// <summary>
+    /// Describes the content of a body declared by an attribute, using the body derived from
+    /// the method signature to fill the information that has not been declared.
+    /// </summary>
+    private static BodyDescription? GetDeclaredBody(Type? type, string? contentType, BodyDescription? inferred, SchemaManager schemata, MethodRegistry registry)
+    {
+        if (type != null)
+        {
+            var schema = schemata.GetOrCreateSchema(type);
+
+            if (contentType != null)
+            {
+                return new BodyDescription(schema, [contentType]);
+            }
+
+            return new BodyDescription(schema, registry.Formatting.CanHandle(type) ? ["text/plain"] : GetFormats(registry));
+        }
+
+        if (inferred != null)
+        {
+            if (contentType == null)
+            {
+                return inferred;
+            }
+
+            return new BodyDescription(inferred.Schema ?? GuessSchema(contentType), [contentType]);
+        }
+
+        return contentType != null ? new BodyDescription(GuessSchema(contentType), [contentType]) : null;
+    }
+
+    private static JsonSchema? GuessSchema(string contentType)
+    {
+        var mediaType = contentType.Split(';')[0].Trim();
+
+        if (mediaType.StartsWith("text/", StringComparison.OrdinalIgnoreCase))
+        {
+            return new JsonSchema
+            {
+                Type = JsonObjectType.String
+            };
+        }
+
+        if (mediaType.EndsWith("json", StringComparison.OrdinalIgnoreCase) || mediaType.EndsWith("xml", StringComparison.OrdinalIgnoreCase) || mediaType.EndsWith("yaml", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        return GetBinarySchema();
+    }
+
+    private static JsonSchema GetBinarySchema() => new()
+    {
+        Format = "binary"
+    };
+
+    private static string[] GetFormats(MethodRegistry registry) => registry.Serialization.Formats.Select(s => s.Key.ToString()).ToArray();
+
+    #endregion
 
 }

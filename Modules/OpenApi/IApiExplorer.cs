@@ -33,7 +33,8 @@ public interface IApiExplorer
     /// <param name="path">The current stack of path segments that have already been analyzed, relative to the location of the OpenAPI concern</param>
     /// <param name="document">The document to be adjusted and enriched</param>
     /// <param name="schemata">The manager to generate JSON schemas with</param>
+    /// <param name="documentation">The documentation provided by the concerns wrapping the handler, to be passed when exploring child handlers</param>
     /// <param name="registry">The registry containing all active explorers which can be used to further analyze any child handler of the given handler instance</param>
-    ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry);
+    ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, InheritedDocumentation documentation, ApiDiscoveryRegistry registry);
 
 }

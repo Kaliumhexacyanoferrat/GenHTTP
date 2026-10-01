@@ -132,7 +132,7 @@ public sealed class OpenApiConcern : IConcern
             });
         }
 
-        await registry.ExploreAsync(request, Content, [], document, schemata);
+        await registry.ExploreAsync(request, Content, [], document, schemata, InheritedDocumentation.Empty);
 
         PostProcessor.Invoke(request, document);
 

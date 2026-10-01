@@ -1,4 +1,5 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Services;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
@@ -6,7 +7,7 @@ using GenHTTP.Modules.IO;
 
 namespace GenHTTP.Modules.ClientCaching.Policy;
 
-public sealed class CachePolicyConcern : IConcern
+public sealed class CachePolicyConcern : IDocumentedConcern
 {
 
     #region Get-/Setters
@@ -58,6 +59,14 @@ public sealed class CachePolicyConcern : IConcern
     }
 
     public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
+
+    public void AddDocumentation(OperationDocumentation operation)
+    {
+        if (operation.Method == RequestMethod.Get)
+        {
+            operation.Add(new ResponseHeaderAttribute(ResponseStatus.Ok, "Expires", "Until when the client may cache the response"));
+        }
+    }
 
     #endregion
 
