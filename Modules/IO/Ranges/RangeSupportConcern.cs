@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Services;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
@@ -8,7 +9,7 @@ using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO.Ranges;
 
-public sealed partial class RangeSupportConcern : IConcern
+public sealed partial class RangeSupportConcern : IDocumentedConcern
 {
     private static readonly Regex Pattern = CreatePattern();
 
@@ -37,6 +38,19 @@ public sealed partial class RangeSupportConcern : IConcern
     #region Functionality
 
     public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
+
+    public void AddDocumentation(OperationDocumentation operation)
+    {
+        if (operation.Method == RequestMethod.Get || operation.Method == RequestMethod.Head)
+        {
+            operation.Add(new RequestHeaderAttribute("Range", "Requests a part of the content (e.g. bytes=0-1023), supported if the length of the content is known"))
+                     .Add(new ResponseAttribute(ResponseStatus.PartialContent, "The requested part of the content"))
+                     .Add(new ResponseAttribute(ResponseStatus.RequestedRangeNotSatisfiable, "The requested range is not within the content") { ContentType = "text/plain" })
+                     .Add(new ResponseHeaderAttribute(ResponseStatus.Ok, "Accept-Ranges", "Set to 'bytes' if parts of the content can be requested"))
+                     .Add(new ResponseHeaderAttribute(ResponseStatus.PartialContent, "Content-Range", "The part of the content contained in the response (e.g. bytes 0-1023/4096)"))
+                     .Add(new ResponseHeaderAttribute(ResponseStatus.RequestedRangeNotSatisfiable, "Content-Range", "The total length of the content (e.g. bytes */4096)"));
+        }
+    }
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {

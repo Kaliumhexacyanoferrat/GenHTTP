@@ -34,13 +34,14 @@ public sealed class ApiDiscoveryRegistry
     /// <param name="path">The current stack of path segments that have already been analyzed, relative to the location of the OpenAPI concern</param>
     /// <param name="document">The document to be adjusted and enriched</param>
     /// <param name="schemata">The manager to generate JSON schemas with</param>
-    public async ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata)
+    /// <param name="documentation">The documentation provided by the concerns wrapping the handler</param>
+    public async ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, InheritedDocumentation documentation)
     {
         foreach (var explorer in Explorers)
         {
             if (explorer.CanExplore(handler))
             {
-                await explorer.ExploreAsync(request, handler, path, document, schemata, this);
+                await explorer.ExploreAsync(request, handler, path, document, schemata, documentation, this);
                 break;
             }
         }
