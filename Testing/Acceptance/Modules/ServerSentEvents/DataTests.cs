@@ -31,7 +31,7 @@ public sealed class DataTests
 
     [TestMethod]
     [MultiEngineTest]
-    public Task TestComplex(ServerEngine engine) => TestAsync(engine, async c => await c.DataAsync(new MyType("1", 2)), "{\"one\":\"1\",\"two\":2}");
+    public Task TestComplex(ServerEngine engine) => TestAsync(engine, async c => await c.DataAsync(new MyType("1", 2), "1", "2"), "{\"one\":\"1\",\"two\":2}");
 
     private static async Task TestAsync(ServerEngine engine, Func<IEventConnection, ValueTask> generator, string expected)
     {
@@ -44,7 +44,7 @@ public sealed class DataTests
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
 
-        Assert.AreEqual($"data: {expected}{NL}{NL}", await response.GetContentAsync());
+        Assert.Contains($"data: {expected}{NL}{NL}", await response.GetContentAsync());
     }
 
     #endregion

@@ -8,6 +8,8 @@ namespace GenHTTP.Modules.Compression.Providers;
 
 public sealed class CompressionConcern : IConcern
 {
+    
+#pragma warning disable CS0618 // Type or member is obsolete
     private static readonly HashSet<ContentType> CompressibleTypes =
     [
         ContentType.ApplicationJavaScript,
@@ -18,6 +20,7 @@ public sealed class CompressionConcern : IConcern
         ContentType.TextHtml,
         ContentType.TextPlain,
         ContentType.TextRichText,
+        ContentType.ApplicationRtf,
         ContentType.FontWoff,
         ContentType.FontTrueTypeFont,
         ContentType.FontOpenTypeFont,
@@ -29,6 +32,7 @@ public sealed class CompressionConcern : IConcern
         ContentType.TextJavaScript,
         ContentType.ApplicationYaml
     ];
+#pragma warning restore CS0618 // Type or member is obsolete
 
     #region Get-/Setters
 

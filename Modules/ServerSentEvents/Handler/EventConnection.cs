@@ -90,7 +90,7 @@ public sealed class EventConnection : IEventConnection
 
         await JsonSerializer.SerializeAsync(buffer, data, SerializationOptions);
 
-        return await DataAsync(Encoding.GetString(buffer.ToArray()));
+        return await DataAsync(Encoding.GetString(buffer.ToArray()), eventType, eventId);
     }
 
     public async ValueTask<bool> RetryAsync(int milliseconds)
