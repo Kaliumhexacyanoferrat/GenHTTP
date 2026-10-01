@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-
+using System.Text.RegularExpressions;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Services;
 using GenHTTP.Api.Protocol;
@@ -12,8 +12,10 @@ using NSwag;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
 
-public sealed class MethodHandlerExplorer : IApiExplorer
+public sealed partial class MethodHandlerExplorer : IApiExplorer
 {
+
+    private static readonly Regex WordBoundaryMatcher = CreateWordBoundaryMatcher();
 
     /// <summary>
     /// Describes the content of a request or response body.
@@ -525,8 +527,11 @@ public sealed class MethodHandlerExplorer : IApiExplorer
     private static string GetDefaultDescription(ResponseStatus status) => status switch
     {
         ResponseStatus.NoContent => "A response containing no body",
-        _ => System.Text.RegularExpressions.Regex.Replace(status.ToString(), "(?<=[a-z])(?=[A-Z])", " ")
+        _ => WordBoundaryMatcher.Replace(status.ToString(), " ")
     };
+
+    [GeneratedRegex("(?<=[a-z])(?=[A-Z])")]
+    private static partial Regex CreateWordBoundaryMatcher();
 
     #endregion
 
