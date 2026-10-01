@@ -111,12 +111,19 @@ public static class CodeProviderInvocationExtensions
         foreach (var argument in operation.Arguments)
         {
             sb.Append($"            arg{i + 1}");
-            
-            var defaultIsNull = !argument.Value.Type.IsValueType || Nullable.GetUnderlyingType(argument.Value.Type) != null;
-            
-            if (!defaultIsNull)
+
+            if (argument.Value.DefaultValue is { } defaultValue)
             {
-                sb.Append(" ?? default");
+                sb.Append($" ?? {GetDefaultValue(argument.Key, argument.Value.Type, defaultValue)}");
+            }
+            else
+            {
+                var defaultIsNull = !argument.Value.Type.IsValueType || Nullable.GetUnderlyingType(argument.Value.Type) != null;
+
+                if (!defaultIsNull)
+                {
+                    sb.Append(" ?? default");
+                }
             }
 
             var last = (i++ == operation.Arguments.Count - 1);
@@ -130,6 +137,22 @@ public static class CodeProviderInvocationExtensions
                 sb.AppendLine(",");
             }
         }
+    }
+
+    private static string GetDefaultValue(string name, Type type, object defaultValue)
+    {
+        var literal = CompilationUtil.GetLiteral(defaultValue);
+
+        if (literal != null)
+        {
+            return literal;
+        }
+
+        // constants that cannot be expressed in C# (such as DateTime defaults declared
+        // via [DateTimeConstant]) are read from the operation when the value is missing
+        var safeType = CompilationUtil.GetQualifiedName(type, true);
+
+        return $"({safeType})operation.Arguments[{CompilationUtil.GetSafeString(name)}].DefaultValue";
     }
 
 }

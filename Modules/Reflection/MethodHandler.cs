@@ -37,6 +37,8 @@ public sealed class MethodHandler : IHandler
 
     private Func<Delegate, Operation, IRequest, IHandler, MethodRegistry, RoutingMatch, RequestInterception, ValueTask<IResponse?>>? _compiledDelegate;
 
+    private Delegate? _typedDelegate;
+
     private CodeGenerationException? _compilationError;
 
     private readonly RequestInterception _interceptor;
@@ -92,6 +94,7 @@ public sealed class MethodHandler : IHandler
                 if (Operation.Delegate != null)
                 {
                     _compiledDelegate = OptimizedDelegate.Compile<Delegate>(Operation);
+                    _typedDelegate = OptimizedDelegate.GetTypedDelegate(Operation);
                 }
                 else
                 {
@@ -131,10 +134,10 @@ public sealed class MethodHandler : IHandler
 
     private ValueTask<IResponse?> RunAsDelegate(IRequest request, RoutingMatch match)
     {
-        if (_compiledDelegate == null || Operation.Delegate == null)
+        if (_compiledDelegate == null || _typedDelegate == null)
             throw new InvalidOperationException("Compiled delegate is not initialized");
 
-        return _compiledDelegate(Operation.Delegate, Operation, request, this, Registry, match, _interceptor);
+        return _compiledDelegate(_typedDelegate, Operation, request, this, Registry, match, _interceptor);
     }
 
     private async ValueTask<IResponse?> RunAsMethod(IRequest request, RoutingMatch match)
@@ -181,7 +184,7 @@ public sealed class MethodHandler : IHandler
                 {
                     if (Operation.Arguments.TryGetValue(par.Name, out var arg))
                     {
-                        targetArguments[arg.Name] = arg.Source switch
+                        var value = arg.Source switch
                         {
                             OperationArgumentSource.Injected => await ArgumentProvider.GetInjectedArgumentAsync(request, this, arg, Registry),
                             OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg.Name, arg.Type, match, Registry),
@@ -191,6 +194,8 @@ public sealed class MethodHandler : IHandler
                             OperationArgumentSource.Streamed => ArgumentProvider.GetStream(request),
                             _ => throw new ProviderException(ResponseStatus.InternalServerError, $"Unable to map argument '{arg.Name}' of type '{arg.Type}' because source '{arg.Source}' is not supported")
                         };
+
+                        targetArguments[arg.Name] = value ?? arg.DefaultValue;
                     }
                 }
             }
