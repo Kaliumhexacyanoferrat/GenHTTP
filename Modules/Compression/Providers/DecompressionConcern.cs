@@ -1,4 +1,5 @@
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Services;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -9,7 +10,7 @@ namespace GenHTTP.Modules.Compression.Providers;
 /// Concern that automatically decompresses incoming request content
 /// based on the Content-Encoding header.
 /// </summary>
-public sealed class DecompressionConcern : IConcern
+public sealed class DecompressionConcern : IDocumentedConcern
 {
 
     #region Get-/Setters
@@ -50,6 +51,16 @@ public sealed class DecompressionConcern : IConcern
     }
 
     public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
+
+    public void AddDocumentation(OperationDocumentation operation)
+    {
+        if (operation.Method != RequestMethod.Get && operation.Method != RequestMethod.Head)
+        {
+            var algorithms = string.Join(", ", Algorithms.Keys.Select(k => k.ToString()));
+
+            operation.Add(new RequestHeaderAttribute("Content-Encoding", $"Allows to send a compressed request body (supported: {algorithms})"));
+        }
+    }
 
     #endregion
 

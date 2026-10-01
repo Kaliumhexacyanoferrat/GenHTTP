@@ -12,11 +12,11 @@ public sealed class ServiceExplorer : IApiExplorer
 
     public bool CanExplore(IHandler handler) => handler is IServiceMethodProvider;
 
-    public async ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
+    public async ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, InheritedDocumentation documentation, ApiDiscoveryRegistry registry)
     {
         if (handler is IServiceMethodProvider serviceProvider)
         {
-            await registry.ExploreAsync(request, serviceProvider.Methods, path, document, schemata);
+            await registry.ExploreAsync(request, serviceProvider.Methods, path, document, schemata, documentation);
         }
     }
 

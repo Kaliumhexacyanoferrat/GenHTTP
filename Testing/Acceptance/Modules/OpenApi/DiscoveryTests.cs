@@ -71,7 +71,7 @@ public class DiscoveryTests
 
         public bool CanExplore(IHandler handler) => true;
 
-        public ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
+        public ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, InheritedDocumentation documentation, ApiDiscoveryRegistry registry)
         {
             document.Servers.First().Description = "Added by explorer";
 

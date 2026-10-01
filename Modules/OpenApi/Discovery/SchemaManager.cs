@@ -20,6 +20,8 @@ public sealed class SchemaManager
             AllowReferencesWithProperties = true
         };
 
+        settings.SchemaProcessors.Add(new DocumentationSchemaProcessor());
+
         _generator = new JsonSchemaGenerator(settings);
         _resolver = new OpenApiSchemaResolver(document, settings);
     }
