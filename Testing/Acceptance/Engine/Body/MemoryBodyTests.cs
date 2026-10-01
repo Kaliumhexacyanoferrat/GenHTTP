@@ -39,6 +39,30 @@ public sealed class MemoryBodyTests
 
     [TestMethod]
     [MultiEngineTest]
+    public async Task TestEmptyContentLength(ServerEngine engine)
+    {
+        await using var runner = await TestHost.RunAsync(new BodyEchoHandler().Wrap(), engine: engine);
+
+        using var client = TestHost.GetClient();
+
+        // the second request ensures the connection is still usable afterwards
+        for (var i = 0; i < 2; i++)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, runner.GetUrl())
+            {
+                Content = new ByteArrayContent([])
+            };
+
+            using var response = await client.SendAsync(request);
+
+            await response.AssertStatusAsync(HttpStatusCode.OK);
+
+            Assert.IsEmpty(await response.Content.ReadAsByteArrayAsync());
+        }
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
     public async Task TestSmallChunked(ServerEngine engine)
     {
         var payload = "Hello, chunked body!"u8.ToArray();

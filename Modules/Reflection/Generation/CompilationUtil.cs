@@ -83,4 +83,36 @@ public static class CompilationUtil
         return typeof(IResultWrapper).IsAssignableFrom(returnType);
     }
 
+    /// <summary>
+    /// Renders the given constant as a C# expression.
+    /// </summary>
+    /// <param name="value">The constant to be rendered</param>
+    /// <returns>The C# expression or null, if the constant cannot be expressed as a literal</returns>
+    internal static string? GetLiteral(object value) => value switch
+    {
+        string s => GetSafeString(s),
+        bool b => b ? "true" : "false",
+        int i => SyntaxFactory.Literal(i).ToFullString(),
+        uint ui => SyntaxFactory.Literal(ui).ToFullString(),
+        long l => SyntaxFactory.Literal(l).ToFullString(),
+        ulong ul => SyntaxFactory.Literal(ul).ToFullString(),
+        char c => SyntaxFactory.Literal(c).ToFullString(),
+        decimal m => SyntaxFactory.Literal(m).ToFullString(),
+        double d => double.IsFinite(d) ? SyntaxFactory.Literal(d).ToFullString() : GetNonFiniteLiteral("double", d),
+        float f => float.IsFinite(f) ? SyntaxFactory.Literal(f).ToFullString() : GetNonFiniteLiteral("float", f),
+        byte or sbyte or short or ushort => $"(({GetQualifiedName(value.GetType(), false)}){Convert.ToInt32(value)})",
+        Enum e => $"(({GetQualifiedName(e.GetType(), false)})({GetLiteral(Convert.ChangeType(e, Enum.GetUnderlyingType(e.GetType())))}))",
+        _ => null
+    };
+
+    private static string GetNonFiniteLiteral(string type, double value)
+    {
+        if (double.IsNaN(value))
+        {
+            return $"{type}.NaN";
+        }
+
+        return (value > 0) ? $"{type}.PositiveInfinity" : $"{type}.NegativeInfinity";
+    }
+
 }

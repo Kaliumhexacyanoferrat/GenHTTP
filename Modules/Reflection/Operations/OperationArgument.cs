@@ -64,15 +64,22 @@ public sealed class OperationArgument
     /// </summary>
     public OperationArgumentSource Source { get; }
 
+    /// <summary>
+    /// The default value declared by the parameter which will be used
+    /// if the request does not supply one (null, if there is none).
+    /// </summary>
+    public object? DefaultValue { get; }
+
     #endregion
 
     #region Initialization
 
-    public OperationArgument(string name, Type type, OperationArgumentSource source)
+    public OperationArgument(string name, Type type, OperationArgumentSource source, object? defaultValue = null)
     {
         Name = new(name);
         Type = type;
         Source = source;
+        DefaultValue = defaultValue;
     }
 
     #endregion

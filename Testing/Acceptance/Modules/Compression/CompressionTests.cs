@@ -109,7 +109,7 @@ public sealed class CompressionTests
     [MultiEngineTest]
     public async Task TestNoAdditionalCompression(ServerEngine engine)
     {
-        var image = Resource.FromString("Image!").Type(ContentType.ImageJpg);
+        var image = Resource.FromString("Image!").Type(ContentType.ImageJpeg);
 
         await using var runner = await TestHost.RunAsync(Layout.Create().Add("uncompressed", Content.From(image)), engine: engine);
 

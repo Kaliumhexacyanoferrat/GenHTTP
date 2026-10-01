@@ -72,7 +72,7 @@ public static class CodeProviderArgumentExtensions
         sb.AppendLine($"        {safeType}? arg{index} = null;");
         sb.AppendLine();
 
-        sb.AppendLine($"        var queryArg{index} = request.Header.Query.GetEntry(QueryArg{index}Name);");
+        sb.AppendLine($"        var queryArg{index} = ArgumentProvider.GetQueryValue(request, QueryArg{index}Name);");
 
         sb.AppendLine($"        if (queryArg{index} != null)");
         sb.AppendArgumentAssignment(argument, index, "query", true);
@@ -174,7 +174,7 @@ public static class CodeProviderArgumentExtensions
 
         if (type == typeof(string))
         {
-            sb.AppendLine($"                arg{index} = {sourceName}{valueClaim}.ToString();");
+            sb.AppendLine($"                arg{index} = System.Text.Encoding.UTF8.GetString({sourceName}{valueClaim}.Bytes.Span);");
         }
         else if (IsInvariantParsable(type))
         {

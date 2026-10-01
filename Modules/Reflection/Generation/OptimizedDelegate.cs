@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 
 using GenHTTP.Api.Content;
@@ -41,6 +42,35 @@ internal static class OptimizedDelegate
         }
     }
     
+    /// <summary>
+    /// Converts the delegate of the given operation into the Func or Action
+    /// type expected by the generated code.
+    /// </summary>
+    /// <remarks>
+    /// Lambdas with default parameter values (such as <c>(int limit = 50) => limit</c>)
+    /// are typed as anonymous delegates by the compiler which cannot be referenced
+    /// by the generated code.
+    /// </remarks>
+    /// <param name="operation">The operation to retrieve the delegate from</param>
+    /// <returns>The delegate to be passed to the compiled code</returns>
+    internal static Delegate GetTypedDelegate(Operation operation)
+    {
+        var del = operation.Delegate ?? throw new InvalidOperationException("Operation is not based on a delegate");
+
+        var signature = operation.Arguments.Values.Select(a => a.Type)
+                                 .Append(operation.Method.ReturnType)
+                                 .ToArray();
+
+        var expectedType = Expression.GetDelegateType(signature);
+
+        if (expectedType.IsInstanceOfType(del))
+        {
+            return del;
+        }
+
+        return Delegate.CreateDelegate(expectedType, del.Target, del.Method);
+    }
+
     private static bool IsRuntimeCompilationSupported()
     {
         if (RuntimeInformation.ProcessArchitecture is Architecture.Arm or Architecture.Arm64)

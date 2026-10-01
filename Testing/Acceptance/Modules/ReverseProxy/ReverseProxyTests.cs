@@ -353,7 +353,7 @@ public sealed class ReverseProxyTests
         await using var setup = await TestSetup.CreateAsync(engine, r =>
         {
             return r.Respond()
-                    .Content("Hello World", ContentType.ImageJpg)
+                    .Content("Hello World", ContentType.ImageJpeg)
                     .Build();
         });
 
