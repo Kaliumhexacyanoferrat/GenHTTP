@@ -57,7 +57,7 @@ public static class ArgumentProvider
 
     public static object? GetQueryArgument(IRequest request, OperationArgument argument, MethodRegistry registry)
     {
-        var queryValue = request.Header.Query.GetEntry(argument.Name);
+        var queryValue = GetQueryValue(request, argument.Name);
 
         if (queryValue is not null)
         {
@@ -65,6 +65,21 @@ public static class ArgumentProvider
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Reads the percent-decoded value of the query parameter with the given name.
+    /// </summary>
+    public static ByteString? GetQueryValue(IRequest request, ByteString name)
+    {
+        var queryValue = request.Header.Query.GetEntry(name);
+
+        if (queryValue is null)
+        {
+            return null;
+        }
+
+        return new(PercentEncoding.Decode(queryValue.Value.Bytes, decodePlus: true));
     }
 
     public static async ValueTask<object?> GetContentAsync(IRequest request, OperationArgument argument, MethodRegistry registry)
