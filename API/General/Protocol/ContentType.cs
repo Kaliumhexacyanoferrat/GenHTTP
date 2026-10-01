@@ -14,9 +14,11 @@ public readonly partial struct ContentType
     public static readonly ContentType TextCss = new("text/css");
 
     /// <summary>A human-readable YAML file.</summary>
+    [Obsolete("Please use 'ApplicationYaml' instead")]
     public static readonly ContentType TextYaml = new("text/yaml");
 
     /// <summary>A JavaScript source file.</summary>
+    [Obsolete("Please use 'TextJavaScript' instead")]
     public static readonly ContentType ApplicationJavaScript = new("application/javascript");
 
     /// <summary>A JSON file.</summary>
@@ -38,8 +40,11 @@ public readonly partial struct ContentType
     public static readonly ContentType ImageBmp = new("image/bmp");
 
     /// <summary>A JPG image.</summary>
-    public static readonly ContentType ImageJpg = new("image/jpg");
+    public static readonly ContentType ImageJpeg = new("image/jpeg");
 
+    [Obsolete("Please use 'ImageJpeg' instead")]
+    public static ContentType ImageJpg => ImageJpeg;
+    
     /// <summary>A GIF image.</summary>
     public static readonly ContentType ImageGif = new("image/gif");
 
@@ -64,8 +69,11 @@ public readonly partial struct ContentType
     /// <summary>A CSV file.</summary>
     public static readonly ContentType TextCsv = new("text/csv");
 
-    /// <summary>A RTF file.</summary>
+    /// <summary>A richtext file.</summary>
     public static readonly ContentType TextRichText = new("text/richtext");
+    
+    /// <summary>A RTF file.</summary>
+    public static readonly ContentType ApplicationRtf = new("application/rtf");
 
     /// <summary>Plain text.</summary>
     public static readonly ContentType TextPlain = new("text/plain");
@@ -98,10 +106,10 @@ public readonly partial struct ContentType
     public static readonly ContentType ApplicationOfficeDocumentSheet = new("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
     /// <summary>An icon.</summary>
-    public static readonly ContentType ImageIcon = new("image/x-icon");
+    public static readonly ContentType ImageIcon = new("image/vnd.microsoft.icon");
 
     /// <summary>Microsoft embedded OTF.</summary>
-    public static readonly ContentType FontEmbeddedOpenTypeFont = new("font/eot");
+    public static readonly ContentType FontEmbeddedOpenTypeFont = new("application/vnd.ms-fontobject");
 
     /// <summary>True type font.</summary>
     public static readonly ContentType FontTrueTypeFont = new("font/ttf");
