@@ -2,6 +2,8 @@ using System.Buffers;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 
+using GenHTTP.Api.Infrastructure;
+
 namespace GenHTTP.Modules.IO.Streaming;
 
 public sealed class WritingStream : Stream
@@ -112,9 +114,16 @@ public sealed class WritingStream : Stream
     public override void Flush()
         => _flusher.FlushAsync().GetAwaiter().GetResult(); // required by XML serializer
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override Task FlushAsync(CancellationToken cancellationToken)
-        => _flusher.FlushAsync(cancellationToken).AsTask();
+    // A pipe reports a reader that went away - the peer closed the connection - as a completed
+    // flush, not as an exception. A stream can only say so by throwing, so a writer that loops
+    // until a write fails (a server-sent event source) stops instead of writing for nobody.
+    public override async Task FlushAsync(CancellationToken cancellationToken)
+    {
+        if ((await _flusher.FlushAsync(cancellationToken)).IsCompleted)
+        {
+            throw new ConnectionClosedException();
+        }
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override long Seek(long offset, SeekOrigin origin)

@@ -43,7 +43,7 @@ public sealed class ClientContext : IClientContext
     // it must be the same raw connection stream IRequest.Upgrade() hands out as a PipeReader.
     public Stream Stream => _request.UpgradedStream ?? (_bodyStream ??= Features.GetRequiredFeature<IHttpResponseBodyFeature>().Stream);
 
-    public PipeWriter Writer => _request.UpgradedWriter ?? (_bodyWriter ??= PipeWriter.Create(Stream, WriterOptions));
+    public PipeWriter Writer => _request.UpgradedWriter ?? (_bodyWriter ??= CreateBodyWriter());
 
     public ClientContext()
     {
@@ -54,6 +54,16 @@ public sealed class ClientContext : IClientContext
     {
         _server = server;
         _features = features;
+    }
+
+    // Kestrel drops writes to an aborted response silently; see AbortAwarePipeWriter.
+    private PipeWriter CreateBodyWriter()
+    {
+        var writer = PipeWriter.Create(Stream, WriterOptions);
+
+        var aborted = Features.Get<IHttpRequestLifetimeFeature>()?.RequestAborted ?? CancellationToken.None;
+
+        return aborted.CanBeCanceled ? new AbortAwarePipeWriter(writer, aborted) : writer;
     }
 
     public void Reset()

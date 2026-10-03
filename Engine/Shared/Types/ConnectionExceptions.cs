@@ -1,5 +1,7 @@
 using System.Net.Sockets;
 
+using GenHTTP.Api.Infrastructure;
+
 namespace GenHTTP.Engine.Shared.Types;
 
 /// <summary>
@@ -13,6 +15,7 @@ public static class ConnectionExceptions
     public static bool IsGracefulDisconnect(Exception e) => e switch
     {
         OperationCanceledException => true,
+        ConnectionClosedException => true,
         IOException { InnerException: SocketException { SocketErrorCode: SocketError.ConnectionReset or SocketError.ConnectionAborted or SocketError.Shutdown } } => true,
         IOException io when io.Message.Contains("Broken pipe", StringComparison.OrdinalIgnoreCase) => true,
         SocketException { SocketErrorCode: SocketError.ConnectionReset or SocketError.ConnectionAborted or SocketError.Shutdown } => true,

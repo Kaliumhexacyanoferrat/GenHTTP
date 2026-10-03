@@ -112,6 +112,10 @@ internal static class Http1Driver
         {
             await SendErrorAsync(server, writer, pe, (ResponseStatus)pe.StatusCode);
         }
+        catch (ConnectionClosedException)
+        {
+            // The client went away mid-response: nobody is left to answer, and that is no fault.
+        }
         finally
         {
             WarnIfThreadHopped(server, reactorThreadId, "before-return");

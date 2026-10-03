@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Sockets;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Modules.ServerSentEvents;
 
@@ -123,6 +124,55 @@ public sealed class ProtocolTests
         using var response = await host.GetResponseAsync();
 
         await response.AssertStatusAsync(HttpStatusCode.OK);
+    }
+
+    /// <summary>
+    /// As a client closes the connection, the generator learns that it is gone from the next
+    /// event it sends, so a source that runs until nobody listens comes to an end.
+    /// </summary>
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestGeneratorNoticesClosedConnection(ServerEngine engine)
+    {
+        var left = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var source = EventSource.Create()
+                                .Generator(async c =>
+                                {
+                                    while (await c.CommentAsync("ping"))
+                                    {
+                                        await Task.Delay(50);
+                                    }
+
+                                    Assert.IsFalse(c.Connected);
+                                    left.TrySetResult();
+                                });
+
+        await using var host = await TestHost.RunAsync(source, engine: engine);
+
+        using (var client = new TcpClient())
+        {
+            await client.ConnectAsync("127.0.0.1", host.Port);
+
+            var stream = client.GetStream();
+
+            await stream.WriteAsync("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n"u8.ToArray());
+
+            // wait for the first event, so the generator is running when the client leaves
+            var buffer = new byte[1024];
+            var received = "";
+
+            while (!received.Contains(": ping"))
+            {
+                var read = await stream.ReadAsync(buffer);
+                Assert.AreNotEqual(0, read);
+                received += System.Text.Encoding.ASCII.GetString(buffer, 0, read);
+            }
+        }
+
+        var finished = await Task.WhenAny(left.Task, Task.Delay(TimeSpan.FromSeconds(10)));
+
+        Assert.AreSame(left.Task, finished, "The generator kept sending after the client closed the connection");
     }
 
     private static async Task TestAsync(ServerEngine engine, Func<IEventConnection, ValueTask> generator, string expected)

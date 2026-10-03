@@ -2,6 +2,8 @@ using System.Buffers;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 
+using GenHTTP.Api.Infrastructure;
+
 namespace GenHTTP.Engine.Ioxide.Protocol.Sinks;
 
 /// <summary>A write-only stream over a pipe, for content that only knows how to write to a Stream.</summary>
@@ -65,8 +67,17 @@ internal sealed class Http1WriterStream(IBufferWriter<byte> sink, PipeWriter flu
     // reactor completes. The bytes drain at the end-of-response FlushAsync.
     public override void Flush() { }
 
-    // The real flush: pushes what is buffered out to the connection.
-    public override Task FlushAsync(CancellationToken cancellationToken) => flush.FlushAsync(cancellationToken).AsTask();
+    // The real flush: pushes what is buffered out to the connection. ioxide reports a peer that
+    // went away as a completed flush, never as an exception. A Stream has no other way to say so
+    // than to throw - so a writer that loops until a write fails (a server-sent event source, a
+    // long download) stops instead of producing for nobody forever.
+    public override async Task FlushAsync(CancellationToken cancellationToken)
+    {
+        if ((await flush.FlushAsync(cancellationToken)).IsCompleted)
+        {
+            throw new ConnectionClosedException();
+        }
+    }
 
     // Write-only, so reading is a mistake worth reporting.
     public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
