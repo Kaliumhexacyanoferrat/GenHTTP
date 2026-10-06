@@ -12,13 +12,13 @@ public sealed class MethodCollectionExplorer : IApiExplorer
 
     public bool CanExplore(IHandler handler) => handler is MethodCollection;
 
-    public async ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, ApiDiscoveryRegistry registry)
+    public async ValueTask ExploreAsync(IRequest request, IHandler handler, List<string> path, OpenApiDocument document, SchemaManager schemata, InheritedDocumentation documentation, ApiDiscoveryRegistry registry)
     {
         if (handler is MethodCollection collection)
         {
             foreach (var method in collection.Methods)
             {
-                await registry.ExploreAsync(request, method, path, document, schemata);
+                await registry.ExploreAsync(request, method, path, document, schemata, documentation);
             }
         }
     }
