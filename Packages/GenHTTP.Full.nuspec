@@ -58,8 +58,6 @@
                 <dependency id="GenHTTP.Modules.Webservices" version="11.1.0"/>
                 <dependency id="GenHTTP.Modules.Websockets" version="11.1.0"/>
 
-                <dependency id="GenHTTP.Testing" version="11.1.0"/>
-
             </group>
 
         </dependencies>
