@@ -40,7 +40,9 @@ public sealed class CacheValidationHandler : IDocumentedConcern
         {
             if ((response.Content != null) && (response.Mode != Connection.Upgrade))
             {
-                var eTag = await CalculateETag(response);
+                var existing = response.Headers.GetEntry(KnownHeaders.ETag);
+
+                var eTag = existing ?? await CalculateETag(response);
 
                 var builder = response.Rebuild();
 
@@ -53,7 +55,7 @@ public sealed class CacheValidationHandler : IDocumentedConcern
                     }
                 }
 
-                if (eTag is not null)
+                if (existing is null && eTag is not null)
                 {
                     builder.Header(KnownHeaders.ETag, eTag.Value);
                 }
@@ -78,13 +80,6 @@ public sealed class CacheValidationHandler : IDocumentedConcern
 
     private static async ValueTask<ByteString?> CalculateETag(IResponse response)
     {
-        var eTag = response.Headers.GetEntry(KnownHeaders.ETag);
-
-        if (eTag != null)
-        {
-            return eTag;
-        }
-
         if (response.Content is not null)
         {
             ulong? checksum = await response.Content.CalculateChecksumAsync();
