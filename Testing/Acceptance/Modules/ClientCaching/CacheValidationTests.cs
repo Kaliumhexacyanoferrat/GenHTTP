@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.ClientCaching;
 using GenHTTP.Modules.IO;
 using GenHTTP.Testing.Acceptance.Utilities;
 
@@ -94,6 +95,42 @@ public sealed class CacheValidationTests
         using var response = await runner.GetResponseAsync(request);
 
         Assert.IsFalse(response.Headers.Contains("ETag"));
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestChainedValidationSingleETag(ServerEngine engine)
+    {
+        var content = Content.From(Resource.FromString("Hello World!"))
+                             .Add(ClientCache.Validation());
+
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
+
+        using var response = await runner.GetResponseAsync();
+
+        Assert.HasCount(1, response.Headers.GetValues("ETag"));
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestChainedValidationReturnsUnmodified(ServerEngine engine)
+    {
+        var content = Content.From(Resource.FromString("Hello World!"))
+                             .Add(ClientCache.Validation());
+
+        await using var runner = await TestHost.RunAsync(content, engine: engine);
+
+        using var response = await runner.GetResponseAsync();
+
+        var request = runner.GetRequest();
+
+        request.Headers.Add("If-None-Match", response.GetHeader("ETag"));
+
+        using var cached = await runner.GetResponseAsync(request);
+
+        await cached.AssertStatusAsync(HttpStatusCode.NotModified);
+
+        Assert.HasCount(1, cached.Headers.GetValues("ETag"));
     }
 
 }
