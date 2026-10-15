@@ -1,7 +1,9 @@
 ﻿using System.IO.Compression;
+
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Compression.Providers;
@@ -82,11 +84,9 @@ public sealed class CompressionConcern : IConcern
             {
                 if (acceptEncoding != null)
                 {
-                    var supported = AcceptEncodingHeader.ParseSupported(acceptEncoding.Value);
-
                     foreach (var algorithm in Algorithms)
                     {
-                        if (!supported.Contains(algorithm.Name))
+                        if (!AcceptEncodingHeader.IsSupported(acceptEncoding.Value, algorithm.Name))
                         {
                             continue;
                         }
