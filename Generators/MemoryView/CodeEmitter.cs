@@ -118,19 +118,33 @@ internal static class CodeEmitter
         // Case-insensitive hash
         // ─────────────────────────────────────────────────────────────────────
 
-        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendLine($"{indent}private static int ComputeHash(global::System.ReadOnlySpan<byte> span)");
         sb.AppendLine($"{indent}{{");
-        sb.AppendLine($"{indent}    const uint Offset = 2166136261;");
-        sb.AppendLine($"{indent}    const uint Prime = 16777619;");
+        sb.AppendLine($"{indent}    const ulong Mask = 0x2020202020202020UL;");
+        sb.AppendLine($"{indent}    const ulong Prime = 0x9E3779B97F4A7C15UL;");
         sb.AppendLine();
-        sb.AppendLine($"{indent}    uint hash = Offset ^ (uint)span.Length;");
+        sb.AppendLine($"{indent}    ulong hash = 14695981039346656037UL ^ (ulong)span.Length;");
         sb.AppendLine();
-        sb.AppendLine($"{indent}    foreach (var b in span)");
+        sb.AppendLine($"{indent}    while (span.Length >= 8)");
         sb.AppendLine($"{indent}    {{");
-        sb.AppendLine($"{indent}        hash ^= Normalize(b);");
-        sb.AppendLine($"{indent}        hash *= Prime;");
+        sb.AppendLine($"{indent}        var chunk = global::System.Buffers.Binary.BinaryPrimitives.ReadUInt64LittleEndian(span) | Mask;");
+        sb.AppendLine($"{indent}        hash = (global::System.Numerics.BitOperations.RotateLeft(hash, 5) ^ chunk) * Prime;");
+        sb.AppendLine($"{indent}        span = span.Slice(8);");
         sb.AppendLine($"{indent}    }}");
+        sb.AppendLine();
+        sb.AppendLine($"{indent}    if (span.Length > 0)");
+        sb.AppendLine($"{indent}    {{");
+        sb.AppendLine($"{indent}        ulong tail = 0;");
+        sb.AppendLine();
+        sb.AppendLine($"{indent}        for (var i = 0; i < span.Length; i++)");
+        sb.AppendLine($"{indent}        {{");
+        sb.AppendLine($"{indent}            tail |= (ulong)(span[i] | 0x20) << (i * 8);");
+        sb.AppendLine($"{indent}        }}");
+        sb.AppendLine();
+        sb.AppendLine($"{indent}        hash = (global::System.Numerics.BitOperations.RotateLeft(hash, 5) ^ tail) * Prime;");
+        sb.AppendLine($"{indent}    }}");
+        sb.AppendLine();
+        sb.AppendLine($"{indent}    hash ^= hash >> 32;");
         sb.AppendLine();
         sb.AppendLine($"{indent}    return (int)hash;");
         sb.AppendLine($"{indent}}}");
