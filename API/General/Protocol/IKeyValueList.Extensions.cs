@@ -11,11 +11,13 @@ public static class IKeyValueListExtensions
     /// <returns>The value of the first matching entry or null, if the entry could not be found</returns>
     public static ByteString? GetEntry(this IKeyValueList list, ByteString key)
     {
+        var length = key.Bytes.Length;
+        
         for (var i = 0; i < list.Count; i++)
         {
             var entry = list.GetMemoryEntry(i);
 
-            if (entry.Key == key)
+            if ((entry.Key.Length == length) && (entry.Key == key))
             {
                 return new(entry.Value);
             }
