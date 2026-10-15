@@ -1,4 +1,6 @@
-﻿using GenHTTP.Api.Content;
+﻿using System.Runtime.CompilerServices;
+
+using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
@@ -32,7 +34,9 @@ public sealed class ErrorSentry<T> : IConcern where T : Exception
 
     public ValueTask<IResponse?> HandleAsync(IRequest request)
     {
-        var accepted = request.Header.Headers.GetEntry(KnownHeaders.Accept).PreAllocate(request);
+        var eagerRequired = request.HasBody;
+        
+        var eagerAccepted = (eagerRequired) ? request.Header.Headers.GetEntry(KnownHeaders.Accept) : null;
 
         try
         {
@@ -40,24 +44,24 @@ public sealed class ErrorSentry<T> : IConcern where T : Exception
 
             if (!responseTask.IsCompletedSuccessfully)
             {
-                return HandleAsyncSlow(responseTask, request, accepted);
+                return HandleAsyncSlow(responseTask, request, GetAccepted(request, eagerRequired, eagerAccepted));
             }
 
             var response = responseTask.Result;
 
             if (response is null)
             {
-                return ErrorHandler.GetNotFound(request, Content, accepted);
+                return ErrorHandler.GetNotFound(request, Content, GetAccepted(request, eagerRequired, eagerAccepted));
             }
 
             return new ValueTask<IResponse?>(response);
         }
         catch (T e)
         {
-            return ErrorHandler.Map(request, Content, e, accepted);
+            return ErrorHandler.Map(request, Content, e, GetAccepted(request, eagerRequired, eagerAccepted));
         }
     }
-
+    
     private async ValueTask<IResponse?> HandleAsyncSlow(ValueTask<IResponse?> pending, IRequest request, ByteString? accepted)
     {
         try
@@ -75,6 +79,17 @@ public sealed class ErrorSentry<T> : IConcern where T : Exception
         {
             return await ErrorHandler.Map(request, Content, e, accepted);
         }
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ByteString? GetAccepted(IRequest request, bool eagerRequired, ByteString? eagerAccepted)
+    {
+        if (eagerRequired)
+        {
+            return eagerAccepted;
+        }
+        
+        return request.Header.Headers.GetEntry(KnownHeaders.Accept);
     }
 
     #endregion
