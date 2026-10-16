@@ -9,20 +9,19 @@ namespace GenHTTP.Modules.Conversion.Serializers;
 /// </summary>
 public sealed class SerializationRegistry
 {
+    private readonly ISerializationFormat? _defaultFormat;
 
     #region Initialization
 
     public SerializationRegistry(ContentType defaultType, Dictionary<ContentType, ISerializationFormat> formats)
     {
-        Default = defaultType;
         Formats = formats;
+        _defaultFormat = GetFormat(defaultType);
     }
 
     #endregion
 
     #region Get-/Setters
-
-    private ContentType Default { get; }
 
     public IReadOnlyDictionary<ContentType, ISerializationFormat> Formats { get; }
 
@@ -45,7 +44,7 @@ public sealed class SerializationRegistry
             return GetFormat(new ContentType(contentType.Value.Bytes).WithoutOptions());
         }
 
-        return GetFormat(Default);
+        return _defaultFormat;
     }
 
     /// <summary>
@@ -59,10 +58,10 @@ public sealed class SerializationRegistry
     {
         if (accepted != null)
         {
-            return GetFormat(new ContentType(accepted.Value.Bytes)) ?? GetFormat(Default);
+            return GetFormat(new ContentType(accepted.Value.Bytes)) ?? _defaultFormat;
         }
 
-        return GetFormat(Default);
+        return _defaultFormat;
     }
 
     /// <summary>
@@ -78,7 +77,7 @@ public sealed class SerializationRegistry
             return GetFormat(new ContentType(contentType));
         }
 
-        return GetFormat(Default);
+        return _defaultFormat;
     }
 
     private ISerializationFormat? GetFormat(ContentType contentType) => Formats.GetValueOrDefault(contentType);
