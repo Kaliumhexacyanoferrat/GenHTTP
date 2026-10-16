@@ -16,7 +16,7 @@ public static class CodeProviderResultFormattingExtensions
         }
         else if (IsFormattable(type))
         {
-            sb.AppendLine("        var resultContent = new FormattableContent(result);");
+            sb.AppendLine($"        var resultContent = new FormattableContent<{CompilationUtil.GetQualifiedName(type, false)}>(result);");
         }
         else
         {

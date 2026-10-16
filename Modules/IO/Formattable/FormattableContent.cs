@@ -10,13 +10,19 @@ public sealed class FormattableContent : IResponseContent
 
     private readonly int _length;
 
-    private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
-
+    internal static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
+    
+    #region Get-/Setters
+    
     public ulong? Length => (ulong)_length;
 
     public ContentType? Type => ContentType.TextPlain;
 
     public ReadOnlyMemory<byte>? Encoding => null;
+    
+    #endregion
+    
+    #region Initialization
 
     public FormattableContent(IUtf8SpanFormattable value)
     {
@@ -29,6 +35,10 @@ public sealed class FormattableContent : IResponseContent
             throw new InvalidOperationException($"Failed to format value of type {value.GetType()}.");
         }
     }
+    
+    #endregion
+    
+    #region Functionality
 
     public ValueTask<ulong?> CalculateChecksumAsync() => new((ulong)_value.GetHashCode());
 
@@ -45,4 +55,6 @@ public sealed class FormattableContent : IResponseContent
         return ValueTask.CompletedTask;
     }
 
+    #endregion
+    
 }
