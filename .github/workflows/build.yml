@@ -91,13 +91,6 @@ jobs:
 
           - os:
               name: 🐧
-              runs-on: linux-arm32
-            arch: arm32
-            runtime: linux-arm
-            platform: linux/arm/v7
-
-          - os:
-              name: 🐧
               runs-on: ubuntu-22.04-arm
             arch: arm64
             runtime: linux-arm64
@@ -137,7 +130,6 @@ jobs:
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5
-        if: matrix.os.runs-on != 'linux-arm32'
         with:
           global-json-file: global.json
 
