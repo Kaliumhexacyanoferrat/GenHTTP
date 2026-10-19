@@ -4,6 +4,7 @@ using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Redirects;
 using GenHTTP.Modules.Functional;
+using GenHTTP.Modules.OpenApi;
 
 namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
 
@@ -86,6 +87,32 @@ public class ResponseTests
 
         Assert.IsTrue(op.Responses?.ContainsKey("200"));
         Assert.IsTrue(op.Responses?["200"].Content?.ContainsKey("application/json"));
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestInferredResponsesHaveDescription(ServerEngine engine)
+    {
+        var api = Inline.Create()
+                        .Get("formatted", () => 42)
+                        .Get("serialized", () => new HashSet<int>())
+                        .Get("binary", () => new MemoryStream())
+                        .Get("none", () => { });
+
+        var doc = (await api.Add(ApiDescription.Create()).GetOpenApiAsync(engine)).Document!;
+
+        var responses = doc.Paths.Values.SelectMany(p => p.Operations!.Values)
+                                        .SelectMany(o => o.Responses!.Values)
+                                        .ToList();
+
+        Assert.IsNotEmpty(responses);
+
+        foreach (var response in responses)
+        {
+            Assert.IsFalse(string.IsNullOrEmpty(response.Description));
+        }
+
+        Assert.AreEqual("The result of the operation", doc.Paths["/formatted"].Operations?[HttpMethod.Get].Responses?["200"].Description);
     }
 
 }

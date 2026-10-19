@@ -437,16 +437,11 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
 
         if (body != null)
         {
-            var response = new OpenApiResponse();
-
-            if (sink is OperationResultSink.Binary or OperationResultSink.Dynamic)
+            // the specification requires a description for every response
+            var response = new OpenApiResponse
             {
-                response.Description = resultSummary ?? "A dynamically generated response";
-            }
-            else if (resultSummary != null)
-            {
-                response.Description = resultSummary;
-            }
+                Description = resultSummary ?? (sink is OperationResultSink.Binary or OperationResultSink.Dynamic ? "A dynamically generated response" : "The result of the operation")
+            };
 
             AddContent(response, body);
 
