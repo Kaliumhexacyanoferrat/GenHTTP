@@ -1,5 +1,6 @@
 using System.Reflection;
 
+using Namotion.Reflection;
 using NJsonSchema.Generation;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
@@ -46,11 +47,11 @@ internal sealed class DocumentationSchemaProcessor : ISchemaProcessor
                 continue;
             }
 
-            var key = schema.Properties.Keys.FirstOrDefault(k => string.Equals(k, property.Name, StringComparison.OrdinalIgnoreCase));
+            var key = context.Settings.ReflectionService.GetPropertyName(property.ToContextualProperty(), context.Settings);
 
-            if (key != null)
+            if (schema.Properties.TryGetValue(key, out var schemaProperty))
             {
-                schema.Properties[key].Description = description;
+                schemaProperty.Description = description;
             }
         }
     }
