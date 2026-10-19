@@ -5,6 +5,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Redirects;
 using GenHTTP.Modules.Functional;
 
+using Microsoft.OpenApi;
+
 namespace GenHTTP.Testing.Acceptance.Modules.OpenApi;
 
 [TestClass]
@@ -46,6 +48,7 @@ public class ResponseTests
         Assert.IsTrue(op.Responses?["200"].Content?.ContainsKey("application/octet-stream"));
 
         Assert.AreEqual("binary", op.Responses?["200"].Content?["application/octet-stream"].Schema?.Format);
+        Assert.AreEqual(JsonSchemaType.String, op.Responses?["200"].Content?["application/octet-stream"].Schema?.Type);
     }
 
     [TestMethod]

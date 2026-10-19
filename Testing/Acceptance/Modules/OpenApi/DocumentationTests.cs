@@ -122,6 +122,7 @@ public sealed class DocumentationTests
         Assert.AreEqual("The content of the file", op.RequestBody?.Description);
         Assert.IsTrue(op.RequestBody?.Required);
         Assert.AreEqual("binary", op.RequestBody?.Content?["application/octet-stream"].Schema?.Format);
+        Assert.AreEqual(JsonSchemaType.String, op.RequestBody?.Content?["application/octet-stream"].Schema?.Type);
     }
 
     [TestMethod]
@@ -136,6 +137,7 @@ public sealed class DocumentationTests
         Assert.AreEqual("The archive", op.RequestBody?.Description);
         Assert.AreEqual(1, op.RequestBody?.Content?.Count);
         Assert.AreEqual("binary", op.RequestBody?.Content?["application/zip"].Schema?.Format);
+        Assert.AreEqual(JsonSchemaType.String, op.RequestBody?.Content?["application/zip"].Schema?.Type);
     }
 
     [TestMethod]
@@ -314,7 +316,9 @@ public sealed class DocumentationTests
 
         Assert.AreEqual(2, response?.Content?.Count);
         Assert.AreEqual("binary", response?.Content?["image/png"].Schema?.Format);
+        Assert.AreEqual(JsonSchemaType.String, response?.Content?["image/png"].Schema?.Type);
         Assert.AreEqual("binary", response?.Content?["image/jpeg"].Schema?.Format);
+        Assert.AreEqual(JsonSchemaType.String, response?.Content?["image/jpeg"].Schema?.Type);
     }
 
     [TestMethod]
