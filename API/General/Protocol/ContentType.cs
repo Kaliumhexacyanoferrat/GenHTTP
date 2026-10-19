@@ -27,6 +27,12 @@ public readonly partial struct ContentType
     /// <summary>A YAML file.</summary>
     public static readonly ContentType ApplicationYaml = new("application/yaml");
 
+    /// <summary>An OpenAPI specification in JSON format.</summary>
+    public static readonly ContentType ApplicationOpenApiJson = new("application/vnd.oai.openapi+json");
+
+    /// <summary>An OpenAPI specification in YAML format.</summary>
+    public static readonly ContentType ApplicationOpenApiYaml = new("application/vnd.oai.openapi+yaml");
+
     /// <summary>A PNG image.</summary>
     public static readonly ContentType ImagePng = new("image/png");
 
