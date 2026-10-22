@@ -1,10 +1,16 @@
 ﻿using System.Net;
 using System.Net.Cache;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 
+using GenHTTP.Engine.Ioxide;
+
 using GenHTTP.Modules.Practices;
+
+using Microsoft.Extensions.Logging;
 
 using Version = System.Version;
 
@@ -25,7 +31,21 @@ public class TestHost : IAsyncDisposable
     private static volatile int _nextPort = 24010;
 #endif
 
+    // Analysis branch: the engine every test host runs on (TEST_ENGINE overrides whatever the
+    // test asked for) and the protocol the ioxide hosts bind and the clients speak (TEST_PROTOCOL).
+    private static readonly ServerEngine? ForcedEngine = ResolveEngine();
+
+    private static readonly Lazy<FileCertificateProvider> Certificate = new(CreateCertificate);
+
+    /// <summary>
+    /// The protocol ioxide test hosts are bound to and test clients speak, read from the
+    /// TEST_PROTOCOL environment variable (H1, H2 or H3, defaults to H1).
+    /// </summary>
+    public static TestProtocol Protocol { get; } = ResolveProtocol();
+
     private static readonly HttpClient DefaultClient = GetClient();
+
+    private readonly CollectingLogger _log = new();
 
     #region Get-/Setters
 
@@ -38,6 +58,11 @@ public class TestHost : IAsyncDisposable
     /// The host managed by this testing host.
     /// </summary>
     public IServerHost Host { get; }
+
+    /// <summary>
+    /// The engine this host actually runs on.
+    /// </summary>
+    public ServerEngine ActualEngine { get; }
 
     #endregion
 
@@ -60,10 +85,18 @@ public class TestHost : IAsyncDisposable
     {
         Port = NextPort();
 
-        Host = CreateHost(serverEngine);
+        ActualEngine = ForcedEngine ?? serverEngine;
+
+        Host = CreateHost(ActualEngine);
 
         Host.Handler(handler);
         Host.Port((ushort)Port);
+        Host.Logging(new LoggerFactory([_log]));
+
+        if (ActualEngine == ServerEngine.Ioxide)
+        {
+            BindProtocol();
+        }
 
         if (defaults)
         {
@@ -113,7 +146,70 @@ public class TestHost : IAsyncDisposable
     /// </remarks>
     public async Task StartAsync()
     {
+        // picked up by the summary script to tell tests that exercised a server from the rest
+        Console.WriteLine($"[test-host] engine={ActualEngine} protocol={(ActualEngine == ServerEngine.Ioxide ? Protocol : TestProtocol.H1)} port={Port}");
+
         await Host.StartAsync();
+    }
+
+    // H1 keeps the default plain endpoint, H2 is bound alone in clear text (prior knowledge),
+    // H3 alone over QUIC - so a client that does not speak the protocol under test fails.
+    private void BindProtocol()
+    {
+        switch (Protocol)
+        {
+            case TestProtocol.H2:
+                Host.Bind(null, (ushort)Port, HttpProtocols.Http2);
+                break;
+            case TestProtocol.H3:
+                Host.Bind(null, (ushort)Port, Certificate.Value, httpProtocols: HttpProtocols.Http3);
+                break;
+        }
+    }
+
+    private static ServerEngine? ResolveEngine()
+    {
+        var engine = Environment.GetEnvironmentVariable("TEST_ENGINE");
+
+        return Enum.TryParse(engine, true, out ServerEngine found) ? found : null;
+    }
+
+    private static TestProtocol ResolveProtocol()
+    {
+        var protocol = Environment.GetEnvironmentVariable("TEST_PROTOCOL");
+
+        if (string.IsNullOrEmpty(protocol))
+        {
+            return TestProtocol.H1;
+        }
+
+        return Enum.TryParse(protocol, true, out TestProtocol found) ? found : throw new InvalidOperationException($"Protocol '{protocol}' is not supported");
+    }
+
+    // A self-signed localhost certificate as PEM files, which is the only form HTTP/3 takes.
+    private static FileCertificateProvider CreateCertificate()
+    {
+        using var key = RSA.Create(2048);
+
+        var request = new CertificateRequest("CN=localhost", key, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+
+        var names = new SubjectAlternativeNameBuilder();
+        names.AddDnsName("localhost");
+        names.AddIpAddress(IPAddress.Loopback);
+        names.AddIpAddress(IPAddress.IPv6Loopback);
+        request.CertificateExtensions.Add(names.Build());
+
+        using var certificate = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(1));
+
+        var dir = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "genhttp-test-host", Guid.NewGuid().ToString("n"))).FullName;
+
+        var certificatePath = Path.Combine(dir, "localhost.crt");
+        var keyPath = Path.Combine(dir, "localhost.key");
+
+        File.WriteAllText(certificatePath, certificate.ExportCertificatePem());
+        File.WriteAllText(keyPath, key.ExportPkcs8PrivateKeyPem());
+
+        return new FileCertificateProvider(certificatePath, keyPath);
     }
 
     private static IServerHost CreateHost(ServerEngine serverEngine)
@@ -157,7 +253,7 @@ public class TestHost : IAsyncDisposable
     /// </summary>
     /// <param name="path">The path to fetch from the server</param>
     /// <returns>The URL that can be used to fetch the content</returns>
-    public string GetUrl(string? path = null) => $"http://localhost:{Port}{path ?? ""}";
+    public string GetUrl(string? path = null) => $"{(ActualEngine == ServerEngine.Ioxide && Protocol == TestProtocol.H3 ? "https" : "http")}://localhost:{Port}{path ?? ""}";
 
     /// <summary>
     /// Fetches a request instance for the given path and method which
@@ -211,13 +307,19 @@ public class TestHost : IAsyncDisposable
             handler.CookieContainer = cookies;
         }
 
-        if (ignoreSecurityErrors)
+        if (ignoreSecurityErrors || Protocol == TestProtocol.H3)
         {
             handler.ClientCertificateOptions = ClientCertificateOption.Manual;
             handler.ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, certChain, policyErrors) => true;
         }
 
-        var client = new HttpClient(handler)
+        // request messages carry their own version (1.1 unless set), so the protocol under
+        // test is forced on every request rather than just on the client defaults
+        HttpMessageHandler pipeline = (protocolVersion is null && Protocol != TestProtocol.H1)
+            ? new ProtocolHandler(GetProtocolVersion()) { InnerHandler = handler }
+            : handler;
+
+        var client = new HttpClient(pipeline)
         {
             DefaultRequestVersion = protocolVersion ?? HttpVersion.Version11,
             Timeout = TimeSpan.FromSeconds(15)
@@ -227,6 +329,16 @@ public class TestHost : IAsyncDisposable
 
         return client;
     }
+
+    /// <summary>
+    /// The HTTP version the test clients should use to talk to the test hosts.
+    /// </summary>
+    public static Version GetProtocolVersion() => Protocol switch
+    {
+        TestProtocol.H2 => HttpVersion.Version20,
+        TestProtocol.H3 => HttpVersion.Version30,
+        _ => HttpVersion.Version11
+    };
 
     #endregion
 
@@ -241,6 +353,11 @@ public class TestHost : IAsyncDisposable
             if (disposing)
             {
                 await Host.StopAsync();
+
+                foreach (var entry in _log.Entries)
+                {
+                    Console.WriteLine($"[test-host] {entry}");
+                }
             }
 
             _disposed = true;
@@ -258,4 +375,30 @@ public class TestHost : IAsyncDisposable
 
     #endregion
 
+}
+
+/// <summary>
+/// Sends every request with exactly the protocol under test (analysis only).
+/// </summary>
+internal sealed class ProtocolHandler(Version version) : DelegatingHandler
+{
+
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        request.Version = version;
+        request.VersionPolicy = HttpVersionPolicy.RequestVersionExact;
+
+        return base.SendAsync(request, cancellationToken);
+    }
+
+}
+
+/// <summary>
+/// The protocol test hosts are bound to (analysis only).
+/// </summary>
+public enum TestProtocol
+{
+    H1,
+    H2,
+    H3
 }
