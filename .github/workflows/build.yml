@@ -1,44 +1,43 @@
-name: Build
+name: ioxide Protocol Analysis
+
+# Analysis branch only (not to be merged): runs the acceptance tests on the ioxide engine
+# once per protocol and summarizes how many of them pass.
 
 on:
   pull_request:
     branches:
       - main
-      - 'release/*'
-      - 'feature/genhttp-next'
-  push:
-    branches:
-      - main
-      - 'release/*'      
-      - 'feature/genhttp-next'
+  workflow_dispatch:
 
 jobs:
 
-  build:
+  test:
 
-    name: Test & Coverage 
+    name: ioxide ${{ matrix.protocol }}
 
     runs-on: ubuntu-latest
 
+    timeout-minutes: 120
+
+    strategy:
+      fail-fast: false
+      matrix:
+        protocol: [ H1, H2, H3 ]
+
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       DOTNET_ROLL_FORWARD: Major
+      TEST_ENGINE: Ioxide
+      TEST_PROTOCOL: ${{ matrix.protocol }}
 
     steps:
-    
+
     - name: Checkout
       uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
 
     - name: Download .NET SDK
       uses: actions/setup-dotnet@v5
       with:
         global-json-file: global.json
-        
-    - name: Restore tools
-      run: dotnet tool restore
 
     - name: Enable io_uring
       run: |
@@ -50,91 +49,30 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libmsquic
 
-    - name: Begin scan
-      if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
-      run: dotnet sonarscanner begin /k:"GenHTTP" /d:sonar.token="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*,**/*.css,**/*.js,**/*.html" /d:sonar.coverage.exclusions="**/Engine/Ioxide/Tls/TlsDuplexPipe.cs" /d:sonar.cpd.exclusions="**/Generators/**/CodeEmitter.cs" /o:"kaliumhexacyanoferrat" /k:"GenHTTP" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.branch.name="${GITHUB_REF##*/}" /d:sonar.dotnet.excludeTestProjects=true
-      
-    - name: Build project
-      run: dotnet build GenHTTP.slnx -c Release
-      
-    - name: Test project
+    - name: Build tests
+      run: dotnet build Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net10.0
+
+    # Kestrel tests would be forced onto ioxide, the ioxide tests bind their own protocols
+    # and the adapter tests run on ASP.NET - none of them say anything about the protocol.
+    - name: Run tests on ioxide (${{ matrix.protocol }})
+      timeout-minutes: 90
       run: |
         sudo prlimit --pid $$ --memlock=-1:-1 2>/dev/null || ulimit -l unlimited 2>/dev/null || true
-        dotnet test GenHTTP.slnx --no-build --collect:"XPlat Code Coverage" -c Release -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-      
-    - name: End scan
-      if: env.SONAR_TOKEN != null && env.SONAR_TOKEN != ''
-      run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+        dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release -f net10.0 --no-build \
+          --filter "FullyQualifiedName!~GenHTTP.Testing.Acceptance.Engine.Kestrel&FullyQualifiedName!~GenHTTP.Testing.Acceptance.Engine.Ioxide&FullyQualifiedName!~GenHTTP.Testing.Acceptance.Adapters" \
+          --logger "trx;LogFileName=results-${{ matrix.protocol }}.trx" --results-directory results \
+          -- MSTest.TestTimeout=60000 || true
 
-  verify:
+    - name: Summarize
+      if: always()
+      run: |
+        python3 .github/scripts/protocol_summary.py ${{ matrix.protocol }} results/results-${{ matrix.protocol }}.trx \
+          results/summary-${{ matrix.protocol }}.md results/failures-${{ matrix.protocol }}.json
+        cat results/summary-${{ matrix.protocol }}.md >> $GITHUB_STEP_SUMMARY
 
-    name: ${{ matrix.os.name }} ${{ matrix.arch }}
-
-    needs: build
-
-    runs-on: ${{ matrix.os.runs-on }}
-
-    env:
-      TEST_ENGINE: Internal
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-
-          - os:
-              name: 🐧
-              runs-on: ubuntu-latest
-            arch: x64
-            runtime: linux-x64
-            platform: linux/amd64
-
-          - os:
-              name: 🐧
-              runs-on: ubuntu-22.04-arm
-            arch: arm64
-            runtime: linux-arm64
-            platform: linux/arm64/v8
-
-          - os:
-              name: 🪟
-              runs-on: windows-latest
-            arch: x64
-            runtime: win-x64
-            platform: windows/amd64
-
-          - os:
-              name: 🪟
-              runs-on: windows-latest
-            arch: arm64
-            runtime: win-arm64
-            platform: windows/arm64
-
-          - os:
-              name: 🍎
-              runs-on: macos-26-intel
-            arch: x64
-            runtime: osx-x64
-            platform: macos/amd64
-
-          - os:
-              name: 🍎
-              runs-on: macos-26
-            arch: arm64
-            runtime: osx-arm64
-            platform: macos/arm64
-
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v6
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v5
-        with:
-          global-json-file: global.json
-
-      - name: Build (${{ matrix.runtime }})
-        run: dotnet build GenHTTP.slnx -c Release
-
-      - name: Build & Test (${{ matrix.runtime }})
-        run: dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -c Release --logger "console;verbosity=detailed"
+    - name: Upload results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: results-${{ matrix.protocol }}
+        path: results/
