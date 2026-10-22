@@ -75,14 +75,14 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
                     {
                         if (requestMethod != RequestMethod.Get)
                         {
-                            operation.RequestBody = GetRequestBody(new BodyDescription(schemata.GetOrCreateSchema(typeof(string)), ["text/plain"]), description);
+                            operation.RequestBody = GetRequestBody(new BodyDescription(schemata.GetOrCreateSchema(typeof(string), methodHandler.Registry.Serialization), ["text/plain"]), description);
                         }
                     }
                     else if (arg.Value.Source == OperationArgumentSource.Content)
                     {
                         if (requestMethod != RequestMethod.Get)
                         {
-                            operation.RequestBody = GetRequestBody(new BodyDescription(schemata.GetOrCreateSchema(arg.Value.Type), GetFormats(methodHandler.Registry)), description);
+                            operation.RequestBody = GetRequestBody(new BodyDescription(schemata.GetOrCreateSchema(arg.Value.Type, methodHandler.Registry.Serialization), GetFormats(methodHandler.Registry)), description);
                         }
                     }
                     else if (arg.Value.Source == OperationArgumentSource.Streamed)
@@ -498,8 +498,8 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
 
         return operation.Result.Sink switch
         {
-            OperationResultSink.Formatter => new BodyDescription(schemata.GetOrCreateSchema(type), ["text/plain"]),
-            OperationResultSink.Serializer => new BodyDescription(schemata.GetOrCreateSchema(type), GetFormats(registry)),
+            OperationResultSink.Formatter => new BodyDescription(schemata.GetOrCreateSchema(type, registry.Serialization), ["text/plain"]),
+            OperationResultSink.Serializer => new BodyDescription(schemata.GetOrCreateSchema(type, registry.Serialization), GetFormats(registry)),
             OperationResultSink.Binary => new BodyDescription(GetBinarySchema(), ["application/octet-stream"]),
             OperationResultSink.Dynamic => new BodyDescription(null, ["*/*"]),
             _ => null
@@ -545,7 +545,7 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
     {
         if (type != null)
         {
-            var schema = schemata.GetOrCreateSchema(type);
+            var schema = schemata.GetOrCreateSchema(type, registry.Serialization);
 
             if (contentType != null)
             {
