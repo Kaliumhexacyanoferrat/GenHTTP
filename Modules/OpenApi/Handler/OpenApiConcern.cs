@@ -62,25 +62,18 @@ public sealed class OpenApiConcern : IConcern
             {
                 if (path == OpenApiPath)
                 {
-                    IResponse response;
+                    var accept = request.Header.Headers.GetEntry(KnownHeaders.Accept);
 
-                    var accept = request.Header.Headers.GetEntry("Accept");
+                    var format = (accept != null) ? GetFormat(new ContentType(accept.Value.Bytes)) : OpenApiFormat.Json;
 
-                    if (accept != null)
+                    if (format == null)
                     {
-                        response = accept.ToLowerInvariant() switch
-                        {
-                            "application/json" or "application/application/vnd.oai.openapi+json" => await GetDocumentAsync(request, OpenApiFormat.Json),
-                            "application/yaml" or "application/application/vnd.oai.openapi+yaml" => await GetDocumentAsync(request, OpenApiFormat.Yaml),
-                            _ => throw new ProviderException(ResponseStatus.BadRequest, $"Generating API specifications of format '{accept}' is not supported")
-                        };
-                    }
-                    else
-                    {
-                        response = await GetDocumentAsync(request, OpenApiFormat.Json);
+                        throw new ProviderException(ResponseStatus.BadRequest, $"Generating API specifications of format '{accept}' is not supported");
                     }
 
-                    response.Rebuild().Header("Vary", "Accept");
+                    var response = await GetDocumentAsync(request, format.Value);
+
+                    response.Rebuild().Header(KnownHeaders.Vary, KnownHeaders.Accept);
 
                     return response;
                 }
@@ -96,6 +89,21 @@ public sealed class OpenApiConcern : IConcern
         }
 
         return await Content.HandleAsync(request);
+    }
+
+    private static OpenApiFormat? GetFormat(ContentType accept)
+    {
+        if (accept == ContentType.ApplicationJson || accept == ContentType.ApplicationOpenApiJson)
+        {
+            return OpenApiFormat.Json;
+        }
+
+        if (accept == ContentType.ApplicationYaml || accept == ContentType.ApplicationOpenApiYaml)
+        {
+            return OpenApiFormat.Yaml;
+        }
+
+        return null;
     }
 
     private async ValueTask<IResponse> GetDocumentAsync(IRequest request, OpenApiFormat format)

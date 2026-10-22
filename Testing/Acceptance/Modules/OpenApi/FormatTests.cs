@@ -44,6 +44,14 @@ public class FormatTests
 
     [TestMethod]
     [MultiEngineTest]
+    public Task TestJsonByVendorAccept(ServerEngine engine) => TestApi(engine, "/openapi", "application/json", "application/vnd.oai.openapi+json");
+
+    [TestMethod]
+    [MultiEngineTest]
+    public Task TestYamlByVendorAccept(ServerEngine engine) => TestApi(engine, "/openapi", "application/yaml", "application/vnd.oai.openapi+yaml");
+
+    [TestMethod]
+    [MultiEngineTest]
     public async Task TestUnsupportedFormat(ServerEngine engine)
     {
         await using var host = await TestHost.RunAsync(GetApi(), engine: engine);
