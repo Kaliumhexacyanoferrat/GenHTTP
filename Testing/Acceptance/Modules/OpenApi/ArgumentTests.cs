@@ -93,6 +93,7 @@ public class ArgumentTests
 
         Assert.IsTrue(operation.RequestBody?.Content?.ContainsKey("*/*") ?? false);
         Assert.AreEqual("binary", operation.RequestBody?.Content?["*/*"].Schema?.Format);
+        Assert.AreEqual(JsonSchemaType.String, operation.RequestBody?.Content?["*/*"].Schema?.Type);
     }
 
     [TestMethod]

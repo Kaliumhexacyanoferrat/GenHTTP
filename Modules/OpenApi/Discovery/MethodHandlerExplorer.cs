@@ -590,6 +590,7 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
 
     private static JsonSchema GetBinarySchema() => new()
     {
+        Type = JsonObjectType.String,
         Format = "binary"
     };
 
