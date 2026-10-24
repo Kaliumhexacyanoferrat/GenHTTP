@@ -78,7 +78,7 @@ internal static class Http1Driver
                     continue;
                 }
 
-                request.Apply(server, endPoint, reader, buffer.Start, remoteAddress, null);
+                request.Apply(server, endPoint, reader, buffer.Start, remoteAddress, null, writer);
 
                 var keepAlive = await HandleRequestAsync(server, writer, request);
                 WarnIfThreadHopped(server, reactorThreadId, "after-handle");
@@ -87,6 +87,13 @@ internal static class Http1Driver
                 {
                     await writer.FlushAsync();
                     break;
+                }
+
+                if (request.ContinuePending)
+                {
+                    // The client holds its body back until it hears from us, so the drain below
+                    // would wait for it forever.
+                    await writer.FlushAsync();
                 }
 
                 await request.DrainAsync();
@@ -197,6 +204,8 @@ internal static class Http1Driver
         }
 
         var response = await server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
+
+        request.MarkResponseStarted();
 
         var closeRequested = response.Mode is Connection.Close or Connection.Upgrade;
 
