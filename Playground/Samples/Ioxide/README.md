@@ -19,7 +19,7 @@ A deployment points the providers at the files its ACME client already writes in
 | `Http1Sample` | `http://localhost:8080` | the smallest binding there is - no certificate, no negotiation |
 | `Http2Sample` | `http://localhost:8081`, `:8082` | h2c: HTTP/2 alone, and sharing one socket with HTTP/1.1 |
 | `Http3Sample` | `https://localhost:8443` | QUIC only, and why it needs the certificate as files |
-| `TlsSample` | `https://localhost:8443` | TLS in OpenSSL, with ALPN choosing h2 or http/1.1 |
+| `TlsSample` | `https://localhost:8443` | TLS in BoringSSL, with ALPN choosing h2 or http/1.1 |
 | `KernelTlsSample` | `https://localhost:8443` | the record layer in the kernel, and what it pins |
 | `SniSample` | `https://localhost:8443` | a certificate per host name, chosen by the client |
 | `CertificateRotationSample` | `https://localhost:8443` | replacing certificates on a running server (`SIGHUP`) |

@@ -20,7 +20,8 @@ internal static class Http3Driver
         => new Nghttp3Connection(connection, options)
             .RunStreamedResponseAsync((request, writer) => DispatchAsync(server, endPoint, request, writer));
 
-    // One stream through the handler chain; a fault becomes a 500 rather than a dead stream.
+    // One stream through the handler chain; a fault becomes a 500 rather than a dead stream, or a
+    // reset once the headers are out.
     private static async ValueTask DispatchAsync(IServer server, IEndPoint endPoint, Nghttp3Request request,
         Nghttp3ResponseWriter writer)
     {
@@ -68,16 +69,32 @@ internal static class Http3Driver
             headersWritten = true;
 
             await StreamedResponder.WriteBodyAsync(response, writer, writer.FlushAsync, headRequest);
+
+            await writer.CompleteAsync();
+        }
+        catch (ConnectionClosedException)
+        {
+            // The client stopped the stream or went away mid-response: nobody is left to answer,
+            // and that is no fault.
         }
         catch (Exception e)
         {
             server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.Drivers.Quic.Http3Driver")
                   .LogError(e, "Failed to handle HTTP/3 request");
 
-            if (!headersWritten && !writer.IsCompleted)
+            if (headersWritten)
+            {
+                // Too late for a 500, and a FIN would pass the truncated body off as whole.
+                // Rethrown, ioxide resets the stream (H3_INTERNAL_ERROR), so the client sees it fail.
+                throw;
+            }
+
+            if (!writer.IsCompleted)
             {
                 writer.WriteHeaders(new Nghttp3Response { Status = 500 });
             }
+
+            await writer.CompleteAsync();
         }
         finally
         {
@@ -85,9 +102,7 @@ internal static class Http3Driver
             {
                 StreamedRequest.Return(mapped);
             }
-
-            await writer.CompleteAsync();
         }
     }
-    
+
 }

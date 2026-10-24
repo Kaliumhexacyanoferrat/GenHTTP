@@ -24,7 +24,8 @@ internal static class Http2Driver
         => new Http2Connection(pipe, Options)
             .RunAsync((request, writer) => DispatchAsync(server, endPoint, request, writer, remoteAddress, secure));
 
-    // One stream through the handler chain; a fault becomes a 500 rather than a dead stream.
+    // One stream through the handler chain; a fault becomes a 500 rather than a dead stream, or a
+    // reset once the headers are out.
     private static async ValueTask DispatchAsync(IServer server, IEndPoint endPoint, Http2Request request,
         Http2ResponseWriter writer, IPAddress? remoteAddress, bool secure)
     {
@@ -70,16 +71,32 @@ internal static class Http2Driver
             headersWritten = true;
 
             await StreamedResponder.WriteBodyAsync(response, writer, writer.FlushAsync, headRequest);
+
+            await writer.CompleteAsync();
+        }
+        catch (ConnectionClosedException)
+        {
+            // The client reset the stream or went away mid-response: nobody is left to answer,
+            // and that is no fault.
         }
         catch (Exception e)
         {
             server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.Drivers.Tcp.Http2Driver")
                   .LogError(e, "Failed to handle HTTP/2 request");
 
-            if (!headersWritten && !writer.IsCompleted)
+            if (headersWritten)
+            {
+                // Too late for a 500, and END_STREAM would pass the truncated body off as whole.
+                // Rethrown, ioxide resets the stream (INTERNAL_ERROR), so the client sees it fail.
+                throw;
+            }
+
+            if (!writer.IsCompleted)
             {
                 writer.WriteHeaders(new Http2Response { Status = 500 });
             }
+
+            await writer.CompleteAsync();
         }
         finally
         {
@@ -87,8 +104,6 @@ internal static class Http2Driver
             {
                 StreamedRequest.Return(mapped);
             }
-
-            await writer.CompleteAsync();
         }
     }
 }
