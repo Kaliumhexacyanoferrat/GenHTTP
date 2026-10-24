@@ -9,6 +9,11 @@ namespace GenHTTP.Modules.Websockets;
 /// A connection which can be used to write websocket messages
 /// to the underlying stream.
 /// </summary>
+/// <remarks>
+/// A connection is not thread safe unless it was built with <c>SynchronizeWrites()</c>.
+/// Without that, writes from several threads have to be serialized by the caller - including
+/// the pong and close frames the default <c>OnPing</c> and <c>OnClose</c> handlers write.
+/// </remarks>
 public interface ISocketConnection
 {
 
