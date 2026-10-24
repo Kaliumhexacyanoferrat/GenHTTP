@@ -80,7 +80,8 @@ public sealed partial class Server : IServer
 
 #endregion
 
-    // Starts a reactor per thread and waits until every one of them is listening.
+    // Starts a reactor per thread and waits until every one of them is listening. A reactor that
+    // cannot start fails the start with its reason, once the others are stopped again.
     public async ValueTask StartAsync()
     {
         await PrepareHandlerAsync();
@@ -95,18 +96,20 @@ public sealed partial class Server : IServer
 
         WarnAboutValidatorGaps();
 
-        _threads = new Thread[serverConfig.ReactorCount];
-        _reactors = new Reactor[serverConfig.ReactorCount];
+        var reactors = new Reactor[serverConfig.ReactorCount];
+
         _tcpTlsRegistries = secureTcp ? new TcpTlsRegistry?[serverConfig.ReactorCount] : null;
 
-        CountdownEvent listening = new CountdownEvent(serverConfig.ReactorCount);
+        var startup = new ReactorStartup(serverConfig.ReactorCount);
 
-        for (var i = 0; i < _threads.Length; i++)
+        // Every reactor is built before any runs: the constructor refuses a configuration ioxide
+        // cannot run with, and that should happen before a single thread has started.
+        for (var i = 0; i < reactors.Length; i++)
         {
             // OnStart runs on the reactor's thread, long after the loop variable has moved on.
             int capturedIndex = i;
 
-            Reactor reactor = new Reactor(i, serverConfig)
+            reactors[i] = new Reactor(i, serverConfig)
             {
                 OnStart = _reactor_ =>
                 {
@@ -119,7 +122,31 @@ public sealed partial class Server : IServer
 
                     _onReactorStart?.Invoke(_reactor_);
 
-                    listening.Signal();
+                    startup.Started(capturedIndex);
+                },
+                // Set so a fault reaches the host rather than ending the process from the reactor's
+                // thread - a kernel refusing the ring, a port already taken, a throw from OnStart.
+                OnFault = (_, e) =>
+                {
+                    if (startup.TryFail(capturedIndex, e))
+                    {
+                        return;
+                    }
+
+                    if (startup.WasStarted(capturedIndex))
+                    {
+                        _logger.LogCritical(e, "Reactor {Reactor} stopped after a fault and accepts no more connections; those it served were closed", capturedIndex);
+                    }
+                    else if (startup.Failed < 0)
+                    {
+                        // The start was given up on, so nothing else reports this one.
+                        _logger.LogError(e, "Reactor {Reactor} could not start; the server runs without it", capturedIndex);
+                    }
+                    else
+                    {
+                        // The start fails with another reactor's fault already, most likely this same one.
+                        _logger.LogDebug(e, "Reactor {Reactor} could not start either", capturedIndex);
+                    }
                 },
                 TcpHandle = (_, tcpConnection) =>
                 {
@@ -132,10 +159,14 @@ public sealed partial class Server : IServer
                     ? (_, quicConnection) => Http3Driver.RunAsync(this, _quicEndPoint!, quicConnection, _h3Options!)
                     : null
             };
+        }
 
-            _reactors[i] = reactor;
+        _reactors = reactors;
+        _threads = new Thread[reactors.Length];
 
-            _threads[i] = new Thread(reactor.Run)
+        for (var i = 0; i < reactors.Length; i++)
+        {
+            _threads[i] = new Thread(reactors[i].Run)
             {
                 Name = $"ioxide-genhttp-{i}",
                 IsBackground = true,
@@ -144,13 +175,22 @@ public sealed partial class Server : IServer
             _threads[i].Start();
         }
 
-        if (await Task.Run(() => listening.Wait(TimeSpan.FromSeconds(10))))
+        try
         {
-            listening.Dispose();
+            await startup.Listening.WaitAsync(TimeSpan.FromSeconds(10));
         }
-        else
+        catch (TimeoutException)
         {
+            startup.GiveUp();
+
             _logger.LogWarning("Not all reactors reported listening within 10s; the server may not be fully accepting yet.");
+        }
+        catch (Exception e)
+        {
+            // Rather than a server serving on fewer reactors than it was asked for.
+            await DisposeAsync();
+
+            throw new InvalidOperationException($"The ioxide engine failed to start reactor {startup.Failed}: {e.Message}", e);
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
@@ -209,8 +249,8 @@ public sealed partial class Server : IServer
 
             DualStack = _dualStack,
 
-            // Explicitly null: ioxide's own default is a live listener on 8080, which an
-            // HTTP/3-only server would otherwise inherit.
+            // No TCP listener unless a binding asks for one; WithTcp adds it. An HTTP/3-only
+            // server binds none.
             Tcp = null,
         };
 
@@ -308,6 +348,8 @@ public sealed partial class Server : IServer
 
         if (reactors is null || threads is null)
         {
+            // A start refused before any reactor ran may still have built the QUIC engine.
+            DisposeQuic();
             return;
         }
 
@@ -332,4 +374,52 @@ public sealed partial class Server : IServer
 
         _logger.LogInformation("Stopped ioxide reactors");
     }
+}
+
+/// <summary>One start of the reactors: done once every one is listening, failed by the first that cannot.</summary>
+internal sealed class ReactorStartup(int reactorCount)
+{
+    private readonly TaskCompletionSource _listening = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    private readonly bool[] _started = new bool[reactorCount];
+
+    private int _pending = reactorCount;
+
+    private int _failed = -1;
+
+    // Completes once every reactor is listening, or faults with the first that could not start.
+    public Task Listening => _listening.Task;
+
+    // The reactor whose fault failed the start, or -1.
+    public int Failed => Volatile.Read(ref _failed);
+
+    // A reactor got through OnStart, so it is listening.
+    public void Started(int reactor)
+    {
+        Volatile.Write(ref _started[reactor], true);
+
+        if (Interlocked.Decrement(ref _pending) == 0)
+        {
+            _listening.TrySetResult();
+        }
+    }
+
+    // Fails the start with a fault that ended a reactor before it was listening. False for a reactor
+    // that was serving already, or once the start has failed or been given up on - that fault is
+    // left to the host to report.
+    public bool TryFail(int reactor, Exception e)
+    {
+        if (WasStarted(reactor) || _listening.Task.IsCompleted || Interlocked.CompareExchange(ref _failed, reactor, -1) != -1)
+        {
+            return false;
+        }
+
+        return _listening.TrySetException(e);
+    }
+
+    // Whether the reactor got through OnStart before it faulted.
+    public bool WasStarted(int reactor) => Volatile.Read(ref _started[reactor]);
+
+    // Stops waiting: a reactor failing from here on no longer fails a start nobody waits for.
+    public void GiveUp() => _listening.TrySetCanceled();
 }
