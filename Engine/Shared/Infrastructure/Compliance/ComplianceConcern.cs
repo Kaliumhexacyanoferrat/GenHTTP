@@ -6,6 +6,7 @@ namespace GenHTTP.Engine.Shared.Infrastructure.Compliance;
 
 public sealed class ComplianceConcern(IHandler content) : IConcern
 {
+    private static readonly ByteString ContinueExpectation = new("100-continue");
 
     public IHandler Content => content;
 
@@ -33,6 +34,13 @@ public sealed class ComplianceConcern(IHandler content) : IConcern
             {
                 throw new ProviderException(ResponseStatus.BadRequest, "GET/HEAD requests must not contain a body");
             }
+        }
+
+        // 100-continue is the only expectation HTTP defines (RFC 9110, section 10.1.1), and the
+        // Expect header of an HTTP/1.0 request is to be ignored altogether
+        if (header.Headers.GetEntry(KnownHeaders.Expect) is { } expectation && expectation != ContinueExpectation && header.Protocol != HttpProtocol.Http10)
+        {
+            throw new ProviderException(ResponseStatus.ExpectationFailed, "The only expectation supported is '100-continue'");
         }
 
         return content.HandleAsync(request);
