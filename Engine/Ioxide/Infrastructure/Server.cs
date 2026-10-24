@@ -142,7 +142,7 @@ public sealed partial class Server : IServer
                         // The start was given up on, so nothing else reports this one.
                         _logger.LogError(e, "Reactor {Reactor} could not start; the server runs without it", capturedIndex);
                     }
-                    else
+                    else if (_logger.IsEnabled(LogLevel.Debug))
                     {
                         // The start fails with another reactor's fault already, most likely this same one.
                         _logger.LogDebug(e, "Reactor {Reactor} could not start either", capturedIndex);
