@@ -35,7 +35,7 @@ public static class KernelTlsSample
          * TLS connection exactly as it does on a cleartext one.
          *
          * It is not a free win, and it is off by default for that reason: on loopback it trails
-         * OpenSSL on large writes and costs more CPU per request. Turn it on for what it is for
+         * userspace TLS on large writes and costs more CPU per request. Turn it on for what it is for
          * - sendfile, and NICs that offload TLS - and measure your own traffic.
          *
          *     curl -k --http1.1 https://localhost:8443/ok

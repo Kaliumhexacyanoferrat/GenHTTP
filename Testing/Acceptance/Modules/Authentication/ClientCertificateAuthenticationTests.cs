@@ -121,7 +121,7 @@ public class ClientCertificateAuthenticationTests
     {
         if (engine == ServerEngine.Ioxide && validator.RequireCertificate)
         {
-            // ioxide validates the client chain in OpenSSL, which wants the trust anchors before the
+            // ioxide validates the client chain in BoringSSL, which wants the trust anchors before the
             // handshake begins - so requiring a certificate there means naming what it is validated
             // against. ConfigurableValidator is a plain ICertificateValidator and names none, which
             // the engine refuses when the server starts rather than admitting a client it never

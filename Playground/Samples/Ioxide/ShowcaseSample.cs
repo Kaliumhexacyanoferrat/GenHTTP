@@ -184,7 +184,7 @@ public static class ShowcaseSample
 /// different issuer.
 /// </summary>
 /// <remarks>
-/// OpenSSL (or ngtcp2 on HTTP/3) validates the chain against that CA before the handshake
+/// BoringSSL (or ngtcp2 on HTTP/3) validates the chain against that CA before the handshake
 /// completes, so a bad one is refused before any request exists. Validate still runs afterwards on
 /// the TCP transports, for whatever the application wants to decide for itself.
 /// </remarks>
