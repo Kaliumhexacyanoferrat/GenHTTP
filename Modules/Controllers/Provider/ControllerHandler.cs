@@ -48,7 +48,7 @@ public sealed partial class ControllerHandler : IHandler, IServiceMethodProvider
     {
         var found = new List<MethodHandler>();
 
-        foreach (var method in Type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+        foreach (var method in TypeAnalyzer.FindMethods(Type))
         {
             var annotation = method.GetCustomAttribute<ControllerActionAttribute>(true) ?? new MethodAttribute();
 

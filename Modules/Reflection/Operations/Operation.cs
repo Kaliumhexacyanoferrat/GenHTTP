@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+
 using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection.Operations;
@@ -57,7 +58,7 @@ public sealed class Operation
     {
         Method = method;
         Delegate = del;
-        ExecutionSettings = executionSettings;
+        ExecutionSettings = method.IsPublic ? executionSettings : new(ExecutionMode.Reflection);
         Configuration = configuration;
         Route = route;
         Result = result;
