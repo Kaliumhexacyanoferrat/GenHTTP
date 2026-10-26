@@ -6,7 +6,7 @@ using GenHTTP.Modules.Authentication.Documentation;
 
 namespace GenHTTP.Modules.Authentication.Basic;
 
-public sealed class BasicAuthenticationConcernBuilder : IConcernBuilder
+public sealed class BasicAuthenticationConcernBuilder : IAuthenticationBuilder<BasicAuthenticationConcernBuilder>
 {
     private readonly SchemeDocumentation _documentation = new();
 
@@ -27,20 +27,14 @@ public sealed class BasicAuthenticationConcernBuilder : IConcernBuilder
         return this;
     }
 
-    /// <summary>
-    /// Describes how clients obtain their credentials, shown in a generated API specification.
-    /// </summary>
-    /// <param name="description">The description to be shown to the consumers of the API (may contain Markdown)</param>
+    /// <inheritdoc />
     public BasicAuthenticationConcernBuilder Documentation(string description)
     {
         _documentation.Description = description;
         return this;
     }
 
-    /// <summary>
-    /// Documents the authentication mechanism as the given scheme, instead of HTTP basic authentication.
-    /// </summary>
-    /// <param name="scheme">The scheme to be shown to the consumers of the API</param>
+    /// <inheritdoc />
     public BasicAuthenticationConcernBuilder Documentation(SecurityScheme scheme)
     {
         _documentation.Scheme = scheme;

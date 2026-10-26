@@ -7,7 +7,7 @@ using GenHTTP.Modules.Authentication.Documentation;
 
 namespace GenHTTP.Modules.Authentication.ApiKey;
 
-public sealed class ApiKeyConcernBuilder : IConcernBuilder
+public sealed class ApiKeyConcernBuilder : IAuthenticationBuilder<ApiKeyConcernBuilder>
 {
     private const string DefaultHeader = "X-API-Key";
 
@@ -98,21 +98,14 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
         return this;
     }
 
-    /// <summary>
-    /// Describes how clients obtain an API key, shown in a generated API specification.
-    /// </summary>
-    /// <param name="description">The description to be shown to the consumers of the API (may contain Markdown)</param>
+    /// <inheritdoc />
     public ApiKeyConcernBuilder Documentation(string description)
     {
         _documentation.Description = description;
         return this;
     }
 
-    /// <summary>
-    /// Documents the authentication mechanism as the given scheme, instead of the one derived
-    /// from the configuration of the concern. Use this if the key is read by custom logic.
-    /// </summary>
-    /// <param name="scheme">The scheme to be shown to the consumers of the API</param>
+    /// <inheritdoc />
     public ApiKeyConcernBuilder Documentation(SecurityScheme scheme)
     {
         _documentation.Scheme = scheme;

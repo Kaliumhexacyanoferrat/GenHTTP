@@ -9,7 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace GenHTTP.Modules.Authentication.Bearer;
 
-public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
+public sealed class BearerAuthenticationConcernBuilder : IAuthenticationBuilder<BearerAuthenticationConcernBuilder>
 {
     private readonly TokenValidationOptions _options = new();
 
@@ -99,26 +99,14 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
         return this;
     }
 
-    /// <summary>
-    /// Describes how clients obtain an access token, shown in a generated API specification.
-    /// </summary>
-    /// <param name="description">The description to be shown to the consumers of the API (may contain Markdown)</param>
+    /// <inheritdoc />
     public BearerAuthenticationConcernBuilder Documentation(string description)
     {
         _documentation.Description = description;
         return this;
     }
 
-    /// <summary>
-    /// Documents the authentication mechanism as the given scheme, instead of
-    /// bearer authentication with a JSON web token.
-    /// </summary>
-    /// <param name="scheme">The scheme to be shown to the consumers of the API</param>
-    /// <remarks>
-    /// Use this to document the OpenID Connect provider that issues the tokens
-    /// (see <see cref="SecurityScheme.OpenIdConnect" />), so API browsers can
-    /// obtain a token on their own.
-    /// </remarks>
+    /// <inheritdoc />
     public BearerAuthenticationConcernBuilder Documentation(SecurityScheme scheme)
     {
         _documentation.Scheme = scheme;
