@@ -13,15 +13,15 @@ public sealed class ServerRenderer
     /// <summary>
     /// Renders a server-styled HTML page for the given title and content.
     /// </summary>
-    /// <param name="title">The title of the page to be rendered</param>
+    /// <param name="title">The title of the page to be rendered (plain text)</param>
     /// <param name="content">The HTML content of the page</param>
     /// <returns>The generated HTML page</returns>
     /// <remarks>
-    /// This method will not escape the given title or content.
+    /// The title will be HTML-escaped by this method, the content will not.
     /// </remarks>
     public async ValueTask<string> RenderAsync(string title, string content) => await _templateRender.RenderAsync(new Dictionary<Value, Value>
     {
-        ["title"] = title,
+        ["title"] = title.Escaped(),
         ["content"] = content
     });
 

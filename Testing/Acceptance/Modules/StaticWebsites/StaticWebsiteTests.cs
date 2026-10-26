@@ -44,6 +44,20 @@ public sealed class StaticWebsiteTests
     }
 
     [TestMethod]
+    [MultiEngineTest]
+    public async Task TestUnknownIntermediateSegmentIsNotFound(ServerEngine engine)
+    {
+        var tree = VirtualTree.Create()
+                              .Add("index.html", Resource.FromString("Index"));
+
+        await using var runner = await TestHost.RunAsync(StaticWebsite.From(tree), engine: engine);
+
+        using var response = await runner.GetResponseAsync("/unknown/sub/");
+
+        await response.AssertStatusAsync(HttpStatusCode.NotFound);
+    }
+
+    [TestMethod]
     public void TestConcernChaining()
     {
         var site = StaticWebsite.From(VirtualTree.Create());

@@ -1,5 +1,6 @@
 ﻿using System.Text;
-using System.Web;
+
+using GenHTTP.Modules.Pages;
 
 namespace GenHTTP.Modules.DirectoryBrowsing.Provider;
 
@@ -27,12 +28,12 @@ public static class ListingRenderer
 
         foreach (var dir in (await model.Container.GetNodes()).OrderBy(d => d.Name))
         {
-            Append(content, $"./{HttpUtility.UrlPathEncode(dir.Name)}/", dir.Name, null, dir.Modified);
+            Append(content, $"./{Uri.EscapeDataString(dir.Name)}/", dir.Name, null, dir.Modified);
         }
 
         foreach (var file in (await model.Container.GetResources()).Where(f => f.Name is not null).OrderBy(f => f.Name))
         {
-            Append(content, $"./{HttpUtility.UrlPathEncode(file.Name)}", file.Name!, file.Length, file.Modified);
+            Append(content, $"./{Uri.EscapeDataString(file.Name!)}", file.Name!, file.Length, file.Modified);
         }
 
         content.AppendLine("</table>");
@@ -43,7 +44,7 @@ public static class ListingRenderer
     private static void Append(StringBuilder builder, string path, string name, ulong? size, DateTime? modified)
     {
         builder.AppendLine("<tr>");
-        builder.AppendLine($"  <td><a href=\"{path}\">{name}</a></td>");
+        builder.AppendLine($"  <td><a href=\"{path}\">{name.Escaped()}</a></td>");
         builder.AppendLine($"  <td>{FileSizeFormatter.Format(size)}</td>");
 
         if (modified is not null)

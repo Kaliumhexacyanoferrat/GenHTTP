@@ -42,6 +42,8 @@ public static class ResourceTreeExtensions
                 target.Advance();
                 return await childNode.FindAsync(target);
             }
+
+            return (null, null);
         }
 
         return new ValueTuple<IResourceContainer?, IResource?>(node, null);
