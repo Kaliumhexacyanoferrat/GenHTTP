@@ -14,6 +14,7 @@ public class TypeVisibilityTests
     private class MyPrivateService
     {
 
+        [ResourceMethod]
         internal int Sum(int a, int b) => a + b;
 
     }
