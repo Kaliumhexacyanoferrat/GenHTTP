@@ -1,10 +1,13 @@
 ﻿using GenHTTP.Api.Protocol;
+using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Yaml;
 
 public sealed class YamlFormat : ISerializationFormat
 {
+    private const int MaximumDepth = 32;
+
     private static readonly IDeserializer Deserializer = new DeserializerBuilder().WithNamingConvention(new IgnoreCaseNamingConvention())
                                                                                   .Build();
 
@@ -25,7 +28,9 @@ public sealed class YamlFormat : ISerializationFormat
     {
         using var reader = new StreamReader(stream, leaveOpen: true);
 
-        return new(Deserializer.Deserialize(reader, type));
+        var parser = BufferedParser.Read(new Parser(reader), MaximumDepth);
+
+        return new(Deserializer.Deserialize(parser, type));
     }
 
     public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
