@@ -32,7 +32,7 @@ public sealed partial class Server
 
             // Set explicitly, because ioxide defaults both to 60s and this listener carries
             // upgraded connections too - inheriting that would start closing idle websockets.
-            ReadTimeoutMs = _engineOptions.Tcp.IdleTimeoutMs,
+            ReadTimeoutMs = _engineOptions.Tcp.ReadTimeoutMs,
             SendTimeoutMs = _engineOptions.Tcp.SendTimeoutMs,
         },
     };

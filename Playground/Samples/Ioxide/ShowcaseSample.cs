@@ -132,7 +132,7 @@ public static class ShowcaseSample
                                Quic = new QuicTransportOptions
                                {
                                    HandshakeTimeoutMs = 10_000,
-                                   IdleTimeoutMs = 60_000,
+                                   ReadTimeoutMs = 60_000,
                                    Routing = QuicRouting.Forward,
                                    PinMigratedPeers = true,
                                    // Clamped by net.core.rmem_max, and worth measuring rather than

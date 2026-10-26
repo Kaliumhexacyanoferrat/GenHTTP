@@ -11,17 +11,17 @@ using Host = GenHTTP.Engine.Ioxide.Host;
 namespace GenHTTP.Testing.Acceptance.Engine.Ioxide;
 
 /// <summary>
-/// The TCP idle timeout runs only while the server waits on its client, so an idle keep-alive
+/// The TCP read timeout runs only while the server waits on its client, so an idle keep-alive
 /// connection is closed, while a handler that takes longer than the timeout keeps its connection.
 /// </summary>
 [TestClass]
-public sealed class IdleTimeoutTests
+public sealed class ReadTimeoutTests
 {
 
     private static readonly EngineOptions Options = new()
     {
         Reactor = new ReactorOptions { ReactorCount = 2 },
-        Tcp = new TcpTransportOptions { IdleTimeoutMs = 500 },
+        Tcp = new TcpTransportOptions { ReadTimeoutMs = 500 },
     };
 
     [IoxideTestMethod]

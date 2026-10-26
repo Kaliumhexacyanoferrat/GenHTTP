@@ -44,7 +44,7 @@ public static class Http3Sample
                        Quic = new QuicTransportOptions
                        {
                            HandshakeTimeoutMs = 10_000,
-                           IdleTimeoutMs = 60_000,
+                           ReadTimeoutMs = 60_000,
                        },
                    })
                    .Handler(app)
