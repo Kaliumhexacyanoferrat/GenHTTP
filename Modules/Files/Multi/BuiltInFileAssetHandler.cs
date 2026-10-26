@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 using GenHTTP.Api.Content.IO;
 using GenHTTP.Api.Protocol;
 
@@ -10,8 +8,6 @@ namespace GenHTTP.Modules.Files.Multi;
 
 internal sealed class BuiltInFileAssetHandler : AbstractAssetsHandler
 {
-    // Root directory including a trailing separator, so resolving a request is a single
-    // concatenation with the (slash-trimmed) relative path - no Path.Combine needed.
     private readonly string _rootPrefix;
 
     public BuiltInFileAssetHandler(DirectoryInfo directory, List<ICompressionAlgorithm> algorithms, char separator) : base(algorithms, separator)
@@ -23,9 +19,7 @@ internal sealed class BuiltInFileAssetHandler : AbstractAssetsHandler
 
     protected override ValueTask<IResponseContent?> Resolve(IRequestTarget target, ContentType? contentType = null, ReadOnlyMemory<byte>? contentEncoding = null)
     {
-        var path = target.AsString(decode: true, remainingOnly: true);
-
-        var file = ResolveFile(path);
+        var file = ResolveFile(target);
 
         if (file is not null)
         {
@@ -37,17 +31,47 @@ internal sealed class BuiltInFileAssetHandler : AbstractAssetsHandler
         return default;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private FileInfo? ResolveFile(string requestPath)
+    private FileInfo? ResolveFile(IRequestTarget target)
     {
-        var relative = requestPath.AsSpan().TrimStart('/').TrimStart('\\');
+        var length = _rootPrefix.Length;
+        var segments = 0;
 
-        if (relative.IsEmpty)
+        PathSegment? segment;
+
+        while ((segment = target.Next(segments)) != null)
+        {
+            length += segment.Value.Bytes.Length + 1;
+            segments++;
+        }
+
+        if (segments == 0)
         {
             return null;
         }
 
-        var file = new FileInfo(string.Concat(_rootPrefix.AsSpan(), relative));
+        var buffer = length <= 1024 ? stackalloc char[length] : new char[length];
+
+        _rootPrefix.CopyTo(buffer);
+
+        var written = _rootPrefix.Length;
+        var index = 0;
+
+        while ((segment = target.Next(index)) != null)
+        {
+            if (index++ > 0)
+            {
+                buffer[written++] = Path.DirectorySeparatorChar;
+            }
+
+            written += segment.Value.Decode(buffer[written..]);
+        }
+
+        var file = new FileInfo(new string(buffer[..written]));
+
+        if (!file.FullName.StartsWith(_rootPrefix, StringComparison.Ordinal))
+        {
+            return null;
+        }
 
         return file.Exists ? file : null;
     }

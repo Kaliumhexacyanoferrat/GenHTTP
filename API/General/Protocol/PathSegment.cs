@@ -25,15 +25,48 @@ public readonly partial struct PathSegment
             return Ascii.GetString(span);
         }
 
-        byte[]? rented = null;
+        var rented = span.Length > 256 ? ArrayPool<byte>.Shared.Rent(span.Length) : null;
 
-        var buffer = span.Length <= 256 ? stackalloc byte[span.Length] : (rented = ArrayPool<byte>.Shared.Rent(span.Length));
+        var buffer = rented != null ? rented : stackalloc byte[span.Length];
 
         try
         {
             var written = PercentEncoding.Decode(span, buffer);
 
             return Utf8.GetString(buffer[..written]);
+        }
+        finally
+        {
+            if (rented != null)
+            {
+                ArrayPool<byte>.Shared.Return(rented);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Percent-decodes this segment into the given buffer without allocating a string.
+    /// </summary>
+    /// <param name="target">The buffer to write to (must provide at least as many chars as the segment has bytes)</param>
+    /// <returns>The number of chars written to <paramref name="target"/></returns>
+    public int Decode(Span<char> target)
+    {
+        var span = Bytes.Span;
+
+        if (span.IndexOf((byte)'%') < 0)
+        {
+            return Ascii.GetChars(span, target);
+        }
+
+        var rented = span.Length > 256 ? ArrayPool<byte>.Shared.Rent(span.Length) : null;
+
+        var buffer = rented != null ? rented : stackalloc byte[span.Length];
+
+        try
+        {
+            var written = PercentEncoding.Decode(span, buffer);
+
+            return Utf8.GetChars(buffer[..written], target);
         }
         finally
         {

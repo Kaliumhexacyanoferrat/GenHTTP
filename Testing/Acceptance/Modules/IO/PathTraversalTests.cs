@@ -1,6 +1,7 @@
 using System.Net;
 
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.Files;
@@ -122,11 +123,132 @@ public sealed class PathTraversalTests
 
     #endregion
 
+    #region Encoded separators
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestAssetsDirectoryDeniesEncodedSlash(ServerEngine engine)
+    {
+        await using var runner = await TestHost.RunAsync(Assets.From(CreateJail()), engine: engine);
+
+        using var response = await GetForgedAsync(runner, "/..%2fsecret.txt");
+
+        await response.AssertStatusAsync(HttpStatusCode.BadRequest);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestAssetsTreeDeniesFullyEncodedTraversal(ServerEngine engine)
+    {
+        await using var runner = await TestHost.RunAsync(Assets.From(ResourceTree.FromDirectory(CreateJail())), engine: engine);
+
+        using var response = await GetForgedAsync(runner, "/%2e%2e%2Fsecret.txt");
+
+        await response.AssertStatusAsync(HttpStatusCode.BadRequest);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestStaticWebsiteDeniesEncodedBackslash(ServerEngine engine)
+    {
+        await using var runner = await TestHost.RunAsync(StaticWebsite.From(ResourceTree.FromDirectory(CreateJail())), engine: engine);
+
+        using var response = await GetForgedAsync(runner, "/..%5Csecret.txt");
+
+        await response.AssertStatusAsync(HttpStatusCode.BadRequest);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestAssetsDeniesLiteralBackslash(ServerEngine engine)
+    {
+        await using var runner = await TestHost.RunAsync(Assets.From(CreateJail()), engine: engine);
+
+        using var response = await GetForgedAsync(runner, "/sub\\file.txt");
+
+        await response.AssertStatusAsync(HttpStatusCode.BadRequest);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestSinglePageDeniesNullByte(ServerEngine engine)
+    {
+        await using var runner = await TestHost.RunAsync(SinglePageApplication.From(ResourceTree.FromDirectory(CreateJail())), engine: engine);
+
+        using var response = await GetForgedAsync(runner, "/file.txt%00.html");
+
+        await response.AssertStatusAsync(HttpStatusCode.BadRequest);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestListingDoesNotFollowDriveRelativeSegment(ServerEngine engine)
+    {
+        await using var runner = await TestHost.RunAsync(Listing.From(ResourceTree.FromDirectory(CreateJail())), engine: engine);
+
+        using var response = await GetForgedAsync(runner, "/C:/");
+
+        await response.AssertStatusAsync(HttpStatusCode.NotFound);
+    }
+
+    #endregion
+
+    #region Directory tree containment
+
+    [TestMethod]
+    public async Task TestTreeResolvesDirectChildren()
+    {
+        var tree = ResourceTree.FromDirectory(CreateJail()).Build();
+
+        Assert.IsNotNull(await tree.TryGetResourceAsync(new PathSegment("file.txt")));
+        Assert.IsNotNull(await tree.TryGetNodeAsync(new PathSegment("sub")));
+    }
+
+    [TestMethod]
+    public async Task TestTreeDoesNotResolveOutsideOfRoot()
+    {
+        var root = CreateJail();
+
+        var tree = ResourceTree.FromDirectory(root).Build();
+
+        var secret = Path.Combine(Path.GetDirectoryName(root)!, "secret.txt");
+
+        Assert.IsNull(await tree.TryGetResourceAsync(new PathSegment("..%2fsecret.txt")));
+        Assert.IsNull(await tree.TryGetResourceAsync(new PathSegment("..%5csecret.txt")));
+        Assert.IsNull(await tree.TryGetResourceAsync(new PathSegment(Uri.EscapeDataString(secret))));
+
+        Assert.IsNull(await tree.TryGetNodeAsync(new PathSegment("..")));
+        Assert.IsNull(await tree.TryGetNodeAsync(new PathSegment(".")));
+        Assert.IsNull(await tree.TryGetNodeAsync(new PathSegment("sub%2f..%2f..")));
+        Assert.IsNull(await tree.TryGetNodeAsync(new PathSegment("C:")));
+    }
+
+    #endregion
+
     #region Helpers
 
     private static string CreateRoot()
     {
         var root = Directory.CreateTempSubdirectory();
+
+        File.WriteAllText(Path.Combine(root.FullName, "file.txt"), "This is a file");
+
+        root.CreateSubdirectory("sub");
+
+        return root.FullName;
+    }
+
+    /// <summary>
+    /// Creates a served root with a secret file placed next to it, which
+    /// must never be reachable through the root.
+    /// </summary>
+    private static string CreateJail()
+    {
+        var outer = Directory.CreateTempSubdirectory();
+
+        File.WriteAllText(Path.Combine(outer.FullName, "secret.txt"), "This is a secret");
+
+        var root = outer.CreateSubdirectory("www");
 
         File.WriteAllText(Path.Combine(root.FullName, "file.txt"), "This is a file");
 

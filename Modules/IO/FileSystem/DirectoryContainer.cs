@@ -51,13 +51,16 @@ internal class DirectoryContainer : IResourceContainer
 
     public ValueTask<IResourceNode?> TryGetNodeAsync(PathSegment segment)
     {
-        var path = Path.Combine(Directory.FullName, segment.Decode());
+        var path = ResolveChild(segment);
 
-        var directory = new DirectoryInfo(path);
-
-        if (directory.Exists)
+        if (path != null)
         {
-            return new ValueTask<IResourceNode?>(new DirectoryNode(directory, this));
+            var directory = new DirectoryInfo(path);
+
+            if (directory.Exists)
+            {
+                return new ValueTask<IResourceNode?>(new DirectoryNode(directory, this));
+            }
         }
 
         return new ValueTask<IResourceNode?>();
@@ -65,15 +68,44 @@ internal class DirectoryContainer : IResourceContainer
 
     public ValueTask<IResource?> TryGetResourceAsync(PathSegment segment)
     {
-        var path = Path.Combine(Directory.FullName, segment.Decode());
-        var file = new FileInfo(path);
+        var path = ResolveChild(segment);
 
-        if (File.Exists(file.FullName))
+        if (path != null)
         {
-            return new(Resource.FromFile(file).Build());
+            var file = new FileInfo(path);
+
+            if (file.Exists)
+            {
+                return new(Resource.FromFile(file).Build());
+            }
         }
 
         return default;
+    }
+
+    private string? ResolveChild(PathSegment segment)
+    {
+        var root = Directory.FullName.AsSpan();
+
+        var prefixLength = Path.EndsInDirectorySeparator(root) ? root.Length : root.Length + 1;
+
+        var length = prefixLength + segment.Bytes.Length;
+
+        var buffer = length <= 1024 ? stackalloc char[length] : new char[length];
+
+        root.CopyTo(buffer);
+
+        buffer[prefixLength - 1] = Path.DirectorySeparatorChar;
+
+        var written = prefixLength + segment.Decode(buffer[prefixLength..]);
+
+        var path = Path.GetFullPath(new string(buffer[..written]));
+
+        var isDirectChild = path.Length > prefixLength
+                            && path.AsSpan().StartsWith(buffer[..prefixLength], StringComparison.Ordinal)
+                            && path.IndexOf(Path.DirectorySeparatorChar, prefixLength) < 0;
+
+        return isDirectChild ? path : null;
     }
 
     #endregion
