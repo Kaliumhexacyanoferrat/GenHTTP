@@ -1,4 +1,3 @@
-using GenHTTP.Api.Content.Documentation;
 using GenHTTP.Api.Content.Documentation.Security;
 
 using NSwag;

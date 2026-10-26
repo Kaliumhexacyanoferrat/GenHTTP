@@ -1,5 +1,4 @@
 ﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Documentation;
 using GenHTTP.Api.Content.Documentation.Security;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.OpenApi.Discovery;

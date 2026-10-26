@@ -243,7 +243,7 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
 
     }
 
-    private static IReadOnlyList<OperationDocumentation> GetInterceptorDocumentation(Operation operation, RequestMethod method)
+    private static List<OperationDocumentation> GetInterceptorDocumentation(Operation operation, RequestMethod method)
     {
         var result = new List<OperationDocumentation>();
 
