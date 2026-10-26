@@ -24,8 +24,6 @@ public static class KnownHeaders
 
     public static readonly ByteString TransferEncoding = new("Transfer-Encoding");
 
-    public static readonly ByteString Expect = new("Expect");
-
     public static readonly ByteString Accept = new("Accept");
 
     public static readonly ByteString AcceptEncoding = new("Accept-Encoding");

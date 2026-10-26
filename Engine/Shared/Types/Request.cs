@@ -3,15 +3,12 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Engine.Shared.Types.Body;
 using Glyph11.Protocol;
 
 namespace GenHTTP.Engine.Shared.Types;
 
 public sealed class Request : IRequest
 {
-    private static readonly ByteString ContinueExpectation = new("100-continue");
-
     private SequencePosition _bodyStart;
 
     private IRequestHeader? _retainedHeader;
@@ -21,10 +18,6 @@ public sealed class Request : IRequest
     private IEndPoint? _endPoint;
 
     private PipeReader? _reader;
-
-    private PipeWriter? _writer;
-
-    private readonly ContinueReader _continue = new();
 
     private IRequestBody? _wrappedBody;
 
@@ -43,8 +36,6 @@ public sealed class Request : IRequest
     private bool _bodyLoaded;
 
     private bool _hasBody;
-
-    private bool _expectsContinue;
 
     private bool _resetRequired = true;
 
@@ -87,12 +78,6 @@ public sealed class Request : IRequest
 
     public bool HasBody => _hasBody;
 
-    /// <summary>
-    /// Whether the client asked for a 100 (Continue) it has not been sent. It holds its body back
-    /// until it has an answer, so the final response has to reach it before the body is drained.
-    /// </summary>
-    public bool ContinuePending => _expectsContinue && !_continue.Answered;
-
     #endregion
 
     #region Initialization
@@ -124,7 +109,7 @@ public sealed class Request : IRequest
 
         if (_hasBody)
         {
-            _body.Apply(_expectsContinue && _writer is not null ? _continue.Arm(Reader, _writer) : Reader);
+            _body.Apply(Reader);
         }
 
         Reader.AdvanceTo(_bodyStart);
@@ -145,13 +130,11 @@ public sealed class Request : IRequest
         return _body;
     }
 
-    /// <param name="writer">The connection's writer, which a client expecting a 100 (Continue) is answered on as its body is first read; null leaves the expectation unanswered</param>
-    public void Apply(IServer server, IEndPoint endPoint, PipeReader reader, SequencePosition bodyStart, IPAddress? remoteAddress, X509Certificate? clientCertificate, PipeWriter? writer = null)
+    public void Apply(IServer server, IEndPoint endPoint, PipeReader reader, SequencePosition bodyStart, IPAddress? remoteAddress, X509Certificate? clientCertificate)
     {
         _server = server;
         _endPoint = endPoint;
         _reader = reader;
-        _writer = writer;
 
         _header.Apply();
 
@@ -169,19 +152,11 @@ public sealed class Request : IRequest
         var headers = _header.Headers;
 
         _hasBody = headers.ContainsKey(KnownHeaders.ContentLength) || headers.ContainsKey(KnownHeaders.TransferEncoding);
-
-        _expectsContinue = writer is not null
-                           && _hasBody
-                           && _header.Protocol != HttpProtocol.Http10
-                           && headers.GetEntry(KnownHeaders.Expect) is { } expectation
-                           && expectation == ContinueExpectation;
     }
 
     public void Apply(IServer server)
     {
         _server = server;
-        _writer = null;
-        _expectsContinue = false;
 
         _header.Apply();
 
@@ -205,10 +180,6 @@ public sealed class Request : IRequest
         _response.Reset();
         _body.Reset();
 
-        _writer = null;
-        _expectsContinue = false;
-        _continue.Reset();
-
         _client.Reset();
 
         if (_wrappedBody is IDisposable disposableWrappedBody)
@@ -222,22 +193,8 @@ public sealed class Request : IRequest
         _resetRequired = true;
     }
 
-    /// <summary>
-    /// Tells the request that its final response is about to be written. From here on, reading
-    /// the body no longer answers a 100-continue expectation, as no interim response may follow
-    /// a final one.
-    /// </summary>
-    public void MarkResponseStarted()
-    {
-        _writer = null;
-        _continue.Disarm();
-    }
-
     public ValueTask DrainAsync()
     {
-        // Draining runs after the response, too late to invite a body the handler did not want.
-        MarkResponseStarted();
-
         if (_bodyLoaded)
         {
             return _hasBody ? _body.DrainAsync() : default;

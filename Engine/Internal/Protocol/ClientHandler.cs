@@ -127,7 +127,7 @@ internal sealed class ClientHandler(ClientContext context)
                     continue;
                 }
 
-                request.Apply(context.Server, context.EndPoint, reader, buffer.Start, context.Connection.GetAddress(), context.ClientCertificate, context.Writer);
+                request.Apply(context.Server, context.EndPoint, reader, buffer.Start, context.Connection.GetAddress(), context.ClientCertificate);
 
                 var status = await HandleRequestAsync(request);
 
@@ -145,11 +145,6 @@ internal sealed class ClientHandler(ClientContext context)
                 {
                     await context.Writer.FlushAsync();
                     return;
-                }
-
-                if (request.ContinuePending)
-                {
-                    await context.Writer.FlushAsync();
                 }
 
                 await request.DrainAsync();
@@ -220,8 +215,6 @@ internal sealed class ClientHandler(ClientContext context)
         }
 
         var response = await context.Server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
-
-        request.MarkResponseStarted();
 
         var upgradeResponse = response.Mode is Connection.Upgrade;
 
