@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Protocol;
 
@@ -13,6 +11,11 @@ public static class RequestSecurityExtensions
     /// path traversal attacks and throws a provider exception if one
     /// is detected.
     /// </summary>
+    /// <remarks>
+    /// Denies dot segments ("." and "..") as well as segments that contain
+    /// a path separator ("/", "\") or a null byte, either literally or
+    /// percent-encoded.
+    /// </remarks>
     /// <param name="target">The request target to be checked</param>
     public static void DenyPathTraversal(this IRequestTarget target)
     {
@@ -22,37 +25,44 @@ public static class RequestSecurityExtensions
 
         while ((segment = target.Next(index++)) != null)
         {
-            if (IsDotSegment(segment.Value.Bytes.Span))
+            if (IsForbidden(segment.Value.Bytes.Span))
             {
                 throw new ProviderException(ResponseStatus.BadRequest, "Potential path traversal detected");
             }
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsDotSegment(ReadOnlySpan<byte> segment)
+    private static bool IsForbidden(ReadOnlySpan<byte> segment)
     {
         var dots = 0;
+        var onlyDots = true;
 
-        for (var i = 0; i < segment.Length;)
+        for (var i = 0; i < segment.Length; i++)
         {
-            if (segment[i] == (byte)'.')
+            var c = segment[i];
+
+            if (c == (byte)'%' && i + 2 < segment.Length && PercentEncoding.TryDecode(segment[i + 1], segment[i + 2], out var unescaped))
             {
-                dots++;
-                i++;
+                c = unescaped;
+                i += 2;
             }
-            else if (segment[i] == (byte)'%' && i + 2 < segment.Length && segment[i + 1] == (byte)'2' && (segment[i + 2] == (byte)'e' || segment[i + 2] == (byte)'E'))
+
+            if (c is (byte)'/' or (byte)'\\' or 0)
+            {
+                return true;
+            }
+
+            if (c == (byte)'.')
             {
                 dots++;
-                i += 3;
             }
             else
             {
-                return false;
+                onlyDots = false;
             }
         }
 
-        return dots is 1 or 2;
+        return onlyDots && dots is 1 or 2;
     }
 
 }
