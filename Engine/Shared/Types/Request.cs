@@ -170,8 +170,6 @@ public sealed class Request : IRequest
 
         _hasBody = headers.ContainsKey(KnownHeaders.ContentLength) || headers.ContainsKey(KnownHeaders.TransferEncoding);
 
-        // Settled while the header can still be read. HTTP/1.0 has no such expectation (RFC 9110,
-        // section 10.1.1), and without a writer the engine answers it itself.
         _expectsContinue = writer is not null
                            && _hasBody
                            && _header.Protocol != HttpProtocol.Http10

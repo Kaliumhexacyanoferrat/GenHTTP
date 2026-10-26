@@ -28,19 +28,21 @@ public sealed class ComplianceConcern(IHandler content) : IConcern
             throw new ProviderException(ResponseStatus.BadRequest, "Host header is empty");
         }
 
-        if (header.Method == RequestMethod.Get || header.Method == RequestMethod.Head)
+        // the engine already scanned the headers for a body, so there is no need to do it again
+        if (request.HasBody)
         {
-            if (header.Headers.ContainsKey(KnownHeaders.ContentLength) || header.Headers.ContainsKey(KnownHeaders.TransferEncoding))
+            if (header.Method == RequestMethod.Get || header.Method == RequestMethod.Head)
             {
                 throw new ProviderException(ResponseStatus.BadRequest, "GET/HEAD requests must not contain a body");
             }
-        }
 
-        // 100-continue is the only expectation HTTP defines (RFC 9110, section 10.1.1), and the
-        // Expect header of an HTTP/1.0 request is to be ignored altogether
-        if (header.Headers.GetEntry(KnownHeaders.Expect) is { } expectation && expectation != ContinueExpectation && header.Protocol != HttpProtocol.Http10)
-        {
-            throw new ProviderException(ResponseStatus.ExpectationFailed, "The only expectation supported is '100-continue'");
+            // 100-continue is the only expectation HTTP defines (RFC 9110, section 10.1.1), and the
+            // Expect header of an HTTP/1.0 request is to be ignored altogether. Without a body there
+            // is nothing to wait for, so the expectation may be ignored as well.
+            if (header.Protocol != HttpProtocol.Http10 && header.Headers.GetEntry(KnownHeaders.Expect) is { } expectation && expectation != ContinueExpectation)
+            {
+                throw new ProviderException(ResponseStatus.ExpectationFailed, "The only expectation supported is '100-continue'");
+            }
         }
 
         return content.HandleAsync(request);
