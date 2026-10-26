@@ -45,7 +45,7 @@ public sealed class ServiceResourceRouter : IHandler, IServiceMethodProvider
     {
         var found = new List<MethodHandler>();
 
-        foreach (var method in Type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+        foreach (var method in TypeAnalyzer.FindMethods(Type))
         {
             var attribute = method.GetCustomAttribute<ResourceMethodAttribute>(true);
 
