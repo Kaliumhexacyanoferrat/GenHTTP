@@ -155,11 +155,9 @@ public sealed class HeaderAndConcernDocumentationTests
         var api = Inline.Create()
                         .Get("/a", () => 42)
                         .Post("/b", () => 42)
-                        .Add(new DocumentedConcernBuilder([
-                            new RequestHeaderAttribute("Authorization", "The token") { Required = true },
-                            new ResponseAttribute(ResponseStatus.Unauthorized, "No token given"),
-                            new ResponseHeaderAttribute(ResponseStatus.Unauthorized, "WWW-Authenticate", "The supported scheme")
-                        ]));
+                        .Add(new DocumentedConcernBuilder(d => d.RequestHeader("Authorization", "The token", required: true)
+                                                            .Response(ResponseStatus.Unauthorized, "No token given")
+                                                            .ResponseHeader("WWW-Authenticate", "The supported scheme", ResponseStatus.Unauthorized)));
 
         var doc = await GetDocumentAsync(api, engine);
 
@@ -180,9 +178,7 @@ public sealed class HeaderAndConcernDocumentationTests
     {
         var api = Inline.Create()
                         .Get([Response(ResponseStatus.Unauthorized, "Declared by the operation")] () => 42)
-                        .Add(new DocumentedConcernBuilder([
-                            new ResponseAttribute(ResponseStatus.Unauthorized, "Declared by the concern")
-                        ]));
+                        .Add(new DocumentedConcernBuilder(d => d.Response(ResponseStatus.Unauthorized, "Declared by the concern")));
 
         var op = GetOperations(await GetDocumentAsync(api, engine)).Single();
 
@@ -195,10 +191,8 @@ public sealed class HeaderAndConcernDocumentationTests
     {
         var api = Layout.Create()
                         .AddService<HeaderService>("service")
-                        .Add(new DocumentedConcernBuilder([
-                            new RequestHeaderAttribute("X-Request-Id", "Declared by the concern"),
-                            new ResponseHeaderAttribute("X-Time", "Declared by the concern")
-                        ]));
+                        .Add(new DocumentedConcernBuilder(d => d.RequestHeader("X-Request-Id", "Declared by the concern")
+                                                            .ResponseHeader("X-Time", "Declared by the concern")));
 
         var op = GetOperations(await GetDocumentAsync(api, engine)).Single();
 
@@ -212,15 +206,11 @@ public sealed class HeaderAndConcernDocumentationTests
     {
         var api = Inline.Create()
                         .Get(() => 42)
-                        .Add(new DocumentedConcernBuilder([
-                            new ResponseAttribute(ResponseStatus.Forbidden, "Inner"),
-                            new RequestHeaderAttribute("X-Inner")
-                        ]))
-                        .Add(new DocumentedConcernBuilder([
-                            new ResponseAttribute(ResponseStatus.Forbidden, "Outer"),
-                            new ResponseAttribute(ResponseStatus.Unauthorized, "Outer"),
-                            new RequestHeaderAttribute("X-Outer")
-                        ]));
+                        .Add(new DocumentedConcernBuilder(d => d.Response(ResponseStatus.Forbidden, "Inner")
+                                                            .RequestHeader("X-Inner")))
+                        .Add(new DocumentedConcernBuilder(d => d.Response(ResponseStatus.Forbidden, "Outer")
+                                                            .Response(ResponseStatus.Unauthorized, "Outer")
+                                                            .RequestHeader("X-Outer")));
 
         var op = GetOperations(await GetDocumentAsync(api, engine)).Single();
 
@@ -237,10 +227,8 @@ public sealed class HeaderAndConcernDocumentationTests
     {
         var api = Inline.Create()
                         .Get(() => 42)
-                        .Add(new DocumentedConcernBuilder([
-                            new ResponseAttribute(ResponseStatus.BadRequest, "The error") { ContentType = "application/problem+json" },
-                            new ResponseAttribute(ResponseStatus.BadRequest) { ContentType = "text/plain" }
-                        ]));
+                        .Add(new DocumentedConcernBuilder(d => d.Response(ResponseStatus.BadRequest, "The error", contentType: "application/problem+json")
+                                                            .Response(ResponseStatus.BadRequest, contentType: "text/plain")));
 
         var op = GetOperations(await GetDocumentAsync(api, engine)).Single();
 
@@ -253,7 +241,7 @@ public sealed class HeaderAndConcernDocumentationTests
     public async Task TestConcernOnlyAppliesToContent(ServerEngine engine)
     {
         var api = Layout.Create()
-                        .Add("documented", Inline.Create().Get(() => 42).Add(new DocumentedConcernBuilder([new RequestHeaderAttribute("X-Documented")])))
+                        .Add("documented", Inline.Create().Get(() => 42).Add(new DocumentedConcernBuilder(d => d.RequestHeader("X-Documented"))))
                         .Add("plain", Inline.Create().Get(() => 42));
 
         var doc = await GetDocumentAsync(api, engine);
@@ -269,7 +257,7 @@ public sealed class HeaderAndConcernDocumentationTests
         var api = Inline.Create()
                         .Get("/a", () => 42)
                         .Post("/a", () => 42)
-                        .Add(new DocumentedConcernBuilder([new RequestHeaderAttribute("X-Read-Only")], RequestMethod.Get));
+                        .Add(new DocumentedConcernBuilder(d => d.RequestHeader("X-Read-Only"), RequestMethod.Get));
 
         var doc = await GetDocumentAsync(api, engine);
 
@@ -285,7 +273,7 @@ public sealed class HeaderAndConcernDocumentationTests
     {
         var api = Inline.Create()
                         .Get(() => 42)
-                        .Add(new DocumentedConcernBuilder([]));
+                        .Add(new DocumentedConcernBuilder(_ => { }));
 
         var op = GetOperations(await GetDocumentAsync(api, engine)).Single();
 
@@ -398,14 +386,14 @@ public sealed class HeaderAndConcernDocumentationTests
 
     }
 
-    private sealed class DocumentedConcernBuilder(IReadOnlyList<DocumentationAttribute> documentation, RequestMethod? method = null) : IConcernBuilder
+    private sealed class DocumentedConcernBuilder(Action<OperationDocumentation> documentation, RequestMethod? method = null) : IConcernBuilder
     {
 
         public IConcern Build(IHandler content) => new DocumentedConcern(content, documentation, method);
 
     }
 
-    private sealed class DocumentedConcern(IHandler content, IReadOnlyList<DocumentationAttribute> documentation, RequestMethod? method) : IDocumentedConcern
+    private sealed class DocumentedConcern(IHandler content, Action<OperationDocumentation> documentation, RequestMethod? method) : IDocumentedConcern
     {
 
         public IHandler Content => content;
@@ -414,10 +402,7 @@ public sealed class HeaderAndConcernDocumentationTests
         {
             if (method == null || operation.Method == method)
             {
-                foreach (var entry in documentation)
-                {
-                    operation.Add(entry);
-                }
+                documentation(operation);
             }
         }
 

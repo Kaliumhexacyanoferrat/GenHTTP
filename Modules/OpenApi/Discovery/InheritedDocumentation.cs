@@ -61,7 +61,7 @@ public sealed class InheritedDocumentation
 
             current.Concern.AddDocumentation(operation);
 
-            if (operation.Entries.Count > 0)
+            if (operation.Entries.Count > 0 || operation.Authentication.Count > 0)
             {
                 result.Add(operation);
             }

@@ -2,16 +2,14 @@ namespace GenHTTP.Api.Content.Services;
 
 /// <summary>
 /// A concern that documents the functionality it adds to the content
-/// it wraps (such as the headers it reads or the responses it may generate),
-/// so it can be presented to the consumers of the API.
+/// it wraps (such as the headers it reads, the responses it may generate or
+/// the authentication it requires), so it can be presented to the consumers of the API.
 /// </summary>
 /// <remarks>
-/// The documentation added by the concern is treated as if it was declared on the
+/// Responses and headers added by the concern are treated as if they were declared on the
 /// service class of the operation. Documentation declared on the services themselves
-/// and documentation of concerns closer to the content take precedence. Concerns may use
-/// <see cref="ResponseAttribute" />, <see cref="RequestHeaderAttribute" /> and
-/// <see cref="ResponseHeaderAttribute" /> instances to document themselves, other kinds of
-/// documentation are ignored.
+/// and documentation of concerns closer to the content take precedence. Required authentication
+/// adds up instead, as the client needs to pass every concern on the way to the operation.
 /// </remarks>
 public interface IDocumentedConcern : IConcern
 {

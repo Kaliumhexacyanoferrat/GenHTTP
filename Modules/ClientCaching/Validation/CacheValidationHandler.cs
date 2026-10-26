@@ -71,10 +71,10 @@ public sealed class CacheValidationHandler : IDocumentedConcern
     {
         if (operation.Method == RequestMethod.Get || operation.Method == RequestMethod.Head)
         {
-            operation.Add(new RequestHeaderAttribute("If-None-Match", "The ETag of a previously received response, to check whether the content has changed since"))
-                     .Add(new ResponseAttribute(ResponseStatus.NotModified, "The content has not changed since it has been received with the given ETag"))
-                     .Add(new ResponseHeaderAttribute(ResponseStatus.Ok, "ETag", "Identifies the version of the returned content"))
-                     .Add(new ResponseHeaderAttribute(ResponseStatus.NotModified, "ETag", "Identifies the version of the content"));
+            operation.RequestHeader("If-None-Match", "The ETag of a previously received response, to check whether the content has changed since")
+                     .Response(ResponseStatus.NotModified, "The content has not changed since it has been received with the given ETag")
+                     .ResponseHeader("ETag", "Identifies the version of the returned content", ResponseStatus.Ok)
+                     .ResponseHeader("ETag", "Identifies the version of the content", ResponseStatus.NotModified);
         }
     }
 

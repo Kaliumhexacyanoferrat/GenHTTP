@@ -58,7 +58,7 @@ public sealed class DecompressionConcern : IDocumentedConcern
         {
             var algorithms = string.Join(", ", Algorithms.Keys.Select(k => k.ToString()));
 
-            operation.Add(new RequestHeaderAttribute("Content-Encoding", $"Allows to send a compressed request body (supported: {algorithms})"));
+            operation.RequestHeader("Content-Encoding", $"Allows to send a compressed request body (supported: {algorithms})");
         }
     }
 

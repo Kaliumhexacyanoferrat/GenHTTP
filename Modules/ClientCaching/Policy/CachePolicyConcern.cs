@@ -64,7 +64,7 @@ public sealed class CachePolicyConcern : IDocumentedConcern
     {
         if (operation.Method == RequestMethod.Get)
         {
-            operation.Add(new ResponseHeaderAttribute(ResponseStatus.Ok, "Expires", "Until when the client may cache the response"));
+            operation.ResponseHeader("Expires", "Until when the client may cache the response", ResponseStatus.Ok);
         }
     }
 

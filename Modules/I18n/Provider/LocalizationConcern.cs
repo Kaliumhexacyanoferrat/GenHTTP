@@ -51,7 +51,7 @@ public sealed class LocalizationConcern : IDocumentedConcern
 
     public void AddDocumentation(OperationDocumentation operation)
     {
-        operation.Add(new ResponseHeaderAttribute("Content-Language", "The language of the returned content"));
+        operation.ResponseHeader("Content-Language", "The language of the returned content");
     }
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)

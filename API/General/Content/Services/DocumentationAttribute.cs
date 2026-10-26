@@ -5,8 +5,8 @@ namespace GenHTTP.Api.Content.Services;
 /// presented to its consumers (e.g. in a generated OpenAPI specification).
 /// </summary>
 /// <remarks>
-/// Besides being placed on services and their methods, instances of these
-/// attributes can also be created at runtime by concerns to document the
-/// functionality they add to the content they wrap (see <see cref="IDocumentedConcern" />).
+/// Concerns document the functionality they add to the content they wrap
+/// via <see cref="OperationDocumentation" />, which creates instances of these
+/// attributes at runtime (see <see cref="IDocumentedConcern" />).
 /// </remarks>
 public abstract class DocumentationAttribute : Attribute;

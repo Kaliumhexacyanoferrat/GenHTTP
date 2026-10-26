@@ -1,5 +1,6 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
+using GenHTTP.Api.Content.Services;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Reflection;
@@ -7,7 +8,7 @@ using GenHTTP.Modules.Reflection.Operations;
 
 namespace GenHTTP.Modules.Authentication.Roles;
 
-public sealed class RoleInterceptor : IOperationInterceptor
+public sealed class RoleInterceptor : IDocumentedInterceptor
 {
     private string[]? _roles;
 
@@ -16,6 +17,19 @@ public sealed class RoleInterceptor : IOperationInterceptor
         if (attribute is RequireRoleAttribute roleAttribute)
         {
             _roles = roleAttribute.Roles;
+        }
+    }
+
+    public void AddDocumentation(OperationDocumentation operation)
+    {
+        if (_roles?.Length > 0)
+        {
+            var roles = string.Join(", ", _roles);
+
+            var description = (_roles.Length == 1) ? $"The user does not have the required role: {roles}" : $"The user does not have all of the required roles: {roles}";
+
+            operation.Response(ResponseStatus.Unauthorized, "Authentication is required to access this operation")
+                     .Response(ResponseStatus.Forbidden, description);
         }
     }
 

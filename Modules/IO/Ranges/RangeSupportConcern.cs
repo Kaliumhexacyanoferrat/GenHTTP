@@ -43,12 +43,12 @@ public sealed partial class RangeSupportConcern : IDocumentedConcern
     {
         if (operation.Method == RequestMethod.Get || operation.Method == RequestMethod.Head)
         {
-            operation.Add(new RequestHeaderAttribute("Range", "Requests a part of the content (e.g. bytes=0-1023), supported if the length of the content is known"))
-                     .Add(new ResponseAttribute(ResponseStatus.PartialContent, "The requested part of the content"))
-                     .Add(new ResponseAttribute(ResponseStatus.RequestedRangeNotSatisfiable, "The requested range is not within the content") { ContentType = "text/plain" })
-                     .Add(new ResponseHeaderAttribute(ResponseStatus.Ok, "Accept-Ranges", "Set to 'bytes' if parts of the content can be requested"))
-                     .Add(new ResponseHeaderAttribute(ResponseStatus.PartialContent, "Content-Range", "The part of the content contained in the response (e.g. bytes 0-1023/4096)"))
-                     .Add(new ResponseHeaderAttribute(ResponseStatus.RequestedRangeNotSatisfiable, "Content-Range", "The total length of the content (e.g. bytes */4096)"));
+            operation.RequestHeader("Range", "Requests a part of the content (e.g. bytes=0-1023), supported if the length of the content is known")
+                     .Response(ResponseStatus.PartialContent, "The requested part of the content")
+                     .Response(ResponseStatus.RequestedRangeNotSatisfiable, "The requested range is not within the content", contentType: "text/plain")
+                     .ResponseHeader("Accept-Ranges", "Set to 'bytes' if parts of the content can be requested", ResponseStatus.Ok)
+                     .ResponseHeader("Content-Range", "The part of the content contained in the response (e.g. bytes 0-1023/4096)", ResponseStatus.PartialContent)
+                     .ResponseHeader("Content-Range", "The total length of the content (e.g. bytes */4096)", ResponseStatus.RequestedRangeNotSatisfiable);
         }
     }
 

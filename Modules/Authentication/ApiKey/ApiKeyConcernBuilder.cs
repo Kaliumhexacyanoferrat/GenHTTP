@@ -3,13 +3,21 @@ using GenHTTP.Api.Content.Authentication;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Modules.Authentication.Documentation;
+
 namespace GenHTTP.Modules.Authentication.ApiKey;
 
 public sealed class ApiKeyConcernBuilder : IConcernBuilder
 {
+    private const string DefaultHeader = "X-API-Key";
+
+    private readonly SchemeDocumentation _documentation = new();
+
     private Func<IRequest, string, ValueTask<IUser?>>? _authenticator;
 
-    private Func<IRequest, string?>? _keyExtractor = request => request.Header.Headers.GetEntry("X-API-Key");
+    private Func<IRequest, string?>? _keyExtractor = request => request.Header.Headers.GetEntry(DefaultHeader);
+
+    private SecurityScheme? _inferredScheme = SecurityScheme.ApiKey(DefaultHeader);
 
     #region Functionality
 
@@ -18,9 +26,15 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     /// an incoming request (e.g. by reading a header value).
     /// </summary>
     /// <param name="keyExtractor">The logic to be executed to fetch an API key from a request</param>
+    /// <remarks>
+    /// As the concern cannot know where the logic reads the key from, it will not be
+    /// documented in a generated API specification unless you describe it with
+    /// <see cref="Documentation(SecurityScheme)" />.
+    /// </remarks>
     public ApiKeyConcernBuilder Extractor(Func<IRequest, string?> keyExtractor)
     {
         _keyExtractor = keyExtractor;
+        _inferredScheme = null;
         return this;
     }
 
@@ -32,6 +46,7 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     public ApiKeyConcernBuilder WithHeader(string headerName)
     {
         _keyExtractor = request => request.Header.Headers.GetEntry(headerName);
+        _inferredScheme = SecurityScheme.ApiKey(headerName);
         return this;
     }
 
@@ -39,10 +54,23 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
     /// Configures the handler to read the API key from the
     /// specified query parameter.
     /// </summary>
-    /// <param name="headerName">The name of the query parameter to be read from the request</param>
+    /// <param name="parameter">The name of the query parameter to be read from the request</param>
     public ApiKeyConcernBuilder WithQueryParameter(string parameter)
     {
         _keyExtractor = request => request.Header.Query.GetEntry(parameter);
+        _inferredScheme = SecurityScheme.ApiKey(parameter, ApiKeyLocation.Query);
+        return this;
+    }
+
+    /// <summary>
+    /// Configures the handler to read the API key from the
+    /// specified cookie.
+    /// </summary>
+    /// <param name="cookie">The name of the cookie to be read from the request</param>
+    public ApiKeyConcernBuilder WithCookie(string cookie)
+    {
+        _keyExtractor = request => request.Header.Headers.GetCookie(cookie);
+        _inferredScheme = SecurityScheme.ApiKey(cookie, ApiKeyLocation.Cookie);
         return this;
     }
 
@@ -70,13 +98,34 @@ public sealed class ApiKeyConcernBuilder : IConcernBuilder
         return this;
     }
 
+    /// <summary>
+    /// Describes how clients obtain an API key, shown in a generated API specification.
+    /// </summary>
+    /// <param name="description">The description to be shown to the consumers of the API (may contain Markdown)</param>
+    public ApiKeyConcernBuilder Documentation(string description)
+    {
+        _documentation.Description = description;
+        return this;
+    }
+
+    /// <summary>
+    /// Documents the authentication mechanism as the given scheme, instead of the one derived
+    /// from the configuration of the concern. Use this if the key is read by custom logic.
+    /// </summary>
+    /// <param name="scheme">The scheme to be shown to the consumers of the API</param>
+    public ApiKeyConcernBuilder Documentation(SecurityScheme scheme)
+    {
+        _documentation.Scheme = scheme;
+        return this;
+    }
+
     public IConcern Build(IHandler content)
     {
         var keyExtractor = _keyExtractor ?? throw new BuilderMissingPropertyException("KeyExtractor");
 
         var authenticator = _authenticator ?? throw new BuilderMissingPropertyException("Authenticator");
 
-        return new ApiKeyConcern(content, keyExtractor, authenticator);
+        return new ApiKeyConcern(content, keyExtractor, authenticator, _documentation.ResolveOptional(_inferredScheme));
     }
 
     #endregion
