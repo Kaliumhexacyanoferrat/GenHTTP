@@ -1,10 +1,12 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Documentation;
+using GenHTTP.Api.Content.Documentation.Security;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Authentication.Multi;
 
-public sealed class MultiAuthenticationConcern : IConcern
+public sealed class MultiAuthenticationConcern : IDocumentedConcern
 {
 
     #region Get-/Setters
@@ -55,6 +57,46 @@ public sealed class MultiAuthenticationConcern : IConcern
     }
 
     public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
+
+    public void AddDocumentation(OperationDocumentation operation)
+    {
+        var schemes = new List<SecurityScheme>();
+
+        var entries = new List<DocumentationAttribute>();
+
+        foreach (var concern in _delegatingConcerns.OfType<IDocumentedConcern>())
+        {
+            var child = new OperationDocumentation(operation.Method);
+
+            concern.AddDocumentation(child);
+
+            schemes.AddRange(child.Authentication.SelectMany(r => r.AnyOf));
+            entries.AddRange(child.Entries);
+        }
+
+        if (schemes.Count > 0)
+        {
+            operation.RequireAuthentication(schemes.Distinct().ToArray());
+        }
+
+        operation.Response(ResponseStatus.Unauthorized, "The request could not be authenticated with any of the supported methods");
+
+        foreach (var entry in entries)
+        {
+            switch (entry)
+            {
+                case ResponseAttribute response:
+                    operation.Response(response.Status, response.Description, response.Type, response.ContentType);
+                    break;
+                case ResponseHeaderAttribute header:
+                    operation.ResponseHeader(header.Name, header.Description, header.Status, header.Type);
+                    break;
+                case RequestHeaderAttribute header:
+                    operation.RequestHeader(header.Name, header.Description, false, header.Type);
+                    break;
+            }
+        }
+    }
 
     #endregion
 

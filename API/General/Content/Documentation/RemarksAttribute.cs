@@ -1,4 +1,4 @@
-namespace GenHTTP.Api.Content.Services;
+namespace GenHTTP.Api.Content.Documentation;
 
 /// <summary>
 /// Adds a detailed explanation to an element of a service that goes beyond

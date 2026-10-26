@@ -1,14 +1,20 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
+using GenHTTP.Api.Content.Documentation.Security;
 using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.Authentication.Documentation;
+
 using Microsoft.IdentityModel.Tokens;
 
 namespace GenHTTP.Modules.Authentication.Bearer;
 
-public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
+public sealed class BearerAuthenticationConcernBuilder : IAuthenticationBuilder<BearerAuthenticationConcernBuilder>
 {
     private readonly TokenValidationOptions _options = new();
+
+    private readonly SchemeDocumentation _documentation = new();
 
     #region Functionality
 
@@ -94,7 +100,19 @@ public sealed class BearerAuthenticationConcernBuilder : IConcernBuilder
         return this;
     }
 
-    public IConcern Build(IHandler content) => new BearerAuthenticationConcern(content, _options);
+    public BearerAuthenticationConcernBuilder Documentation(string description)
+    {
+        _documentation.Description = description;
+        return this;
+    }
+
+    public BearerAuthenticationConcernBuilder Documentation(SecurityScheme scheme)
+    {
+        _documentation.Scheme = scheme;
+        return this;
+    }
+
+    public IConcern Build(IHandler content) => new BearerAuthenticationConcern(content, _options, _documentation.Resolve(SecurityScheme.Bearer("JWT")));
 
     #endregion
 

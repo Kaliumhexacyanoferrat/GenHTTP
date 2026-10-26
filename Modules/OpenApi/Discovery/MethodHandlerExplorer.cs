@@ -1,7 +1,8 @@
 ﻿using System.Reflection;
 using System.Text.RegularExpressions;
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Services;
+using GenHTTP.Api.Content.Documentation;
+using GenHTTP.Api.Content.Documentation.Security;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Reflection;
@@ -48,7 +49,7 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
                     continue;
                 }
 
-                var inherited = documentation.GetDocumentation(requestMethod);
+                var shared = new SharedDocumentation(GetInterceptorDocumentation(methodHandler.Operation, requestMethod), documentation.GetDocumentation(requestMethod));
 
                 var operation = new OpenApiOperation
                 {
@@ -112,7 +113,7 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
                     ApplyDeclaredRequestBody(operation, method, schemata, methodHandler.Registry);
                 }
 
-                AddRequestHeaders(operation, methodHandler.Operation, inherited);
+                AddRequestHeaders(operation, methodHandler.Operation, shared);
 
                 if (methodHandler.Operation.Route.IsWildcard)
                 {
@@ -128,12 +129,14 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
                     operation.Parameters.Add(param);
                 }
 
-                foreach (var (key, value) in GetResponses(methodHandler.Operation, schemata, methodHandler.Registry, inherited))
+                foreach (var (key, value) in GetResponses(methodHandler.Operation, schemata, methodHandler.Registry, shared))
                 {
                     operation.Responses.Add(key, value);
                 }
 
-                AddResponseHeaders(operation, methodHandler.Operation, inherited);
+                AddResponseHeaders(operation, methodHandler.Operation, shared);
+
+                AddSecurity(operation, document, shared);
 
                 pathItem.Add(requestMethod.ToString(), operation);
             }
@@ -165,9 +168,9 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
         return parameter != null ? Documentation.GetSummary(parameter) : null;
     }
 
-    private static void AddRequestHeaders(OpenApiOperation operation, Operation source, IReadOnlyList<OperationDocumentation> inherited)
+    private static void AddRequestHeaders(OpenApiOperation operation, Operation source, SharedDocumentation shared)
     {
-        foreach (var header in GetDocumentation<RequestHeaderAttribute>(source, inherited))
+        foreach (var header in GetDocumentation<RequestHeaderAttribute>(source, shared))
         {
             if (operation.Parameters.Any(p => p.Kind == OpenApiParameterKind.Header && string.Equals(p.Name, header.Name, StringComparison.OrdinalIgnoreCase)))
             {
@@ -189,16 +192,16 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
 
     /// <summary>
     /// Collects the documentation of the given kind that applies to the operation, the most specific
-    /// first: the method, the service and the concerns from the innermost to the outermost.
+    /// first: the method, its interceptors, the service and the concerns from the innermost to the outermost.
     /// </summary>
-    private static IEnumerable<T> GetDocumentation<T>(Operation operation, IReadOnlyList<OperationDocumentation> inherited) where T : DocumentationAttribute
+    private static IEnumerable<T> GetDocumentation<T>(Operation operation, SharedDocumentation shared) where T : DocumentationAttribute
     {
         foreach (var attribute in operation.Method.GetCustomAttributes<T>(true))
         {
             yield return attribute;
         }
 
-        foreach (var level in GetSharedLevels(operation, inherited))
+        foreach (var level in GetSharedLevels(operation, shared))
         {
             foreach (var attribute in level.OfType<T>())
             {
@@ -208,19 +211,65 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
     }
 
     /// <summary>
-    /// The documentation shared by multiple operations (declared on the service or provided by
-    /// concerns), grouped by the level it has been declared on, the most specific first.
+    /// The documentation not declared on the method itself (provided by interceptors, declared on the
+    /// service or provided by concerns), grouped by the level it has been declared on, the most specific first.
     /// </summary>
-    private static IEnumerable<IEnumerable<DocumentationAttribute>> GetSharedLevels(Operation operation, IReadOnlyList<OperationDocumentation> inherited)
+    private static IEnumerable<IEnumerable<DocumentationAttribute>> GetSharedLevels(Operation operation, SharedDocumentation shared)
     {
+        foreach (var level in shared.Interceptors)
+        {
+            yield return level.Entries;
+        }
+
         if (operation.Method.DeclaringType is { } type)
         {
             yield return type.GetCustomAttributes<DocumentationAttribute>(true);
         }
 
-        foreach (var level in inherited)
+        foreach (var level in shared.Concerns)
         {
             yield return level.Entries;
+        }
+    }
+
+    /// <summary>
+    /// The documentation provided by the interceptors of the operation and the concerns
+    /// wrapping it, the most specific first.
+    /// </summary>
+    private sealed record SharedDocumentation(IReadOnlyList<OperationDocumentation> Interceptors, IReadOnlyList<OperationDocumentation> Concerns)
+    {
+
+        internal IEnumerable<AuthenticationRequirement> Authentication => Interceptors.Concat(Concerns).SelectMany(d => d.Authentication);
+
+    }
+
+    private static List<OperationDocumentation> GetInterceptorDocumentation(Operation operation, RequestMethod method)
+    {
+        var result = new List<OperationDocumentation>();
+
+        foreach (var interceptor in operation.Interceptors.OfType<IDocumentedInterceptor>())
+        {
+            var documentation = new OperationDocumentation(method);
+
+            interceptor.AddDocumentation(documentation);
+
+            result.Add(documentation);
+        }
+
+        return result;
+    }
+
+    #endregion
+
+    #region Security
+
+    private static void AddSecurity(OpenApiOperation operation, OpenApiDocument document, SharedDocumentation shared)
+    {
+        var requirements = shared.Authentication.ToList();
+
+        if (requirements.Count > 0)
+        {
+            operation.Security = SecurityDocumentation.GetRequirements(document, requirements);
         }
     }
 
@@ -356,7 +405,7 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
 
     #region Responses
 
-    private static Dictionary<string, OpenApiResponse> GetResponses(Operation operation, SchemaManager schemata, MethodRegistry registry, IReadOnlyList<OperationDocumentation> inherited)
+    private static Dictionary<string, OpenApiResponse> GetResponses(Operation operation, SchemaManager schemata, MethodRegistry registry, SharedDocumentation shared)
     {
         var result = new Dictionary<string, OpenApiResponse>();
 
@@ -378,8 +427,8 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
             result[GetKey(group.Key)] = GetDeclaredResponse(group.Key, group, inferred, resultSummary, schemata, registry);
         }
 
-        // responses shared by the service or declared by concerns, the most specific level wins
-        foreach (var level in GetSharedLevels(operation, inherited))
+        // responses declared by interceptors, the service or concerns, the most specific level wins
+        foreach (var level in GetSharedLevels(operation, shared))
         {
             foreach (var group in level.OfType<ResponseAttribute>().GroupBy(d => d.Status))
             {
@@ -390,9 +439,9 @@ public sealed partial class MethodHandlerExplorer : IApiExplorer
         return result;
     }
 
-    private static void AddResponseHeaders(OpenApiOperation operation, Operation source, IReadOnlyList<OperationDocumentation> inherited)
+    private static void AddResponseHeaders(OpenApiOperation operation, Operation source, SharedDocumentation shared)
     {
-        foreach (var header in GetDocumentation<ResponseHeaderAttribute>(source, inherited))
+        foreach (var header in GetDocumentation<ResponseHeaderAttribute>(source, shared))
         {
             List<OpenApiResponse> targets;
 

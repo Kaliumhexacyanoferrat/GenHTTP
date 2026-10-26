@@ -3,6 +3,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Documentation;
+using GenHTTP.Api.Content.Documentation.Security;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
@@ -22,7 +24,7 @@ internal sealed class OpenIdConfiguration
 
 #endregion
 
-internal sealed class BearerAuthenticationConcern : IConcern
+internal sealed class BearerAuthenticationConcern : IDocumentedConcern
 {
     private ICollection<SecurityKey>? _issuerKeys;
 
@@ -32,15 +34,18 @@ internal sealed class BearerAuthenticationConcern : IConcern
 
     private TokenValidationOptions ValidationOptions { get; }
 
+    private SecurityScheme Scheme { get; }
+
     #endregion
 
     #region Initialization
 
-    internal BearerAuthenticationConcern(IHandler content, TokenValidationOptions validationOptions)
+    internal BearerAuthenticationConcern(IHandler content, TokenValidationOptions validationOptions, SecurityScheme scheme)
     {
         Content = content;
 
         ValidationOptions = validationOptions;
+        Scheme = scheme;
     }
 
     #endregion
@@ -48,6 +53,18 @@ internal sealed class BearerAuthenticationConcern : IConcern
     #region Functionality
 
     public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
+
+    public void AddDocumentation(OperationDocumentation operation)
+    {
+        operation.RequireAuthentication(Scheme)
+                 .Response(ResponseStatus.Unauthorized, "No valid access token has been sent with the request")
+                 .Response(ResponseStatus.BadRequest, "The access token sent with the request is malformed");
+
+        if (ValidationOptions.CustomValidator != null)
+        {
+            operation.Response(ResponseStatus.Forbidden, "The access token has been rejected");
+        }
+    }
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {

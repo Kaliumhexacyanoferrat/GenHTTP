@@ -75,6 +75,42 @@ public sealed class ApiKeyAuthenticationTests
 
     [TestMethod]
     [MultiEngineTest]
+    public async Task TestValidKeyFromCookie(ServerEngine engine)
+    {
+        var auth = ApiKeyAuthentication.Create()
+                                       .WithCookie("session")
+                                       .Keys("123");
+
+        await using var runner = await GetRunnerWithAuthAsync(auth, engine);
+
+        var request = runner.GetRequest();
+        request.Headers.Add("Cookie", "theme=dark; session=123");
+
+        using var response = await runner.GetResponseAsync(request);
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestMissingCookie(ServerEngine engine)
+    {
+        var auth = ApiKeyAuthentication.Create()
+                                       .WithCookie("session")
+                                       .Keys("123");
+
+        await using var runner = await GetRunnerWithAuthAsync(auth, engine);
+
+        var request = runner.GetRequest();
+        request.Headers.Add("Cookie", "theme=dark");
+
+        using var response = await runner.GetResponseAsync(request);
+
+        await response.AssertStatusAsync(HttpStatusCode.Unauthorized);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
     public async Task TestValidKeyFromHeader(ServerEngine engine)
     {
         var auth = ApiKeyAuthentication.Create()

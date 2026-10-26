@@ -2,7 +2,7 @@ using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using GenHTTP.Api.Content.Services;
+using GenHTTP.Api.Content.Documentation;
 using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Modules.Conversion;

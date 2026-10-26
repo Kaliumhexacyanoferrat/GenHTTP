@@ -1,5 +1,5 @@
 ﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Services;
+using GenHTTP.Api.Content.Documentation;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
@@ -64,7 +64,7 @@ public sealed class CachePolicyConcern : IDocumentedConcern
     {
         if (operation.Method == RequestMethod.Get)
         {
-            operation.Add(new ResponseHeaderAttribute(ResponseStatus.Ok, "Expires", "Until when the client may cache the response"));
+            operation.ResponseHeader("Expires", "Until when the client may cache the response", ResponseStatus.Ok);
         }
     }
 

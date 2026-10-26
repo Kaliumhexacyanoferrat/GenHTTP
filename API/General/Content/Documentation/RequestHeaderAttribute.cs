@@ -1,4 +1,4 @@
-namespace GenHTTP.Api.Content.Services;
+namespace GenHTTP.Api.Content.Documentation;
 
 /// <summary>
 /// Declares a header that is read from the request by an operation.

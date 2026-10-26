@@ -2,12 +2,14 @@
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
+using GenHTTP.Api.Content.Documentation;
+using GenHTTP.Api.Content.Documentation.Security;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Authentication.Basic;
 
-public sealed class BasicAuthenticationConcern : IConcern
+public sealed class BasicAuthenticationConcern : IDocumentedConcern
 {
 
     #region Get-/Setters
@@ -18,16 +20,19 @@ public sealed class BasicAuthenticationConcern : IConcern
 
     private Func<string, string, ValueTask<IUser?>> Authenticator { get; }
 
+    private SecurityScheme Scheme { get; }
+
     #endregion
 
     #region Initialization
 
-    public BasicAuthenticationConcern(IHandler content, string realm, Func<string, string, ValueTask<IUser?>> authenticator)
+    public BasicAuthenticationConcern(IHandler content, string realm, Func<string, string, ValueTask<IUser?>> authenticator, SecurityScheme? scheme = null)
     {
         Content = content;
 
         Realm = realm;
         Authenticator = authenticator;
+        Scheme = scheme ?? SecurityScheme.Basic();
     }
 
     #endregion
@@ -35,6 +40,13 @@ public sealed class BasicAuthenticationConcern : IConcern
     #region Functionality
 
     public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
+
+    public void AddDocumentation(OperationDocumentation operation)
+    {
+        operation.RequireAuthentication(Scheme)
+                 .Response(ResponseStatus.Unauthorized, "No or invalid credentials have been sent with the request")
+                 .ResponseHeader("WWW-Authenticate", "Requests the client to authenticate with the given scheme and realm", ResponseStatus.Unauthorized);
+    }
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {

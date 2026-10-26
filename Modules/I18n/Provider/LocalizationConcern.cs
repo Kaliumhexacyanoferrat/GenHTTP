@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 
 using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Services;
+using GenHTTP.Api.Content.Documentation;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
@@ -51,7 +51,7 @@ public sealed class LocalizationConcern : IDocumentedConcern
 
     public void AddDocumentation(OperationDocumentation operation)
     {
-        operation.Add(new ResponseHeaderAttribute("Content-Language", "The language of the returned content"));
+        operation.ResponseHeader("Content-Language", "The language of the returned content");
     }
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)

@@ -1,10 +1,12 @@
 ﻿using GenHTTP.Api.Content;
+using GenHTTP.Api.Content.Documentation;
+using GenHTTP.Api.Content.Documentation.Security;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.Authentication.ClientCertificate;
 
-public sealed class ClientCertificateAuthenticationConcern : IConcern
+public sealed class ClientCertificateAuthenticationConcern : IDocumentedConcern
 {
 
     #region Get-/Setters
@@ -13,14 +15,17 @@ public sealed class ClientCertificateAuthenticationConcern : IConcern
 
     private ClientCertificateAuthenticationOptions Options { get; }
 
+    private SecurityScheme? Scheme { get; }
+
     #endregion
 
     #region Initialization
 
-    internal ClientCertificateAuthenticationConcern(IHandler content, ClientCertificateAuthenticationOptions options)
+    internal ClientCertificateAuthenticationConcern(IHandler content, ClientCertificateAuthenticationOptions options, SecurityScheme? scheme)
     {
         Content = content;
         Options = options;
+        Scheme = scheme;
     }
 
     #endregion
@@ -28,6 +33,19 @@ public sealed class ClientCertificateAuthenticationConcern : IConcern
     #region Functionality
 
     public ValueTask PrepareAsync(IServer server) => Content.PrepareAsync(server);
+
+    public void AddDocumentation(OperationDocumentation operation)
+    {
+        if (Scheme != null)
+        {
+            operation.RequireAuthentication(Scheme);
+        }
+
+        if (Options.Authorizer != null)
+        {
+            operation.Response(ResponseStatus.Forbidden, "The client certificate is not allowed to access this resource");
+        }
+    }
 
     public async ValueTask<IResponse?> HandleAsync(IRequest request)
     {

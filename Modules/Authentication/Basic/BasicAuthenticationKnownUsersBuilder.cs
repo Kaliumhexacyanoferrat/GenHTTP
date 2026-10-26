@@ -1,11 +1,16 @@
 ﻿using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Authentication;
+using GenHTTP.Api.Content.Documentation.Security;
 using GenHTTP.Api.Infrastructure;
+
+using GenHTTP.Modules.Authentication.Documentation;
 
 namespace GenHTTP.Modules.Authentication.Basic;
 
-public sealed class BasicAuthenticationKnownUsersBuilder : IConcernBuilder
+public sealed class BasicAuthenticationKnownUsersBuilder : IAuthenticationBuilder<BasicAuthenticationKnownUsersBuilder>
 {
+    private readonly SchemeDocumentation _documentation = new();
+
     private readonly Dictionary<string, string> _users = new(StringComparer.OrdinalIgnoreCase);
 
     private string? _realm;
@@ -24,6 +29,18 @@ public sealed class BasicAuthenticationKnownUsersBuilder : IConcernBuilder
         return this;
     }
 
+    public BasicAuthenticationKnownUsersBuilder Documentation(string description)
+    {
+        _documentation.Description = description;
+        return this;
+    }
+
+    public BasicAuthenticationKnownUsersBuilder Documentation(SecurityScheme scheme)
+    {
+        _documentation.Scheme = scheme;
+        return this;
+    }
+
     public IConcern Build(IHandler content)
     {
         var realm = _realm ?? throw new BuilderMissingPropertyException("Realm");
@@ -39,7 +56,7 @@ public sealed class BasicAuthenticationKnownUsersBuilder : IConcernBuilder
             }
 
             return new ValueTask<IUser?>();
-        });
+        }, _documentation.Resolve(SecurityScheme.Basic()));
     }
 
     #endregion

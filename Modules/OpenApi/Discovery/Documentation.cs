@@ -1,6 +1,6 @@
 using System.Reflection;
 
-using GenHTTP.Api.Content.Services;
+using GenHTTP.Api.Content.Documentation;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
 

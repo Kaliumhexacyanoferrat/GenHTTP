@@ -1,4 +1,4 @@
-using GenHTTP.Api.Content.Services;
+using GenHTTP.Api.Content.Documentation;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Modules.OpenApi.Discovery;
@@ -61,7 +61,7 @@ public sealed class InheritedDocumentation
 
             current.Concern.AddDocumentation(operation);
 
-            if (operation.Entries.Count > 0)
+            if (operation.Entries.Count > 0 || operation.Authentication.Count > 0)
             {
                 result.Add(operation);
             }
