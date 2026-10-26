@@ -98,14 +98,12 @@ public sealed class ApiKeyConcernBuilder : IAuthenticationBuilder<ApiKeyConcernB
         return this;
     }
 
-    /// <inheritdoc />
     public ApiKeyConcernBuilder Documentation(string description)
     {
         _documentation.Description = description;
         return this;
     }
 
-    /// <inheritdoc />
     public ApiKeyConcernBuilder Documentation(SecurityScheme scheme)
     {
         _documentation.Scheme = scheme;

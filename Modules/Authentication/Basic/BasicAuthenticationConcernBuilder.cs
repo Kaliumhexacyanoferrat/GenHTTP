@@ -27,14 +27,12 @@ public sealed class BasicAuthenticationConcernBuilder : IAuthenticationBuilder<B
         return this;
     }
 
-    /// <inheritdoc />
     public BasicAuthenticationConcernBuilder Documentation(string description)
     {
         _documentation.Description = description;
         return this;
     }
 
-    /// <inheritdoc />
     public BasicAuthenticationConcernBuilder Documentation(SecurityScheme scheme)
     {
         _documentation.Scheme = scheme;

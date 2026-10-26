@@ -28,14 +28,12 @@ public sealed class BasicAuthenticationKnownUsersBuilder : IAuthenticationBuilde
         return this;
     }
 
-    /// <inheritdoc />
     public BasicAuthenticationKnownUsersBuilder Documentation(string description)
     {
         _documentation.Description = description;
         return this;
     }
 
-    /// <inheritdoc />
     public BasicAuthenticationKnownUsersBuilder Documentation(SecurityScheme scheme)
     {
         _documentation.Scheme = scheme;

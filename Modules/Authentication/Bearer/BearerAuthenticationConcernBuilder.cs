@@ -99,14 +99,12 @@ public sealed class BearerAuthenticationConcernBuilder : IAuthenticationBuilder<
         return this;
     }
 
-    /// <inheritdoc />
     public BearerAuthenticationConcernBuilder Documentation(string description)
     {
         _documentation.Description = description;
         return this;
     }
 
-    /// <inheritdoc />
     public BearerAuthenticationConcernBuilder Documentation(SecurityScheme scheme)
     {
         _documentation.Scheme = scheme;
