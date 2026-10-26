@@ -92,6 +92,34 @@ public class InterceptionTests
 
     [TestMethod]
     [MultiEngineFrameworkTest]
+    public async Task TestPassThroughWithMultipleArguments(ServerEngine engine, ExecutionMode mode)
+    {
+        var app = Inline.Create().Get([My("pass")] (int a, int b, int c) => a + b + c).ExecutionMode(mode);
+
+        await using var host = await TestHost.RunAsync(app);
+
+        using var response = await host.GetResponseAsync("/?a=1&b=2&c=3");
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        Assert.AreEqual("6", await response.GetContentAsync());
+    }
+
+    [TestMethod]
+    [MultiEngineFrameworkTest]
+    public async Task TestInterceptionWithTwoArguments(ServerEngine engine, ExecutionMode mode)
+    {
+        var app = Inline.Create().Get([My("intercept")] (int a, int b) => a + b).ExecutionMode(mode);
+
+        await using var host = await TestHost.RunAsync(app);
+
+        using var response = await host.GetResponseAsync("/?a=1&b=2");
+
+        await response.AssertStatusAsync(HttpStatusCode.Forbidden);
+    }
+
+    [TestMethod]
+    [MultiEngineFrameworkTest]
     public async Task TestException(ServerEngine engine, ExecutionMode mode)
     {
         var app = Inline.Create().Get([My("throw")] () => 42).ExecutionMode(mode);

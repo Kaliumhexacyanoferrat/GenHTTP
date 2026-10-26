@@ -19,9 +19,9 @@ public static class CodeProviderInterceptionExtensions
             {
                 declarations.AppendLine($"    private static readonly ByteString InterceptorArg{i}Name = new({CompilationUtil.GetSafeString(arg.Value.Name)});");
                 
-                sb.Append($"            {{ InterceptorArg{i}Name, arg{i++} }}");
+                sb.Append($"            {{ InterceptorArg{i}Name, arg{i} }}");
 
-                if (i < operation.Arguments.Count - 1)
+                if (i++ < operation.Arguments.Count)
                 {
                     sb.Append(',');
                 }
