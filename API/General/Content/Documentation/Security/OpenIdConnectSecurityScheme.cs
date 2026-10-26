@@ -1,4 +1,4 @@
-namespace GenHTTP.Api.Content.Authentication;
+namespace GenHTTP.Api.Content.Documentation.Security;
 
 /// <summary>
 /// The client authenticates with a token obtained from an OpenID Connect provider.

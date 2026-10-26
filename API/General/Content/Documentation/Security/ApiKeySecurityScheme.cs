@@ -1,4 +1,4 @@
-namespace GenHTTP.Api.Content.Authentication;
+namespace GenHTTP.Api.Content.Documentation.Security;
 
 /// <summary>
 /// The client authenticates by sending a key with the request.

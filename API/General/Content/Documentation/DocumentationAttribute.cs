@@ -1,4 +1,4 @@
-namespace GenHTTP.Api.Content.Services;
+namespace GenHTTP.Api.Content.Documentation;
 
 /// <summary>
 /// Base class of the attributes that document an API, so it can be

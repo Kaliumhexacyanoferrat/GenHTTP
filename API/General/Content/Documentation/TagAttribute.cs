@@ -1,4 +1,4 @@
-namespace GenHTTP.Api.Content.Services;
+namespace GenHTTP.Api.Content.Documentation;
 
 /// <summary>
 /// Specifies the group the operations of a service are listed under

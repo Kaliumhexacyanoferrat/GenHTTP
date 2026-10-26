@@ -1,4 +1,4 @@
-namespace GenHTTP.Api.Content.Authentication;
+namespace GenHTTP.Api.Content.Documentation.Security;
 
 /// <summary>
 /// The part of the request an API key is sent with.

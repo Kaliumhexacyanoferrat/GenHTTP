@@ -1,4 +1,4 @@
-using GenHTTP.Api.Content.Services;
+using GenHTTP.Api.Content.Documentation;
 
 namespace GenHTTP.Modules.Reflection;
 

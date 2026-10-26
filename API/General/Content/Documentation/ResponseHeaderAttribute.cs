@@ -1,6 +1,6 @@
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Api.Content.Services;
+namespace GenHTTP.Api.Content.Documentation;
 
 /// <summary>
 /// Declares a header that is sent with the response of an operation.

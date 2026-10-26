@@ -1,7 +1,7 @@
-using GenHTTP.Api.Content.Authentication;
+using GenHTTP.Api.Content.Documentation.Security;
 using GenHTTP.Api.Protocol;
 
-namespace GenHTTP.Api.Content.Services;
+namespace GenHTTP.Api.Content.Documentation;
 
 /// <summary>
 /// Collects the documentation a component (such as a concern) adds to a single

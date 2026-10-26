@@ -1,6 +1,6 @@
 ﻿using GenHTTP.Api.Content;
-using GenHTTP.Api.Content.Authentication;
-using GenHTTP.Api.Content.Services;
+using GenHTTP.Api.Content.Documentation;
+using GenHTTP.Api.Content.Documentation.Security;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 

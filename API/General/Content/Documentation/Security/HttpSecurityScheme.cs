@@ -1,4 +1,4 @@
-namespace GenHTTP.Api.Content.Authentication;
+namespace GenHTTP.Api.Content.Documentation.Security;
 
 /// <summary>
 /// The client authenticates using an HTTP authentication scheme
