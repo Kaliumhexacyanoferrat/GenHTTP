@@ -75,7 +75,10 @@ public sealed record TcpTransportOptions
     /// Turn it on if you serve no upgrades, or set it comfortably above your websocket ping
     /// interval - a ping from either side restarts the clock.
     /// </remarks>
-    public int IdleTimeoutMs { get; init; }
+    public int ReadTimeoutMs { get; init; }
+
+    [Obsolete("Please use 'ReadTimeoutMs' instead")]
+    public int IdleTimeoutMs { get => ReadTimeoutMs; init => ReadTimeoutMs = value; }
 
     /// <summary>
     /// Close a connection whose send has been in flight for this long. 0 (the default) disables it.
@@ -83,7 +86,7 @@ public sealed record TcpTransportOptions
     /// <remarks>
     /// This is what bounds a client that stops reading: its window shuts, the send never completes,
     /// and without a clock the connection is pinned for as long as the peer cares to hold it. TCP
-    /// will not end it on its own, and neither will <see cref="IdleTimeoutMs"/>: a client that
+    /// will not end it on its own, and neither will <see cref="ReadTimeoutMs"/>: a client that
     /// keeps sending restarts that clock while its own window stays shut. A websocket written from
     /// a background task is the case that needs this one.
     ///
@@ -109,7 +112,10 @@ public sealed record QuicTransportOptions
     /// PINGs, so a slow handler is not timed out - only a client that went quiet with nothing
     /// pending is.
     /// </remarks>
-    public int IdleTimeoutMs { get; init; } = 60_000;
+    public int ReadTimeoutMs { get; init; } = 60_000;
+
+    [Obsolete("Please use 'ReadTimeoutMs' instead")]
+    public int IdleTimeoutMs { get => ReadTimeoutMs; init => ReadTimeoutMs = value; }
 
     public QuicRouting Routing { get; init; } = QuicRouting.Forward;
 
