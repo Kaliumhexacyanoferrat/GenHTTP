@@ -58,7 +58,7 @@ public sealed class Operation
     {
         Method = method;
         Delegate = del;
-        ExecutionSettings = method.IsPublic ? executionSettings : new(ExecutionMode.Reflection);
+        ExecutionSettings = (del != null || method.IsPublic) ? executionSettings : new(ExecutionMode.Reflection);
         Configuration = configuration;
         Route = route;
         Result = result;
