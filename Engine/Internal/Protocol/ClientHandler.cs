@@ -149,8 +149,6 @@ internal sealed class ClientHandler(ClientContext context)
 
                 if (request.ContinuePending)
                 {
-                    // the client holds back its body until it receives an answer,
-                    // so it has to be sent before the body can be drained
                     await context.Writer.FlushAsync();
                 }
 
