@@ -140,12 +140,6 @@ public sealed class Request : IRequest
     }
 
     /// <summary>
-    /// Invoked by the engine right before the final response to this
-    /// request is written to the connection.
-    /// </summary>
-    public void ResponseStarting() => _body.ResponseStarting();
-
-    /// <summary>
     /// Invoked by the engine after the response has been written to
     /// consume whatever is left of the request body.
     /// </summary>

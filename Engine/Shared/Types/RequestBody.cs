@@ -161,15 +161,6 @@ public sealed class RequestBody : IRequestBody
     }
 
     /// <summary>
-    /// Invoked right before the final response is written to the connection.
-    /// </summary>
-    internal void ResponseStarting()
-    {
-        // nothing depends on this yet - will be used to stop answering
-        // an Expect: 100-continue once a final response has been started
-    }
-
-    /// <summary>
     /// Consumes whatever is left of the body, so that the connection
     /// is positioned at the start of the next request.
     /// </summary>

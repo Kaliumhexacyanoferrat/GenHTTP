@@ -121,18 +121,6 @@ public sealed class RequestBodyLifecycleTests
         Assert.IsFalse(await request.FinishAsync());
     }
 
-    [TestMethod]
-    public async Task TestResponseStartingKeepsBodyReadable()
-    {
-        var (request, _) = await ParseAsync("POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 5\r\n\r\nHello");
-
-        request.ResponseStarting();
-
-        var memory = await request.GetBody()!.AsMemoryAsync();
-
-        Assert.AreEqual("Hello", Encoding.ASCII.GetString(memory.Span));
-    }
-
     #endregion
 
     #region Body access
