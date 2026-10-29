@@ -83,13 +83,12 @@ internal static class Http1Driver
                 var keepAlive = await HandleRequestAsync(server, writer, request);
                 WarnIfThreadHopped(server, reactorThreadId, "after-handle");
 
-                if (!keepAlive)
+                if (!keepAlive || !await request.FinishAsync())
                 {
                     await writer.FlushAsync();
                     break;
                 }
 
-                await request.DrainAsync();
                 request.Reset();
 
                 if (readResult.IsCompleted)

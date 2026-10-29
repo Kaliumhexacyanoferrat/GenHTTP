@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Sockets;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -173,6 +174,56 @@ public sealed class StreamBodyTests
         CollectionAssert.AreEqual(second, await resp2.Content.ReadAsByteArrayAsync());
     }
 
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestTruncatedContentLength(ServerEngine engine)
+    {
+        var handler = new TruncationProbe();
+
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
+
+        using var client = new TcpClient("127.0.0.1", runner.Port)
+        {
+            ReceiveTimeout = Constants.ClientTimeout
+        };
+
+        var stream = client.GetStream();
+
+        await stream.WriteAsync("POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 100\r\n\r\nshort"u8.ToArray());
+
+        client.Client.Shutdown(SocketShutdown.Send);
+
+        using var reader = new StreamReader(stream, leaveOpen: true);
+
+        var response = await reader.ReadToEndAsync();
+
+        Assert.IsFalse(response.Contains("HTTP/1.1 200", StringComparison.Ordinal), response);
+
+        // Kestrel usually drops the request on FIN before the handler is invoked
+        if (engine == ServerEngine.Kestrel)
+        {
+            if (handler.Outcome.Task.IsCompleted)
+            {
+                Assert.IsNotNull(await handler.Outcome.Task, "The handler read a truncated body as a complete one");
+            }
+
+            return;
+        }
+
+        var failure = await handler.Outcome.Task.WaitAsync(TimeSpan.FromSeconds(10));
+
+        var providerException = failure as ProviderException;
+
+        Assert.IsNotNull(providerException, failure?.ToString() ?? "The handler read a truncated body as a complete one");
+        Assert.AreEqual(ResponseStatus.BadRequest, providerException.Status);
+
+        // ioxide closes a connection on FIN, so only the internal engine can still answer
+        if (engine == ServerEngine.Internal)
+        {
+            Assert.IsTrue(response.StartsWith("HTTP/1.1 400", StringComparison.Ordinal), response);
+        }
+    }
+
     #endregion
 
     #region Supporting types
@@ -200,6 +251,35 @@ public sealed class StreamBodyTests
                           .Status(ResponseStatus.Ok)
                           .Content(buffer.ToArray(), ContentType.ApplicationOctetStream)
                           .Build();
+        }
+    }
+
+    /// <summary>
+    /// Reads the body as a stream and records whether this failed.
+    /// </summary>
+    private sealed class TruncationProbe : IHandler
+    {
+        public TaskCompletionSource<Exception?> Outcome { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public ValueTask PrepareAsync(IServer server) => ValueTask.CompletedTask;
+
+        public async ValueTask<IResponse?> HandleAsync(IRequest request)
+        {
+            var body = request.GetBody() ?? throw new InvalidOperationException("Request has no body");
+
+            try
+            {
+                await body.AsStream().CopyToAsync(Stream.Null);
+            }
+            catch (Exception e)
+            {
+                Outcome.TrySetResult(e);
+                throw;
+            }
+
+            Outcome.TrySetResult(null);
+
+            return request.Respond().Status(ResponseStatus.Ok).Build();
         }
     }
 
