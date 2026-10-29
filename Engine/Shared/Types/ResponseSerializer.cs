@@ -30,7 +30,22 @@ public static class ResponseSerializer
         return false;
     }
 
-    public static void WriteHeader(PipeWriter writer, IResponse response, bool keepAlive, ReadOnlyMemory<byte> serverHeader, ReadOnlyMemory<byte> dateHeader, bool isHttp10)
+    /// <summary>
+    /// Writes the status line and the headers of the final response to the given request.
+    /// </summary>
+    /// <param name="request">The request the response is written for, if any</param>
+    public static void WriteHead(PipeWriter writer, Request? request, IResponse response, bool keepAlive, ReadOnlyMemory<byte> serverHeader, ReadOnlyMemory<byte> dateHeader, bool isHttp10)
+    {
+        request?.ResponseStarting();
+
+        writer.Write(StatusLine.Get(response.Status));
+
+        WriteHeader(writer, response, keepAlive, serverHeader, dateHeader, isHttp10);
+
+        writer.Write("\r\n"u8);
+    }
+
+    private static void WriteHeader(PipeWriter writer, IResponse response, bool keepAlive, ReadOnlyMemory<byte> serverHeader, ReadOnlyMemory<byte> dateHeader, bool isHttp10)
     {
         var isUpgrade = response.Mode == Connection.Upgrade;
 

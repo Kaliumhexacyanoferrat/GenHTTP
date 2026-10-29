@@ -141,13 +141,12 @@ internal sealed class ClientHandler(ClientContext context)
                     // content handler is responsible for flushing, avoid duplicate flushes
                     return;
                 }
-                else if (status is Connection.Close)
+
+                if (status is Connection.Close || !await request.FinishAsync())
                 {
                     await context.Writer.FlushAsync();
                     return;
                 }
-
-                await request.DrainAsync();
 
                 request.Reset();
 

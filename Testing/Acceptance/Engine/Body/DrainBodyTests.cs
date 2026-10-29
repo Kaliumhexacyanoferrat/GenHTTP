@@ -1,4 +1,6 @@
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -170,6 +172,36 @@ public sealed class DrainBodyTests
             await response.AssertStatusAsync(HttpStatusCode.OK);
         }
 
+        Assert.AreEqual(3, handler.RequestCount);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestPipelinedIgnoredBodies(ServerEngine engine)
+    {
+        var handler = new CountingHandler();
+
+        await using var runner = await TestHost.RunAsync(handler.Wrap(), engine: engine);
+
+        using var client = new TcpClient("127.0.0.1", runner.Port)
+        {
+            ReceiveTimeout = Constants.ClientTimeout
+        };
+
+        var stream = client.GetStream();
+
+        // all requests arrive at once, so each skipped body is followed by the next request in the same buffer
+        var requests = "POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 5\r\n\r\nHello" +
+                       "POST / HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nHello\r\n0\r\n\r\n" +
+                       "POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 5\r\nConnection: close\r\n\r\nHello";
+
+        await stream.WriteAsync(Encoding.ASCII.GetBytes(requests));
+
+        using var reader = new StreamReader(stream, leaveOpen: true);
+
+        var responses = await reader.ReadToEndAsync();
+
+        Assert.AreEqual(3, responses.Split("HTTP/1.1 200").Length - 1, responses);
         Assert.AreEqual(3, handler.RequestCount);
     }
 

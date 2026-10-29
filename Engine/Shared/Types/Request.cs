@@ -9,19 +9,11 @@ namespace GenHTTP.Engine.Shared.Types;
 
 public sealed class Request : IRequest
 {
-    private SequencePosition _bodyStart;
-
     private IRequestHeader? _retainedHeader;
 
     private IServer? _server;
 
     private IEndPoint? _endPoint;
-
-    private PipeReader? _reader;
-
-    private IRequestBody? _wrappedBody;
-
-    private Func<IRequestBody, IRequestBody>? _bodyWrapper;
 
     private readonly RequestHeader _header;
 
@@ -33,17 +25,11 @@ public sealed class Request : IRequest
 
     private readonly RequestBody _body;
 
-    private bool _bodyLoaded;
-
-    private bool _hasBody;
-
     private bool _resetRequired = true;
 
     #region Get-/Setters
 
     public BinaryRequest Source { get; }
-
-    public PipeReader Reader => _reader ?? throw new InvalidOperationException("Reader property has not been initialized");
 
     public IServer Server => _server ?? throw new InvalidOperationException("Server property has not been initialized");
 
@@ -57,7 +43,7 @@ public sealed class Request : IRequest
     {
         get
         {
-            if (!_bodyLoaded)
+            if (!_body.Opened)
             {
                 if (_retainedHeader != null)
                 {
@@ -76,7 +62,7 @@ public sealed class Request : IRequest
         }
     }
 
-    public bool HasBody => _hasBody;
+    public bool HasBody => _body.Present;
 
     #endregion
 
@@ -87,7 +73,7 @@ public sealed class Request : IRequest
         Source = new();
 
         _header = new(this);
-        _body = new(this);
+        _body = new(_header);
         _properties = new PropertyBag();
     }
 
@@ -97,7 +83,7 @@ public sealed class Request : IRequest
 
     public IRequestBody? GetBody(HeaderAccess headerAccess = HeaderAccess.Retain)
     {
-        if (_bodyLoaded)
+        if (_body.Opened)
         {
             throw new InvalidOperationException("Request body can only be fetched once.");
         }
@@ -107,34 +93,13 @@ public sealed class Request : IRequest
             _retainedHeader = new RetainedRequestHeader(_header);
         }
 
-        if (_hasBody)
-        {
-            _body.Apply(Reader);
-        }
-
-        Reader.AdvanceTo(_bodyStart);
-
-        _bodyLoaded = true;
-
-        if (!_hasBody)
-        {
-            return null;
-        }
-
-        if (_bodyWrapper != null)
-        {
-            _wrappedBody = _bodyWrapper(_body);
-            return _wrappedBody;
-        }
-
-        return _body;
+        return _body.Open();
     }
 
     public void Apply(IServer server, IEndPoint endPoint, PipeReader reader, SequencePosition bodyStart, IPAddress? remoteAddress, X509Certificate? clientCertificate)
     {
         _server = server;
         _endPoint = endPoint;
-        _reader = reader;
 
         _header.Apply();
 
@@ -142,16 +107,9 @@ public sealed class Request : IRequest
 
         _properties.Clear();
 
-        _bodyLoaded = false;
-        _bodyStart = bodyStart;
         _retainedHeader = null;
 
-        _wrappedBody = null;
-        _bodyWrapper = null;
-
-        var headers = _header.Headers;
-
-        _hasBody = headers.ContainsKey(KnownHeaders.ContentLength) || headers.ContainsKey(KnownHeaders.TransferEncoding);
+        _body.Apply(reader, bodyStart);
     }
 
     public void Apply(IServer server)
@@ -164,13 +122,9 @@ public sealed class Request : IRequest
 
         _properties.Clear();
 
-        _bodyLoaded = false;
-        _hasBody = false;
-        _bodyStart = default;
         _retainedHeader = null;
 
-        _wrappedBody = null;
-        _bodyWrapper = null;
+        _body.Apply();
     }
 
     public void Reset()
@@ -182,31 +136,21 @@ public sealed class Request : IRequest
 
         _client.Reset();
 
-        if (_wrappedBody is IDisposable disposableWrappedBody)
-        {
-            disposableWrappedBody.Dispose();
-        }
-
-        _wrappedBody = null;
-        _bodyWrapper = null;
-
         _resetRequired = true;
     }
 
-    public ValueTask DrainAsync()
-    {
-        if (_bodyLoaded)
-        {
-            return _hasBody ? _body.DrainAsync() : default;
-        }
+    /// <summary>
+    /// Invoked by the engine right before the final response to this
+    /// request is written to the connection.
+    /// </summary>
+    public void ResponseStarting() => _body.ResponseStarting();
 
-        if (GetBody(HeaderAccess.Release) != null)
-        {
-            return _body.DrainAsync();
-        }
-
-        return default;
-    }
+    /// <summary>
+    /// Invoked by the engine after the response has been written to
+    /// consume whatever is left of the request body.
+    /// </summary>
+    /// <returns>true, if the connection can be used to serve another request</returns>
+    public ValueTask<bool> FinishAsync() => _body.FinishAsync();
 
     public IResponseBuilder Respond()
     {
@@ -222,22 +166,17 @@ public sealed class Request : IRequest
         return _response;
     }
 
-    public void WrapBody(Func<IRequestBody, IRequestBody> wrapper)
-    {
-        _bodyWrapper = wrapper;
-    }
+    public void WrapBody(Func<IRequestBody, IRequestBody> wrapper) => _body.Wrap(wrapper);
 
     public PipeReader Upgrade()
     {
         // the upgraded connection outlives the pipe buffer the header was parsed from
-        _retainedHeader ??= new RetainedRequestHeader(_header);
+        if (!_body.Opened)
+        {
+            _retainedHeader ??= new RetainedRequestHeader(_header);
+        }
 
-        Reader.AdvanceTo(_bodyStart);
-
-        _bodyLoaded = true;
-        _hasBody = false;
-
-        return Reader;
+        return _body.Upgrade();
     }
 
     #endregion

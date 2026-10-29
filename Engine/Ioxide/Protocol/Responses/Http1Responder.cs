@@ -14,13 +14,9 @@ internal static class Http1Responder
     private static readonly byte[] ServerHeader = "Server: ioxide-genhttp\r\n"u8.ToArray();
 
     // Writes the status line and headers, and the body where the request is owed one.
-    internal static async ValueTask WriteAsync(PipeWriter writer, IRequest? request, IResponse response, bool keepAlive, bool headRequest)
+    internal static async ValueTask WriteAsync(PipeWriter writer, Request? request, IResponse response, bool keepAlive, bool headRequest)
     {
-        writer.Write(StatusLine.Get(response.Status));
-
-        ResponseSerializer.WriteHeader(writer, response, keepAlive, ServerHeader, Http1DateHeader.Get(), isHttp10: false);
-
-        writer.Write("\r\n"u8);
+        ResponseSerializer.WriteHead(writer, request, response, keepAlive, ServerHeader, Http1DateHeader.Get(), isHttp10: false);
 
         if (response.Content is not { } content)
         {

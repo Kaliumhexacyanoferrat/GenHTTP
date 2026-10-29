@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Sockets;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -171,6 +172,36 @@ public sealed class StreamBodyTests
         await resp2.AssertStatusAsync(HttpStatusCode.OK);
 
         CollectionAssert.AreEqual(second, await resp2.Content.ReadAsByteArrayAsync());
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestTruncatedContentLength(ServerEngine engine)
+    {
+        await using var runner = await TestHost.RunAsync(new BodyEchoHandler().Wrap(), engine: engine);
+
+        using var client = new TcpClient("127.0.0.1", runner.Port)
+        {
+            ReceiveTimeout = Constants.ClientTimeout
+        };
+
+        var stream = client.GetStream();
+
+        await stream.WriteAsync("POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 100\r\n\r\nshort"u8.ToArray());
+
+        client.Client.Shutdown(SocketShutdown.Send);
+
+        using var reader = new StreamReader(stream, leaveOpen: true);
+
+        var response = await reader.ReadToEndAsync();
+
+        // the handler must not see a partial upload as a complete one (Kestrel aborts the connection instead of answering)
+        if (engine != ServerEngine.Kestrel)
+        {
+            Assert.IsTrue(response.StartsWith("HTTP/1.1 400", StringComparison.Ordinal), response);
+        }
+
+        Assert.IsFalse(response.Contains("HTTP/1.1 200", StringComparison.Ordinal), response);
     }
 
     #endregion

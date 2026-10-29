@@ -30,17 +30,11 @@ public sealed class ResponseHandler
 
     #region Functionality
 
-    public async ValueTask<bool> HandleAsync(IRequest? request, IResponse response, HttpProtocol version, bool keepAlive, bool headRequest)
+    public async ValueTask<bool> HandleAsync(Request? request, IResponse response, HttpProtocol version, bool keepAlive, bool headRequest)
     {
         try
         {
-            var writer = Context.Writer;
-
-            writer.Write(StatusLine.Get(response.Status));
-
-            WriteHeader(response, version, keepAlive);
-
-            writer.Write("\r\n"u8);
+            WriteHead(request, response, version, keepAlive);
 
             if (ResponseSerializer.ShouldSendBody(request, response, headRequest))
             {
@@ -60,11 +54,11 @@ public sealed class ResponseHandler
         }
     }
 
-    private void WriteHeader(IResponse response, HttpProtocol version, bool keepAlive)
+    private void WriteHead(Request? request, IResponse response, HttpProtocol version, bool keepAlive)
     {
         var context = Context;
 
-        ResponseSerializer.WriteHeader(context.Writer, response, keepAlive, ServerHeader.GetValue(context), DateHeader.GetValue(), version == HttpProtocol.Http10);
+        ResponseSerializer.WriteHead(context.Writer, request, response, keepAlive, ServerHeader.GetValue(context), DateHeader.GetValue(), version == HttpProtocol.Http10);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
