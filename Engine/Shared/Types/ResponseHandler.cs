@@ -33,7 +33,7 @@ public sealed class ResponseHandler
     {
         try
         {
-            WriteHead(response, version, keepAlive);
+            WriteHead(request, response, version, keepAlive);
 
             if (ResponseSerializer.ShouldSendBody(request, response, headRequest))
             {
@@ -53,11 +53,11 @@ public sealed class ResponseHandler
         }
     }
 
-    private void WriteHead(IResponse response, HttpProtocol version, bool keepAlive)
+    private void WriteHead(Request? request, IResponse response, HttpProtocol version, bool keepAlive)
     {
         var context = Context;
 
-        ResponseSerializer.WriteHead(context.Writer, response, keepAlive, ServerHeader.GetValue(context), DateHeader.GetValue(), version == HttpProtocol.Http10);
+        ResponseSerializer.WriteHead(context.Writer, request, response, keepAlive, ServerHeader.GetValue(context), DateHeader.GetValue(), version == HttpProtocol.Http10);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

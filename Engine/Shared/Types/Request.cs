@@ -1,5 +1,6 @@
 ﻿using System.IO.Pipelines;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
@@ -96,7 +97,11 @@ public sealed class Request : IRequest
         return _body.Open();
     }
 
-    public void Apply(IServer server, IEndPoint endPoint, PipeReader reader, SequencePosition bodyStart, IPAddress? remoteAddress, X509Certificate? clientCertificate)
+    /// <summary>
+    /// Prepares this instance to serve a request that has been parsed from the given connection.
+    /// </summary>
+    /// <param name="writer">The writer of the connection, used to answer a client that expects a 100 (Continue); null, if the engine does not support interim responses</param>
+    public void Apply(IServer server, IEndPoint endPoint, PipeReader reader, SequencePosition bodyStart, IPAddress? remoteAddress, X509Certificate? clientCertificate, PipeWriter? writer)
     {
         _server = server;
         _endPoint = endPoint;
@@ -109,7 +114,7 @@ public sealed class Request : IRequest
 
         _retainedHeader = null;
 
-        _body.Apply(reader, bodyStart);
+        _body.Apply(reader, bodyStart, writer);
     }
 
     public void Apply(IServer server)
@@ -138,6 +143,13 @@ public sealed class Request : IRequest
 
         _resetRequired = true;
     }
+
+    /// <summary>
+    /// Invoked by the engine right before the final response to this
+    /// request is written to the connection.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void ResponseStarting() => _body.ResponseStarting();
 
     /// <summary>
     /// Invoked by the engine after the response has been written to

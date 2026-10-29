@@ -2,6 +2,8 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Engine.Shared.Types.Body;
+
 namespace GenHTTP.Engine.Shared.Infrastructure.Compliance;
 
 public sealed class ComplianceConcern(IHandler content) : IConcern
@@ -35,7 +37,35 @@ public sealed class ComplianceConcern(IHandler content) : IConcern
             }
         }
 
+        if (request.HasBody)
+        {
+            CheckExpectation(header);
+        }
+
         return content.HandleAsync(request);
+    }
+
+    /// <summary>
+    /// Rejects any expectation other than 100-continue, which is the only one
+    /// defined by HTTP (RFC 9110, section 10.1.1).
+    /// </summary>
+    /// <remarks>
+    /// Requests without a body are not checked, as there is nothing for the client
+    /// to wait for. The Expect header of HTTP/1.0 requests is to be ignored.
+    /// </remarks>
+    private static void CheckExpectation(IRequestHeader header)
+    {
+        if (header.Protocol == HttpProtocol.Http10)
+        {
+            return;
+        }
+
+        var expectation = header.Headers.GetEntry(KnownHeaders.Expect);
+
+        if (expectation != null && !ContinueReader.IsContinue(expectation.Value))
+        {
+            throw new ProviderException(ResponseStatus.ExpectationFailed, "The only expectation supported is '100-continue'");
+        }
     }
 
 }

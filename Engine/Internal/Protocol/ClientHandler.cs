@@ -127,7 +127,7 @@ internal sealed class ClientHandler(ClientContext context)
                     continue;
                 }
 
-                request.Apply(context.Server, context.EndPoint, reader, buffer.Start, context.Connection.GetAddress(), context.ClientCertificate);
+                request.Apply(context.Server, context.EndPoint, reader, buffer.Start, context.Connection.GetAddress(), context.ClientCertificate, context.Writer);
 
                 var status = await HandleRequestAsync(request);
 

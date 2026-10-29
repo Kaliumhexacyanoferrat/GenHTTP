@@ -15,7 +15,7 @@ internal static class Http1Responder
     // Writes the status line and headers, and the body where the request is owed one.
     internal static async ValueTask WriteAsync(PipeWriter writer, Request? request, IResponse response, bool keepAlive, bool headRequest)
     {
-        ResponseSerializer.WriteHead(writer, response, keepAlive, ServerHeader, Http1DateHeader.Get(), isHttp10: false);
+        ResponseSerializer.WriteHead(writer, request, response, keepAlive, ServerHeader, Http1DateHeader.Get(), isHttp10: false);
 
         if (response.Content is not { } content)
         {
