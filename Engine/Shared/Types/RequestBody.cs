@@ -97,6 +97,8 @@ public sealed class RequestBody : IRequestBody
         }
     }
 
+    internal void Apply() => Clear();
+
     /// <summary>
     /// Finds the headers that describe the body in a single pass.
     /// </summary>
@@ -141,8 +143,6 @@ public sealed class RequestBody : IRequestBody
         => _header.Protocol != HttpProtocol.Http10 && ContinueReader.IsContinue(HeaderValue(index));
 
     private ByteString HeaderValue(int index) => new(_header.Headers.GetMemoryEntry(index).Value);
-
-    internal void Apply() => Clear();
 
     internal void Reset()
     {
