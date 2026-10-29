@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.IO.Pipelines;
 using System.Text;
 
@@ -292,6 +293,194 @@ public sealed class RequestBodyLifecycleTests
 
     #endregion
 
+    #region Expect: 100-continue
+
+    private const string Continue = "HTTP/1.1 100 Continue\r\n\r\n";
+
+    private const string ExpectingRequest = "POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 5\r\nExpect: 100-continue\r\n\r\nHello";
+
+    [TestMethod]
+    public async Task TestContinueSentWithFirstRead()
+    {
+        var output = new Pipe();
+
+        var (request, _) = await ParseAsync(ExpectingRequest, output: output.Writer);
+
+        var body = request.GetBody()!;
+
+        Assert.AreEqual("", Written(output));
+
+        var memory = await body.AsMemoryAsync();
+
+        Assert.AreEqual("Hello", Encoding.ASCII.GetString(memory.Span));
+        Assert.AreEqual(Continue, Written(output));
+    }
+
+    [TestMethod]
+    public async Task TestContinueSentOnce()
+    {
+        var output = new Pipe();
+
+        var (request, _) = await ParseAsync("POST / HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\nExpect: 100-continue\r\n\r\n2\r\nHe\r\n3\r\nllo\r\n0\r\n\r\n", output: output.Writer);
+
+        var stream = request.GetBody()!.AsStream();
+
+        var buffer = new byte[2];
+
+        while (await stream.ReadAsync(buffer) > 0) { }
+
+        Assert.AreEqual(Continue, Written(output));
+    }
+
+    [TestMethod]
+    public async Task TestContinueIgnoresCase()
+    {
+        var output = new Pipe();
+
+        var (request, _) = await ParseAsync(ExpectingRequest.Replace("100-continue", "100-Continue"), output: output.Writer);
+
+        await request.GetBody()!.AsMemoryAsync();
+
+        Assert.AreEqual(Continue, Written(output));
+    }
+
+    [TestMethod]
+    public async Task TestNoContinueAfterResponseStarted()
+    {
+        var output = new Pipe();
+
+        var (request, _) = await ParseAsync(ExpectingRequest, output: output.Writer);
+
+        var body = request.GetBody()!;
+
+        request.ResponseStarting();
+
+        var memory = await body.AsMemoryAsync();
+
+        Assert.AreEqual("Hello", Encoding.ASCII.GetString(memory.Span));
+        Assert.AreEqual("", Written(output));
+    }
+
+    [TestMethod]
+    public async Task TestNoContinueWhenSkipped()
+    {
+        var output = new Pipe();
+
+        var (request, pipe) = await ParseAsync(ExpectingRequest + "NEXT", output: output.Writer);
+
+        request.ResponseStarting();
+
+        // the final response, which has not been flushed by the engine yet
+        output.Writer.Write("HTTP/1.1 200 OK\r\n\r\n"u8);
+
+        Assert.IsTrue(await request.FinishAsync());
+
+        Assert.AreEqual("HTTP/1.1 200 OK\r\n\r\n", Written(output));
+        Assert.AreEqual("NEXT", await RestAsync(pipe));
+    }
+
+    [TestMethod]
+    public async Task TestNoContinueWhenSkippedAfterContinue()
+    {
+        var output = new Pipe();
+
+        var (request, pipe) = await ParseAsync(ExpectingRequest + "NEXT", output: output.Writer);
+
+        var stream = request.GetBody()!.AsStream();
+
+        Assert.AreEqual(2, await stream.ReadAsync(new byte[2]));
+
+        Assert.IsTrue(await request.FinishAsync());
+
+        Assert.AreEqual(Continue, Written(output));
+        Assert.AreEqual("NEXT", await RestAsync(pipe));
+    }
+
+    [TestMethod]
+    public async Task TestNoContinueForHttp10()
+    {
+        var output = new Pipe();
+
+        var (request, _) = await ParseAsync(ExpectingRequest.Replace("HTTP/1.1", "HTTP/1.0"), output: output.Writer);
+
+        await request.GetBody()!.AsMemoryAsync();
+
+        Assert.AreEqual("", Written(output));
+    }
+
+    [TestMethod]
+    public async Task TestNoContinueWithoutBody()
+    {
+        var output = new Pipe();
+
+        var (request, _) = await ParseAsync("POST / HTTP/1.1\r\nHost: localhost\r\nExpect: 100-continue\r\n\r\n", output: output.Writer);
+
+        Assert.IsNull(request.GetBody());
+        Assert.IsTrue(await request.FinishAsync());
+
+        Assert.AreEqual("", Written(output));
+    }
+
+    [TestMethod]
+    public async Task TestNoContinueWithoutWriter()
+    {
+        var (request, _) = await ParseAsync(ExpectingRequest);
+
+        var memory = await request.GetBody()!.AsMemoryAsync();
+
+        Assert.AreEqual("Hello", Encoding.ASCII.GetString(memory.Span));
+    }
+
+    [TestMethod]
+    public async Task TestContinueNotCarriedOver()
+    {
+        var output = new Pipe();
+
+        var (request, _) = await ParseAsync(ExpectingRequest, output: output.Writer);
+
+        request.ResponseStarting();
+
+        Assert.IsTrue(await request.FinishAsync());
+
+        request.Reset();
+
+        Written(output);
+
+        var pipe = new Pipe();
+
+        await pipe.Writer.WriteAsync("POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 5\r\n\r\nHello"u8.ToArray());
+        await pipe.Writer.CompleteAsync();
+
+        var buffer = (await pipe.Reader.ReadAsync()).Buffer;
+
+        Assert.IsTrue(UltraHardenedParser.TryExtractFullHeaderValidated(ref buffer, request.Source, ParserLimits.Default, out var bytesRead));
+
+        request.Apply(Substitute.For<IServer>(), Substitute.For<IEndPoint>(), pipe.Reader, buffer.Slice(bytesRead + 1).Start, null, null, output.Writer);
+
+        await request.GetBody()!.AsMemoryAsync();
+
+        Assert.AreEqual("", Written(output));
+    }
+
+    /// <summary>
+    /// Returns what has been flushed to the given output so far.
+    /// </summary>
+    private static string Written(Pipe output)
+    {
+        if (!output.Reader.TryRead(out var result))
+        {
+            return "";
+        }
+
+        var written = Encoding.ASCII.GetString(result.Buffer);
+
+        output.Reader.AdvanceTo(result.Buffer.End);
+
+        return written;
+    }
+
+    #endregion
+
     #region Without connection
 
     [TestMethod]
@@ -313,7 +502,7 @@ public sealed class RequestBodyLifecycleTests
 
     #region Helpers
 
-    private static async Task<(Request, Pipe)> ParseAsync(string raw, bool complete = true, bool validate = true)
+    private static async Task<(Request, Pipe)> ParseAsync(string raw, bool complete = true, bool validate = true, PipeWriter? output = null)
     {
         var pipe = new Pipe();
 
@@ -343,7 +532,7 @@ public sealed class RequestBodyLifecycleTests
 
         var endPoint = Substitute.For<IEndPoint>();
 
-        request.Apply(Substitute.For<IServer>(), endPoint, pipe.Reader, buffer.Start, null, null);
+        request.Apply(Substitute.For<IServer>(), endPoint, pipe.Reader, buffer.Start, null, null, output);
 
         return (request, pipe);
     }

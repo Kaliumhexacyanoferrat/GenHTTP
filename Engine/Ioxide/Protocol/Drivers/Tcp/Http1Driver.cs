@@ -78,7 +78,7 @@ internal static class Http1Driver
                     continue;
                 }
 
-                request.Apply(server, endPoint, reader, buffer.Start, remoteAddress, null);
+                request.Apply(server, endPoint, reader, buffer.Start, remoteAddress, null, writer);
 
                 var keepAlive = await HandleRequestAsync(server, writer, request);
                 WarnIfThreadHopped(server, reactorThreadId, "after-handle");
