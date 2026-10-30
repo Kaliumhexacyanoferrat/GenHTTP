@@ -78,6 +78,7 @@
         <File Path="global.json" />
         <File Path="LICENSE" />
         <File Path="README.md" />
+        <File Path="SECURITY.md" />
     </Folder>
     <Folder Name="/Testing/">
         <Project Path="Testing\Acceptance\GenHTTP.Testing.Acceptance.csproj" />

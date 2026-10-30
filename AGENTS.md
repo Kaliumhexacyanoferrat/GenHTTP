@@ -184,7 +184,8 @@ path, query, headers (`Host`, `X-Forwarded-For`, `Forwarded`), cookies and body.
   assemblies or starting processes based on request data.
 - Never return stack traces, generated source or internal paths outside development mode.
 - Do not disclose a suspected vulnerability in a public issue, PR or commit message. Report it
-  privately to the maintainer.
+  privately as described in [SECURITY.md](./SECURITY.md), ideally with an acceptance test that
+  reproduces it.
 
 ## HTTP Correctness and Engine Parity
 

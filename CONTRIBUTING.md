@@ -64,8 +64,8 @@ architecture, conventions and tooling in more detail and is useful for human con
 - Keep a pull request focused on a single change
 - Use a title in the form of `type(scope): Summary`, e.g. `fix(reflection): Interceptors can now be used with more
   than one parameter`, where `type` is one of `feat`, `fix`, `perf`, `refactor`, `test` or `chore`
-- Please do not report security vulnerabilities via public issues or pull requests, but contact a maintainer
-  privately
+- Please do not report security vulnerabilities via public issues or pull requests, but follow the
+  [security policy](./SECURITY.md)
 
 ## Coding Agents
 
