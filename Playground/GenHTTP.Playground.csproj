@@ -38,6 +38,7 @@
         <ProjectReference Include="..\Modules\Functional\GenHTTP.Modules.Functional.csproj"/>
         <ProjectReference Include="..\Modules\Inspection\GenHTTP.Modules.Inspection.csproj" />
         <ProjectReference Include="..\Modules\LoadBalancing\GenHTTP.Modules.LoadBalancing.csproj"/>
+        <ProjectReference Include="..\Modules\Mcp\GenHTTP.Modules.Mcp.csproj"/>
         <ProjectReference Include="..\Modules\OpenApi\GenHTTP.Modules.OpenApi.csproj"/>
         <ProjectReference Include="..\Modules\Practices\GenHTTP.Modules.Practices.csproj"/>
         <ProjectReference Include="..\Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj" />

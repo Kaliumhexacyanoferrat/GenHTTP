@@ -9,7 +9,7 @@ namespace GenHTTP.Testing.Acceptance.Modules.DependencyInjection;
 public static class DependentHost
 {
 
-    public static async Task<TestHost> RunAsync(IHandlerBuilder app, ServerEngine engine = ServerEngine.Internal)
+    public static async Task<TestHost> RunAsync(IHandlerBuilder app, ServerEngine engine = ServerEngine.Internal, Action<IServiceCollection>? configure = null)
     {
         var host = new TestHost(app.Build(), serverEngine: engine);
 
@@ -17,6 +17,8 @@ public static class DependentHost
 
         services.AddSingleton<AwesomeService>()
                 .AddSingleton<AnotherAwesomeService>();
+
+        configure?.Invoke(services);
 
         host.Host.AddDependencyInjection(services.BuildServiceProvider());
 

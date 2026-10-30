@@ -43,6 +43,7 @@
                 <dependency id="GenHTTP.Modules.IO" version="11.1.0"/>
                 <dependency id="GenHTTP.Modules.Layouting" version="11.1.0"/>
                 <dependency id="GenHTTP.Modules.LoadBalancing" version="11.1.0"/>
+                <dependency id="GenHTTP.Modules.Mcp" version="11.1.0"/>
                 <dependency id="GenHTTP.Modules.OpenApi" version="11.1.0"/>
                 <dependency id="GenHTTP.Modules.Pages" version="11.1.0"/>
                 <dependency id="GenHTTP.Modules.Practices" version="11.1.0"/>
