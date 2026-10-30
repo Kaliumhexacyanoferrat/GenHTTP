@@ -85,7 +85,7 @@ public sealed partial class Server
                 Port = quicEndPoint.Port,
                 ConnectionFactory = _quicEngine.CreateFactory(),
 
-                IdleTimeoutMs = _engineOptions.Quic.IdleTimeoutMs,
+                ReadTimeoutMs = _engineOptions.Quic.ReadTimeoutMs,
                 Routing = _engineOptions.Quic.Routing,
                 PinMigratedPeers = _engineOptions.Quic.PinMigratedPeers,
             },

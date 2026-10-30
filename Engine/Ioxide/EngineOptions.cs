@@ -56,33 +56,45 @@ public sealed record TcpTransportOptions
     public int RecvQueueEntries { get; init; } = 64;
 
     /// <summary>
-    /// Close a connection that has neither received nor sent anything for this long. 0 (the
-    /// default) disables it.
+    /// Close a connection that has waited this long on its client: a read parked, nothing
+    /// buffered and nothing being sent. 0 (the default) disables it.
     /// </summary>
     /// <remarks>
+    /// The clock only runs while the server waits on the client. Bytes in either direction
+    /// restart it, a send in flight holds it, and the time a handler spends producing a response
+    /// does not count - so a slow handler keeps its connection, while an idle keep-alive
+    /// connection or a silent websocket does not. HTTP/2 is the exception: its frame loop keeps a
+    /// read parked while handlers work, so a response slower than this, to a client that sends
+    /// nothing in the meantime, is cut.
+    ///
     /// Off by default because this listener also carries upgraded connections, and an idle
     /// websocket is a healthy one. ioxide's own default is 60s, which is right for HTTP keep-alive
     /// and wrong for a websocket whose ping interval is longer than that - the transport cannot
     /// tell the two apart, so the framework does not guess on your behalf.
     ///
     /// Turn it on if you serve no upgrades, or set it comfortably above your websocket ping
-    /// interval so pings keep the connection marked alive.
+    /// interval - a ping from either side restarts the clock.
     /// </remarks>
-    public int IdleTimeoutMs { get; init; }
+    public int ReadTimeoutMs { get; init; }
+
+    [Obsolete("Please use 'ReadTimeoutMs' instead")]
+    public int IdleTimeoutMs { get => ReadTimeoutMs; init => ReadTimeoutMs = value; }
 
     /// <summary>
-    /// Close a connection whose response has been outstanding for this long. 0 (the default)
-    /// disables it.
+    /// Close a connection whose send has been in flight for this long. 0 (the default) disables it.
     /// </summary>
     /// <remarks>
     /// This is what bounds a client that stops reading: its window shuts, the send never completes,
     /// and without a clock the connection is pinned for as long as the peer cares to hold it. TCP
-    /// will not end it on its own.
+    /// will not end it on its own, and neither will <see cref="ReadTimeoutMs"/>: a client that
+    /// keeps sending restarts that clock while its own window stays shut. A websocket written from
+    /// a background task is the case that needs this one.
     ///
-    /// Off by default because it is a deadline for the WHOLE response, not for progress within it,
-    /// so a large download to a slow client counts against it. Size it against your slowest
-    /// legitimate response rather than against a stall - for an API that serves small payloads,
-    /// something like 30s is a straightforward win.
+    /// Off by default because it is a deadline for a whole flush, not for progress within it, and
+    /// content that does not flush as it writes goes out as one flush - so a large download to a
+    /// slow client counts against it. Size it against your slowest legitimate response rather than
+    /// against a stall - for an API that serves small payloads, something like 30s is a
+    /// straightforward win.
     /// </remarks>
     public int SendTimeoutMs { get; init; }
 }
@@ -92,7 +104,18 @@ public sealed record QuicTransportOptions
 {
     public int HandshakeTimeoutMs { get; init; } = 10_000;
 
-    public int IdleTimeoutMs { get; init; } = 60_000;
+    /// <summary>
+    /// Close a connection whose client has sent nothing for this long. 0 disables it.
+    /// </summary>
+    /// <remarks>
+    /// While a response is still owed, the engine keeps the client answering with keep-alive
+    /// PINGs, so a slow handler is not timed out - only a client that went quiet with nothing
+    /// pending is.
+    /// </remarks>
+    public int ReadTimeoutMs { get; init; } = 60_000;
+
+    [Obsolete("Please use 'ReadTimeoutMs' instead")]
+    public int IdleTimeoutMs { get => ReadTimeoutMs; init => ReadTimeoutMs = value; }
 
     public QuicRouting Routing { get; init; } = QuicRouting.Forward;
 

@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.IO.Pipelines;
 using System.Net;
 
@@ -6,7 +7,6 @@ using GenHTTP.Api.Protocol;
 
 using ioxide.http2;
 
-using Microsoft.Extensions.Logging;
 using GenHTTP.Engine.Ioxide.Protocol.Requests;
 using GenHTTP.Engine.Ioxide.Protocol.Responses;
 
@@ -24,18 +24,11 @@ internal static class Http2Driver
         => new Http2Connection(pipe, Options)
             .RunAsync((request, writer) => DispatchAsync(server, endPoint, request, writer, remoteAddress, secure));
 
-    // One stream through the handler chain; a fault becomes a 500 rather than a dead stream.
+    // Maps one stream's request, and runs it through the dispatch HTTP/2 and HTTP/3 share.
     private static async ValueTask DispatchAsync(IServer server, IEndPoint endPoint, Http2Request request,
         Http2ResponseWriter writer, IPAddress? remoteAddress, bool secure)
     {
         StreamedRequest? mapped = null;
-
-        // Whether the head is already on the wire. IsCompleted cannot answer this - it means
-        // END_STREAM has been sent - so a fault AFTER the headers went out used to take the error
-        // path anyway, where WriteHeaders throws "headers have already been written". That second
-        // exception replaced the first, so the only thing ever reported was the masking error and
-        // the real fault was never logged at all.
-        var headersWritten = false;
 
         try
         {
@@ -54,32 +47,7 @@ internal static class Http2Driver
             mapped.Apply(server, endPoint, request.Method, request.Path, request.Authority,
                 reader is null ? null : reader.ReadAsync, remoteAddress, HttpProtocol.Http2, secure);
 
-            var response = await server.Handler.HandleAsync(mapped)
-                           ?? throw new InvalidOperationException("The root request handler did not return a response");
-
-            var data = StreamedResponder.BuildHeaders(response, mapped);
-
-            var head = new Http2Response { Status = data.Status };
-
-            foreach ((ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value) in data.Headers)
-            {
-                head.Headers.Add(name, value);
-            }
-
-            writer.WriteHeaders(head);
-            headersWritten = true;
-
-            await StreamedResponder.WriteBodyAsync(response, writer, writer.FlushAsync, headRequest);
-        }
-        catch (Exception e)
-        {
-            server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.Drivers.Tcp.Http2Driver")
-                  .LogError(e, "Failed to handle HTTP/2 request");
-
-            if (!headersWritten && !writer.IsCompleted)
-            {
-                writer.WriteHeaders(new Http2Response { Status = 500 });
-            }
+            await StreamedDriver.DispatchAsync(server, mapped, new Writer(writer), headRequest, "HTTP/2");
         }
         finally
         {
@@ -87,8 +55,32 @@ internal static class Http2Driver
             {
                 StreamedRequest.Return(mapped);
             }
-
-            await writer.CompleteAsync();
         }
+    }
+
+    /// <summary>ioxide's HTTP/2 response writer, as the shared dispatch drives it.</summary>
+    private readonly struct Writer(Http2ResponseWriter writer) : IStreamedWriter
+    {
+        public IBufferWriter<byte> Body => writer;
+
+        public Func<ValueTask<FlushResult>> Flush => writer.FlushAsync;
+
+        public bool IsCompleted => writer.IsCompleted;
+
+        public void WriteHead(StreamedResponseData head)
+        {
+            var response = new Http2Response { Status = head.Status };
+
+            foreach ((ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value) in head.Headers)
+            {
+                response.Headers.Add(name, value);
+            }
+
+            writer.WriteHeaders(response);
+        }
+
+        public void WriteHead(int status) => writer.WriteHeaders(new Http2Response { Status = status });
+
+        public ValueTask CompleteAsync() => writer.CompleteAsync();
     }
 }

@@ -1,5 +1,7 @@
 using System.Buffers;
+using System.IO.Pipelines;
 
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Sinks;
@@ -9,12 +11,12 @@ internal sealed class StreamedSink : IResponseSink
 {
     private readonly IBufferWriter<byte> _writer;
 
-    private readonly Func<ValueTask> _flush;
+    private readonly Func<ValueTask<FlushResult>> _flush;
 
     private Stream? _stream;
 
     // The response sink for one stream: write into the frame buffer, flush to pace it.
-    internal StreamedSink(IBufferWriter<byte> writer, Func<ValueTask> flush)
+    internal StreamedSink(IBufferWriter<byte> writer, Func<ValueTask<FlushResult>> flush)
     {
         _writer = writer;
         _flush = flush;
@@ -29,12 +31,12 @@ internal sealed class StreamedSink : IResponseSink
     {
         private readonly IBufferWriter<byte> _target;
 
-        private readonly Func<ValueTask> _flush;
+        private readonly Func<ValueTask<FlushResult>> _flush;
 
         private long _written;
 
         // A write-only stream over the frame buffer that flushes as it goes.
-        internal FlushingStream(IBufferWriter<byte> target, Func<ValueTask> flush)
+        internal FlushingStream(IBufferWriter<byte> target, Func<ValueTask<FlushResult>> flush)
         {
             _target = target;
             _flush = flush;
@@ -70,7 +72,7 @@ internal sealed class StreamedSink : IResponseSink
             _target.Write(buffer.Span);
             _written += buffer.Length;
 
-            return _flush();
+            return FlushOrThrowAsync();
         }
 
         // The array overload, over the memory one.
@@ -81,7 +83,19 @@ internal sealed class StreamedSink : IResponseSink
         public override void Flush() { }
 
         // Pushes the staged frames out to the peer.
-        public override Task FlushAsync(CancellationToken cancellationToken) => _flush().AsTask();
+        public override Task FlushAsync(CancellationToken cancellationToken) => FlushOrThrowAsync().AsTask();
+
+        // ioxide reports a peer that reset the stream or left as a completed flush, never as an
+        // exception. A Stream has no other way to say so than to throw - so a writer that loops
+        // until a write fails (a server-sent event source, a long download) stops instead of
+        // producing for nobody forever, as it does over HTTP/1.1.
+        private async ValueTask FlushOrThrowAsync()
+        {
+            if ((await _flush()).IsCompleted)
+            {
+                throw new ConnectionClosedException();
+            }
+        }
 
         // Write-only, so reading is a mistake worth reporting.
         public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
