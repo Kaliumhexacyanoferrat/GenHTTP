@@ -11,28 +11,68 @@ branch.
 If you need some inspiration for your first contribution, have a look at the issues labeled
 as [good first issues](https://github.com/Kaliumhexacyanoferrat/GenHTTP/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
 
+For larger changes or new features, please open an issue first so that the approach can be discussed before
+you invest time into the implementation.
+
 ## Definition of Done
 
-For a pull request to be merged into master, the following general rules need to be fulfilled:
+For a pull request to be merged into `main`, the following general rules need to be fulfilled:
 
-- The automated build was able to compile and successfully test the changes
+- The automated build was able to compile and successfully test the changes on all platforms
+- New behavior and bug fixes are covered by acceptance tests that run against all server engines
 - The test coverage on new code as reported by Sonar is not below 85%
 - There are no new issues reported by Sonar
 - Public API functions and types are documented
 - `IHandler` and `IConcern` instances can be created using an `IBuilder` instance
-- The changes have been documented via another PR on the [GenHTTP.Website](https://github.com/Kaliumhexacyanoferrat/GenHTTP.Website), if applicable
-- Architecture principles as described in the following section have not been violated
+- The public API stays compatible, or breaking changes have been agreed upon with a maintainer
+- Changes to the request handling path do not introduce performance regressions
+- Architecture principles as described below have not been violated
+- The pull request describes changes visible to users (new API, changed behavior or defaults), so that the
+  maintainers can update the [documentation](https://genhttp.org/documentation/) accordingly
+
+## Quality Goals
+
+GenHTTP is a library that other projects build on, so the following goals apply to every change. If they conflict,
+they are prioritized in this order:
+
+1. **Correctness and security**: The server follows the HTTP specifications and handles requests from untrusted
+   clients safely. Defaults are secure; less secure behavior has to be enabled explicitly.
+2. **Compatibility**: Public APIs follow semantic versioning. Applications run on all supported engines and
+   platforms with the same behavior.
+3. **Performance**: The request handling path is designed to be allocation-free. Changes to this path should be
+   backed by benchmarks.
+4. **Ease of use**: Functionality is exposed via fluent builders and factory methods with sensible defaults.
 
 ## Project Structure
 
-The GenHTTP webserver is designed as a single library that can be extended by additional modules where required. The
+The GenHTTP webserver is designed as a small core that can be extended by additional modules where required. The
 following table describes the projects and their purpose.
 
-| Project             | Description                                                                                                                                                                                                                                                |
-|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `GenHTTP.Api`       | Public interface of the GenHTTP webserver. Contains types that are useful for all kind of content providers. Problem specific types and references to 3rd party libraries are not allowed here.                                                            |
-| `GenHTTP.Engine`    | The actual implementation of the webserver. References to 3rd party libraries or complex modules (e.g. `GenHTTP.Modules.Websockets`) are not allowed.                                                                                                      |
-| `GenHTTP.Modules.*` | Additional modules that can be used to add functionality to the webserver. References to 3rd party libraries are allowed. Must not reference `GenHTTP.Engine.*` to stay independent from the server implementation. May reference other modules as needed. |
+| Project                       | Description                                                                                                                                                                                                       |
+|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `GenHTTP.Api`                 | Public interface of the GenHTTP webserver. Contains types that are useful for all kind of content providers. Problem specific types and references to 3rd party libraries are not allowed here.                   |
+| `GenHTTP.Engine.*`            | Server engines (`Internal`, `Kestrel`, `Ioxide`) and the functionality they share (`Shared`). Engines may only reference a small set of basic modules and must not depend on optional functionality (e.g. `GenHTTP.Modules.Websockets`). |
+| `GenHTTP.Modules.*`           | Additional modules that can be used to add functionality to the webserver. References to 3rd party libraries are allowed. Must not reference `GenHTTP.Engine.*` to stay independent from the server implementation. May reference other modules as needed. |
+| `GenHTTP.Adapters.*`          | Integrations that allow GenHTTP handlers to run within other frameworks such as ASP.NET Core.                                                                                                                     |
+| `GenHTTP.Testing`             | Allows applications to test their GenHTTP handlers.                                                                                                                                                               |
+
+The acceptance tests in `Testing/Acceptance` mirror this structure. [AGENTS.md](./AGENTS.md) describes the
+architecture, conventions and tooling in more detail and is useful for human contributors as well.
+
+## Pull Requests
+
+- Keep a pull request focused on a single change
+- Use a title in the form of `type(scope): Summary`, e.g. `fix(reflection): Interceptors can now be used with more
+  than one parameter`, where `type` is one of `feat`, `fix`, `perf`, `refactor`, `test` or `chore`
+- Please do not report security vulnerabilities via public issues or pull requests, but follow the
+  [security policy](./SECURITY.md)
+
+## Coding Agents
+
+You are welcome to use coding agents to work on GenHTTP. [AGENTS.md](./AGENTS.md) provides them with the
+necessary context and is picked up automatically by most tools. Please note that you remain responsible for
+your contribution: review the generated code, make sure you understand it, and verify that it fulfills the
+Definition of Done just like any hand-written change.
 
 ## Adding Modules
 

@@ -73,11 +73,13 @@
         <File Path="Resources\icon.png" />
     </Folder>
     <Folder Name="/Solution Items/">
+        <File Path="AGENTS.md" />
         <File Path="CONTRIBUTING.md" />
         <File Path="Directory.Build.props" />
         <File Path="global.json" />
         <File Path="LICENSE" />
         <File Path="README.md" />
+        <File Path="SECURITY.md" />
     </Folder>
     <Folder Name="/Testing/">
         <Project Path="Testing\Acceptance\GenHTTP.Testing.Acceptance.csproj" />
