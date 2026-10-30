@@ -20,6 +20,8 @@
 
         <ProjectReference Include="..\Layouting\GenHTTP.Modules.Layouting.csproj" />
 
+        <ProjectReference Include="..\Mcp\GenHTTP.Modules.Mcp.csproj" />
+
         <ProjectReference Include="..\Reflection\GenHTTP.Modules.Reflection.csproj" />
 
         <ProjectReference Include="..\Webservices\GenHTTP.Modules.Webservices.csproj" />

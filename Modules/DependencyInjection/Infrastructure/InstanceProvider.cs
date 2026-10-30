@@ -22,4 +22,14 @@ public static class InstanceProvider
         return ValueTask.FromResult((T)instance);
     }
 
+    public static ValueTask<object> ProvideAsync(Type type, IRequest request)
+    {
+        var scope = request.GetServiceScope();
+
+        var instance = scope.ServiceProvider.GetService(type)
+            ?? ActivatorUtilities.CreateInstance(scope.ServiceProvider, type);
+
+        return ValueTask.FromResult(instance);
+    }
+
 }
