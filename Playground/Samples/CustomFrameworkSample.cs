@@ -26,9 +26,9 @@ public static class CustomFrameworkSample
          */
 
         return Layout.Create()
-                     .Add(new CustomFrameworkHandler())
+                     .Add(new CustomFrameworkHandler()) // GET http://localhost:8080/custom-framework/42
                      .AddOpenApi()
-                     .AddScalar();
+                     .AddScalar(); // GET http://localhost:8080/custom-framework/scalar/
     }
 
     public class CustomFrameworkHandler : IHandler, IServiceMethodProvider

@@ -4,7 +4,6 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Content.Documentation;
 using GenHTTP.Api.Protocol;
 
-using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Mcp;
 
 namespace GenHTTP.Playground.Samples;
@@ -29,14 +28,11 @@ public static class McpSample
          *
          */
 
-        var tools = Tools.Create()
-                         .Server("library", "1.0.0", "Library")
-                         .Instructions("Search for books before lending them to a reader.")
-                         .Add<LibraryTools>()
-                         .Add("get_time", "Returns the current time of the library (UTC)", [Tool(ReadOnly = true)] () => DateTime.UtcNow);
-
-        return Layout.Create()
-                     .Add("mcp", tools);
+        return Tools.Create()
+                    .Server("library", "1.0.0", "Library")
+                    .Instructions("Search for books before lending them to a reader.")
+                    .Add<LibraryTools>()
+                    .Add("get_time", "Returns the current time of the library (UTC)", [Tool(ReadOnly = true)] () => DateTime.UtcNow);
     }
 
     public record Book(int Id, string Title, string? LentTo);

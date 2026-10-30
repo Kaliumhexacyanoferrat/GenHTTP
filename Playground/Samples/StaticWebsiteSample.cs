@@ -18,8 +18,10 @@ public static class StaticWebsiteSample
          *
          */
 
-        var files = ResourceTree.FromDirectory("/var/www");
+        // embedded into the assembly here, use ResourceTree.FromDirectory("/var/www") to serve a folder
+        var files = ResourceTree.FromAssembly("Resources.Website");
 
+        // GET http://localhost:8080/static-website/ serves index.html
         return StaticWebsite.From(files);
     }
 
