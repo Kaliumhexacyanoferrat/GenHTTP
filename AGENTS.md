@@ -34,25 +34,25 @@ cd Playground && dotnet run                                # sample server on ht
 
 ## Repository Map
 
-| Path                  | Contents                                                                                                    |
-|-----------------------|-------------------------------------------------------------------------------------------------------------|
+| Path                  | Contents                                                                                                                                 |
+|-----------------------|------------------------------------------------------------------------------------------------------------------------------------------|
 | `API/General`         | `GenHTTP.Api`: public contracts only (`IHandler`, `IRequest`, `ByteString`, ...). No 3rd-party dependencies except logging abstractions. |
-| `API/Ioxide`          | `GenHTTP.Api.Ioxide`: the minimal ioxide contract that modules may use without referencing the engine.    |
-| `Engine/Shared`       | Code shared by engines: request/response types, body framing, sinks, `CoreRouter`, compliance, logging.     |
-| `Engine/Internal`     | Default engine: managed sockets + Glyph11 parser. HTTP/1.1.                                                  |
-| `Engine/Kestrel`      | Engine hosted on ASP.NET Core Kestrel. HTTP/1.1, 2, 3.                                                       |
-| `Engine/Ioxide`       | io_uring engine (native ioxide). Linux only. HTTP/1.1, 2, 3.                                                 |
-| `Adapters/AspNetCore` | Runs GenHTTP handlers inside ASP.NET Core. Kestrel engine builds on it.                                      |
-| `Modules/*`           | Feature modules (layouting, webservices, files, compression, auth, OpenAPI, ...). One NuGet package each.    |
-| `Generators/`         | Roslyn source generators (e.g. `[MemoryView]` structs such as `ByteString`).                                 |
-| `Testing/Testing`     | `GenHTTP.Testing` package (`TestHost`) for users and for our own tests.                                      |
-| `Testing/Acceptance`  | The test suite. Folder structure mirrors `API/`, `Engine/`, `Modules/`, `Adapters/`.                         |
-| `Benchmarks/`         | BenchmarkDotNet micro-benchmarks.                                                                            |
-| `Packages/`           | Meta-package `.nuspec` files (`GenHTTP.Core`, `GenHTTP.Full`, and per-engine variants).                      |
-| `Playground/`         | Runnable samples for manual checks.                                                                          |
+| `API/Ioxide`          | `GenHTTP.Api.Ioxide`: the minimal ioxide contract that modules may use without referencing the engine.                                   |
+| `Engine/Shared`       | Code shared by engines: request/response types, body framing, sinks, `CoreRouter`, compliance, logging.                                  |
+| `Engine/Internal`     | Default engine: managed sockets + Glyph11 parser. HTTP/1.1.                                                                              |
+| `Engine/Kestrel`      | Engine hosted on ASP.NET Core Kestrel. HTTP/1.1, 2, 3.                                                                                   |
+| `Engine/Ioxide`       | io_uring engine (native ioxide). Linux only. HTTP/1.1, 2, 3.                                                                             |
+| `Adapters/AspNetCore` | Runs GenHTTP handlers inside ASP.NET Core. Kestrel engine builds on it.                                                                  |
+| `Modules/*`           | Feature modules (layouting, webservices, files, compression, auth, OpenAPI, ...). One NuGet package each.                                |
+| `Generators/`         | Roslyn source generators (e.g. `[MemoryView]` structs such as `ByteString`).                                                             |
+| `Testing/Testing`     | `GenHTTP.Testing` package (`TestHost`) for users and for our own tests.                                                                  |
+| `Testing/Acceptance`  | The test suite. Folder structure mirrors `API/`, `Engine/`, `Modules/`, `Adapters/`.                                                     |
+| `Benchmarks/`         | BenchmarkDotNet micro-benchmarks.                                                                                                        |
+| `Packages/`           | Meta-package `.nuspec` files (`GenHTTP.Core`, `GenHTTP.Full`, and per-engine variants).                                                  |
+| `Playground/`         | Runnable samples for manual checks and for users to understand the API.                                                                  |
 
 The parser (Glyph11) and ioxide are separate projects consumed as NuGet packages. If they are checked
-out next to this repository (`../Glyph11`, `../ioxide`), read their source rather than guessing. Fix
+out next to this repository (`../Glyph11`, `../ioxide`), read their source rather than guessing. Flag
 bugs in those projects upstream instead of working around them here.
 
 ## Architecture Rules
@@ -205,6 +205,23 @@ Every change needs tests in `Testing/Acceptance`, in the folder that mirrors the
 reach ≥85% coverage (SonarCloud checks this in CI). A bug fix includes a regression test that fails
 without the fix.
 
+**Tests are use-case centric.** Each acceptance test covers something a user actually does: configure
+the handler the way an application would, send the request a client would send, and assert what the
+client sees. Ask "what would a user call?", not "which combinations exist?".
+
+- Write one test per use case, plus the edge cases that matter to users (error responses, limits a client
+  can hit). Do not enumerate combinations of options, parameter types or inputs. If several cases share
+  a code path, one representative test is enough. Reach coverage through meaningful scenarios, not
+  permutations.
+- Engines and execution modes are already multiplied by the test attributes. Don't add your own loops
+  or `[DataRow]`s on top.
+- Before adding a test, check whether an existing one already covers the behavior. Extend that test
+  rather than adding a near-duplicate.
+- **Unit tests only when they clearly pay off**, i.e. for logic that is hard or impossible to reach
+  through HTTP, such as parser and framing edge cases. The default is an acceptance test. Don't unit
+  test builders, wiring or trivial members, and don't mock `IRequest` to test what a real round trip
+  can show.
+
 ```csharp
 [TestClass]
 public sealed class RedirectTests
@@ -237,8 +254,8 @@ public sealed class RedirectTests
 - Ioxide runs on Linux only and is skipped elsewhere. On Windows or macOS, Ioxide behavior is first
   verified by CI (Linux, `ubuntu-latest`). Gate engine-specific tests with `Engines.IoxideEnabled()` /
   `Engines.KestrelEnabled()`.
-- Name methods `TestWhatIsVerified`. Prefer real HTTP round trips over mocking `IRequest`. Unit tests
-  of internal engine types are possible via `InternalsVisibleTo`.
+- Name methods after the use case: `TestWhatIsVerified`. Where a unit test is justified, internal
+  engine types are reachable via `InternalsVisibleTo`.
 
 ## Public API and Compatibility
 
