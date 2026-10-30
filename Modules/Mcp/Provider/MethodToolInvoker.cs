@@ -44,7 +44,11 @@ internal sealed class MethodToolInvoker
         _isVoid = isVoid;
 
         _invoker = MethodInvoker.Create(operation.Method);
+#if NET11_0_OR_GREATER
+        _output = options.GetTypeInfo<object?>();
+#else
         _output = (JsonTypeInfo<object?>)options.GetTypeInfo(typeof(object));
+#endif
     }
 
     #endregion
@@ -158,9 +162,9 @@ internal sealed class MethodToolInvoker
 /// </summary>
 internal static class ResultUnwrapping
 {
-    private static readonly MethodInfo AwaitTaskMethod = typeof(ResultUnwrapping).GetMethod(nameof(AwaitTaskOf), BindingFlags.NonPublic | BindingFlags.Static)!;
+    private static readonly MethodInfo AwaitTaskMethod = new Func<object?, ValueTask<object?>>(AwaitTaskOf<object>).Method.GetGenericMethodDefinition();
 
-    private static readonly MethodInfo AwaitValueTaskMethod = typeof(ResultUnwrapping).GetMethod(nameof(AwaitValueTaskOf), BindingFlags.NonPublic | BindingFlags.Static)!;
+    private static readonly MethodInfo AwaitValueTaskMethod = new Func<object?, ValueTask<object?>>(AwaitValueTaskOf<object>).Method.GetGenericMethodDefinition();
 
     internal static Func<object?, ValueTask<object?>> For(Type returnType)
     {

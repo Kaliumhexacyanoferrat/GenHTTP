@@ -87,7 +87,7 @@ internal static class ArgumentValidation
 
     private static string Join(string path, string name) => path.Length > 0 ? $"{path}.{name}" : name;
 
-    private static string Name(string path)
+    private static string LastSegment(string path)
     {
         var index = path.LastIndexOf('.');
 
@@ -103,7 +103,7 @@ internal static class ArgumentValidation
             {
                 if (!attribute.IsValid(value))
                 {
-                    errors.Add($"{path}: {attribute.FormatErrorMessage(Name(path))}");
+                    errors.Add($"{path}: {attribute.FormatErrorMessage(LastSegment(path))}");
                 }
             }
 
@@ -153,7 +153,7 @@ internal static class ArgumentValidation
     private sealed class PendingValidator : IArgumentValidator
     {
 
-        internal IArgumentValidator? Target { get; set; }
+        internal ObjectValidator? Target { get; set; }
 
         public void Validate(object? value, string path, List<string> errors) => Target?.Validate(value, path, errors);
 

@@ -106,7 +106,7 @@ internal sealed class ToolsHandler : IHandler
 
         if (request.Header.Method != RequestMethod.Post)
         {
-            GetLogger(request).RequestRejected((int)ResponseStatus.MethodNotAllowed, Elapsed(started), "Only POST is supported");
+            LogRejected(request, started, ResponseStatus.MethodNotAllowed, "Only POST is supported");
 
             return request.Respond()
                           .Status(ResponseStatus.MethodNotAllowed)
@@ -221,7 +221,7 @@ internal sealed class ToolsHandler : IHandler
             {
                 var requested = header.Value.ToString();
 
-                GetLogger(request).RequestRejected((int)ResponseStatus.BadRequest, Elapsed(started), $"Unsupported protocol version '{requested}'");
+                LogRejected(request, started, ResponseStatus.BadRequest, $"Unsupported protocol version '{requested}'");
 
                 return Respond(request, ResponseStatus.BadRequest, RpcMessages.UnsupportedVersion(id.Value, requested));
             }
@@ -399,14 +399,19 @@ internal sealed class ToolsHandler : IHandler
     {
         var response = Respond(request, ResponseStatus.Ok, _messages.EndResult(buffer, McpVersions.IsModern(version), cacheable));
 
-        GetLogger(request).OperationHandled(method, Elapsed(started), version);
+        var logger = GetLogger(request);
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.OperationHandled(method, Elapsed(started), version);
+        }
 
         return response;
     }
 
     private IResponse Error(IRequest request, long started, ResponseStatus status, JsonElement? id, int code, string message)
     {
-        GetLogger(request).RequestRejected((int)status, Elapsed(started), message);
+        LogRejected(request, started, status, message);
 
         return Respond(request, status, RpcMessages.Error(id, code, message));
     }
@@ -455,13 +460,26 @@ internal sealed class ToolsHandler : IHandler
         {
             logger.ToolCrashed(outcome.Crash, tool, Elapsed(started));
         }
-        else if (outcome.Result.IsError)
+        else if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.ToolFailed(tool, Elapsed(started), outcome.Result.Content.OfType<TextContent>().FirstOrDefault()?.Text ?? "error result");
+            if (outcome.Result.IsError)
+            {
+                logger.ToolFailed(tool, Elapsed(started), outcome.Result.Content.OfType<TextContent>().FirstOrDefault()?.Text ?? "error result");
+            }
+            else
+            {
+                logger.ToolSucceeded(tool, Elapsed(started));
+            }
         }
-        else
+    }
+
+    private void LogRejected(IRequest request, long started, ResponseStatus status, string reason)
+    {
+        var logger = GetLogger(request);
+
+        if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.ToolSucceeded(tool, Elapsed(started));
+            logger.RequestRejected((int)status, Elapsed(started), reason);
         }
     }
 

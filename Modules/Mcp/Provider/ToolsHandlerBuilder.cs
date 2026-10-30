@@ -69,21 +69,6 @@ public sealed class ToolsHandlerBuilder : IHandlerBuilder<ToolsHandlerBuilder>
     }
 
     /// <summary>
-    /// Sets the logic used to create the instances tools added via <see cref="Add{T}" />
-    /// are invoked on, e.g. per request via dependency injection.
-    /// </summary>
-    /// <remarks>
-    /// The provider is only invoked if the arguments of a call are valid and no
-    /// interceptor objected.
-    /// </remarks>
-    /// <param name="provider">Creates the instance of the given type to invoke a tool on</param>
-    public ToolsHandlerBuilder InstanceProvider(Func<Type, IRequest, ValueTask<object>> provider)
-    {
-        _instanceProvider = provider;
-        return this;
-    }
-
-    /// <summary>
     /// Adds a tool implemented by the given function.
     /// </summary>
     /// <remarks>
@@ -98,6 +83,31 @@ public sealed class ToolsHandlerBuilder : IHandlerBuilder<ToolsHandlerBuilder>
     public ToolsHandlerBuilder Add(string name, string description, Delegate function)
     {
         _tools.Add(MethodToolDefinition.FromDelegate(name, description, function));
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a concern (such as authentication) to the endpoint.
+    /// </summary>
+    /// <param name="concern">The concern to be added</param>
+    public ToolsHandlerBuilder Add(IConcernBuilder concern)
+    {
+        _concerns.Add(concern);
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the logic used to create the instances tools added via <see cref="Add{T}" />
+    /// are invoked on, e.g. per request via dependency injection.
+    /// </summary>
+    /// <remarks>
+    /// The provider is only invoked if the arguments of a call are valid and no
+    /// interceptor objected.
+    /// </remarks>
+    /// <param name="provider">Creates the instance of the given type to invoke a tool on</param>
+    public ToolsHandlerBuilder InstanceProvider(Func<Type, IRequest, ValueTask<object>> provider)
+    {
+        _instanceProvider = provider;
         return this;
     }
 
@@ -180,16 +190,6 @@ public sealed class ToolsHandlerBuilder : IHandlerBuilder<ToolsHandlerBuilder>
     public ToolsHandlerBuilder Serialization(JsonSerializerOptions options)
     {
         _serialization = options;
-        return this;
-    }
-
-    /// <summary>
-    /// Adds a concern (such as authentication) to the endpoint.
-    /// </summary>
-    /// <param name="concern">The concern to be added</param>
-    public ToolsHandlerBuilder Add(IConcernBuilder concern)
-    {
-        _concerns.Add(concern);
         return this;
     }
 

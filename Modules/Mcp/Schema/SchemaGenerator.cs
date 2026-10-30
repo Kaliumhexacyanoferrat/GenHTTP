@@ -24,7 +24,7 @@ internal static class SchemaGenerator
     internal static JsonObject Arguments(IEnumerable<ToolArgument> arguments, JsonSerializerOptions options)
     {
         var properties = new JsonObject();
-        var required = new JsonArray();
+        var required = new List<string>();
 
         foreach (var argument in arguments)
         {
@@ -66,7 +66,7 @@ internal static class SchemaGenerator
 
         if (required.Count > 0)
         {
-            result["required"] = required;
+            result["required"] = new JsonArray([.. required.Select(r => JsonValue.Create(r))]);
         }
 
         if (properties.Count == 0)
