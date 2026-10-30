@@ -72,6 +72,7 @@
         <File Path="Resources\icon.png" />
     </Folder>
     <Folder Name="/Solution Items/">
+        <File Path="AGENTS.md" />
         <File Path="CONTRIBUTING.md" />
         <File Path="Directory.Build.props" />
         <File Path="global.json" />
