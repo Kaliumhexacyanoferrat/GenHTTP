@@ -154,12 +154,12 @@ internal static class Http1Driver
     // The default path: full RFC validation plus smuggling hardening.
     private static bool TryParseRequestGlyph11(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
-        if (!UltraHardenedParser.TryExtractFullHeaderValidated(ref buffer, into, Limits, out var bytesRead))
+        if (!UltraHardenedParser.TryParseRequestHeader(ref buffer, into, Limits, out var consumed))
         {
             return false;
         }
 
-        buffer = buffer.Slice(bytesRead + 1);
+        buffer = buffer.Slice(consumed);
         return true;
     }
 

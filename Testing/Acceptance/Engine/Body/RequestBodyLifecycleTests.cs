@@ -453,9 +453,9 @@ public sealed class RequestBodyLifecycleTests
 
         var buffer = (await pipe.Reader.ReadAsync()).Buffer;
 
-        Assert.IsTrue(UltraHardenedParser.TryExtractFullHeaderValidated(ref buffer, request.Source, ParserLimits.Default, out var bytesRead));
+        Assert.IsTrue(UltraHardenedParser.TryParseRequestHeader(ref buffer, request.Source, ParserLimits.Default, out var consumed));
 
-        request.Apply(Substitute.For<IServer>(), Substitute.For<IEndPoint>(), pipe.Reader, buffer.Slice(bytesRead + 1).Start, null, null, output.Writer);
+        request.Apply(Substitute.For<IServer>(), Substitute.For<IEndPoint>(), pipe.Reader, buffer.Slice(consumed).Start, null, null, output.Writer);
 
         await request.GetBody()!.AsMemoryAsync();
 
@@ -520,8 +520,8 @@ public sealed class RequestBodyLifecycleTests
 
         if (validate)
         {
-            Assert.IsTrue(UltraHardenedParser.TryExtractFullHeaderValidated(ref buffer, request.Source, ParserLimits.Default, out var bytesRead));
-            buffer = buffer.Slice(bytesRead + 1);
+            Assert.IsTrue(UltraHardenedParser.TryParseRequestHeader(ref buffer, request.Source, ParserLimits.Default, out var consumed));
+            buffer = buffer.Slice(consumed);
         }
         else
         {
