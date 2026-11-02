@@ -9,8 +9,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Shared.Types;
 
 using Glyph11.Parser;
+using Glyph11.Parser.FlexibleParser;
 using Glyph11.Parser.UltraHardened;
-using Glyph11.Pico;
 
 using NSubstitute;
 
@@ -525,9 +525,9 @@ public sealed class RequestBodyLifecycleTests
         }
         else
         {
-            // picohttpparser does not validate the framing headers, so they reach the request as sent
-            Assert.IsTrue(PicoParser.TryParse(buffer, request.Source, out var consumed));
-            buffer = buffer.Slice(consumed + 1);
+            // FlexibleParser does not validate the framing headers, so they reach the request as sent
+            Assert.IsTrue(FlexibleParser.TryParseRequestHeader(ref buffer, request.Source, out var consumed));
+            buffer = buffer.Slice(consumed);
         }
 
         var endPoint = Substitute.For<IEndPoint>();

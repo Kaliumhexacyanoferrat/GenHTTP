@@ -10,7 +10,6 @@ using GenHTTP.Engine.Shared.Types;
 using Glyph11;
 using Glyph11.Parser;
 using Glyph11.Parser.UltraHardened;
-using Glyph11.Pico;
 using Glyph11.Protocol;
 
 using Microsoft.Extensions.Logging;
@@ -27,11 +26,6 @@ namespace GenHTTP.Engine.Ioxide.Protocol.Drivers.Tcp;
 internal static class Http1Driver
 {
     private static readonly ParserLimits Limits = ParserLimits.Default;
-
-    // GENHTTP_IOXIDE_PARSER=pico swaps the hardened managed parser for picohttpparser, which
-    // does no path/token/smuggling hardening. For benchmarking, not for untrusted traffic.
-    private static readonly bool UsePico =
-        string.Equals(Environment.GetEnvironmentVariable("GENHTTP_IOXIDE_PARSER"), "pico", StringComparison.OrdinalIgnoreCase);
 
     private static readonly ByteString KeepAliveValue = new("Keep-Alive");
 
@@ -147,12 +141,8 @@ internal static class Http1Driver
         }
     }
 
-    // Parses one request head, through whichever parser this process was started with.
+    // Parses one request head: full RFC validation plus smuggling hardening.
     private static bool TryParseRequest(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
-        => UsePico ? TryParseRequestPico(ref buffer, into) : TryParseRequestGlyph11(ref buffer, into);
-
-    // The default path: full RFC validation plus smuggling hardening.
-    private static bool TryParseRequestGlyph11(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
         if (!UltraHardenedParser.TryParseRequestHeader(ref buffer, into, Limits, out var consumed))
         {
@@ -160,18 +150,6 @@ internal static class Http1Driver
         }
 
         buffer = buffer.Slice(consumed);
-        return true;
-    }
-
-    // The benchmark path: picohttpparser, which validates only as far as picohttpparser does.
-    private static bool TryParseRequestPico(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
-    {
-        if (!PicoParser.TryParse(buffer, into, out var consumed))
-        {
-            return false;
-        }
-
-        buffer = buffer.Slice(consumed + 1);
         return true;
     }
 

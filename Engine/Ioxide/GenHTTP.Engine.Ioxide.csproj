@@ -23,7 +23,6 @@
     <PackageReference Include="ioxide.nghttp3" Version="0.15.251" />
     
     <PackageReference Include="Glyph11" Version="0.4.0" />
-    <PackageReference Include="Glyph11.Pico" Version="0.0.1" />
     
   </ItemGroup>
 
