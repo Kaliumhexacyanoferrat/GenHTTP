@@ -12,7 +12,7 @@ public class ComplianceTests : WireTest
     [MultiEngineTest]
     public async Task TestNoMinorHttpVersion(ServerEngine engine)
     {
-        await TestAsync(["GET / HTTP/1", "Host: localhost"], "505", Layout.Create(), engine);
+        await TestAsync(["GET / HTTP/1", "Host: localhost"], "400", Layout.Create(), engine);
     }
 
     [TestMethod]

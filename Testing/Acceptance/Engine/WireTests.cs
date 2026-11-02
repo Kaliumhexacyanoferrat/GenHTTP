@@ -18,7 +18,7 @@ public class WireTests : WireTest
     [TestMethod]
     public async Task TestUnsupportedProtocolVersion()
     {
-        await TestAsync("GET / HTTP/2.0\r\n", "Invalid HTTP version");
+        await TestAsync("GET / HTTP/2.0\r\n", "Unsupported HTTP version");
     }
 
     [TestMethod]
