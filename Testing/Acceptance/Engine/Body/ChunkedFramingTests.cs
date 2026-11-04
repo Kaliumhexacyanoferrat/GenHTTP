@@ -194,7 +194,12 @@ public sealed class ChunkedFramingTests
     {
         var (_, framing) = await CreateAsync("5\r\nHel");
 
-        var e = await Assert.ThrowsExactlyAsync<ProviderException>(async () => await framing.ReadAsync(new byte[16], CancellationToken.None));
+        var buffer = new byte[16];
+
+        Assert.AreEqual(3, await framing.ReadAsync(buffer, CancellationToken.None));
+        Assert.AreEqual("Hel", Encoding.ASCII.GetString(buffer, 0, 3));
+
+        var e = await Assert.ThrowsExactlyAsync<ProviderException>(async () => await framing.ReadAsync(buffer, CancellationToken.None));
 
         Assert.AreEqual(ResponseStatus.BadRequest, e.Status);
     }

@@ -29,7 +29,7 @@ public sealed class BenchmarkContext
 
     public async ValueTask Execute()
     {
-        if (!UltraHardenedParser.TryExtractFullHeaderROM(ref _request, _context.Request.Source, Limits, out _))
+        if (!UltraHardenedParser.TryParseRequestHeader(ref _request, _context.Request.Source, Limits, out _))
         {
             throw new ArgumentException("Given request could not be parsed.");
         }

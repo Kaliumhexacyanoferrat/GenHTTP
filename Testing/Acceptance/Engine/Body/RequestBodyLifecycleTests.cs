@@ -9,8 +9,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Shared.Types;
 
 using Glyph11.Parser;
+using Glyph11.Parser.FlexibleParser;
 using Glyph11.Parser.UltraHardened;
-using Glyph11.Pico;
 
 using NSubstitute;
 
@@ -453,9 +453,9 @@ public sealed class RequestBodyLifecycleTests
 
         var buffer = (await pipe.Reader.ReadAsync()).Buffer;
 
-        Assert.IsTrue(UltraHardenedParser.TryExtractFullHeaderValidated(ref buffer, request.Source, ParserLimits.Default, out var bytesRead));
+        Assert.IsTrue(UltraHardenedParser.TryParseRequestHeader(ref buffer, request.Source, ParserLimits.Default, out var consumed));
 
-        request.Apply(Substitute.For<IServer>(), Substitute.For<IEndPoint>(), pipe.Reader, buffer.Slice(bytesRead + 1).Start, null, null, output.Writer);
+        request.Apply(Substitute.For<IServer>(), Substitute.For<IEndPoint>(), pipe.Reader, buffer.Slice(consumed).Start, null, null, output.Writer);
 
         await request.GetBody()!.AsMemoryAsync();
 
@@ -520,14 +520,14 @@ public sealed class RequestBodyLifecycleTests
 
         if (validate)
         {
-            Assert.IsTrue(UltraHardenedParser.TryExtractFullHeaderValidated(ref buffer, request.Source, ParserLimits.Default, out var bytesRead));
-            buffer = buffer.Slice(bytesRead + 1);
+            Assert.IsTrue(UltraHardenedParser.TryParseRequestHeader(ref buffer, request.Source, ParserLimits.Default, out var consumed));
+            buffer = buffer.Slice(consumed);
         }
         else
         {
-            // picohttpparser does not validate the framing headers, so they reach the request as sent
-            Assert.IsTrue(PicoParser.TryParse(buffer, request.Source, out var consumed));
-            buffer = buffer.Slice(consumed + 1);
+            // FlexibleParser does not validate the framing headers, so they reach the request as sent
+            Assert.IsTrue(FlexibleParser.TryParseRequestHeader(ref buffer, request.Source, out var consumed));
+            buffer = buffer.Slice(consumed);
         }
 
         var endPoint = Substitute.For<IEndPoint>();

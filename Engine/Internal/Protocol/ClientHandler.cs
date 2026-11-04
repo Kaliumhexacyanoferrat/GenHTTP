@@ -185,12 +185,12 @@ internal sealed class ClientHandler(ClientContext context)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool TryParseRequest(ref ReadOnlySequence<byte> buffer, BinaryRequest into)
     {
-        if (!UltraHardenedParser.TryExtractFullHeaderValidated(ref buffer, into, Limits, out var bytesRead))
+        if (!UltraHardenedParser.TryParseRequestHeader(ref buffer, into, Limits, out var consumed))
         {
             return false;
         }
 
-        buffer = buffer.Slice(bytesRead + 1);
+        buffer = buffer.Slice(consumed);
         return true;
     }
 
