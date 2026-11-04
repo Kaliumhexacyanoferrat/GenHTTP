@@ -7,8 +7,6 @@ namespace GenHTTP.Engine.Shared.Types;
 
 public static class ResponseSerializer
 {
-    private const int MaxNumberLength = 20;
-
     private static ReadOnlySpan<byte> Newline => "\r\n"u8;
 
     private static ReadOnlySpan<byte> HeaderSeparator => ": "u8;
@@ -23,6 +21,16 @@ public static class ResponseSerializer
 
     private static ReadOnlySpan<byte> EmptyContentLength => "Content-Length: 0\r\n"u8;
 
+    /// <summary>
+    /// Checks, whether the body of the given response needs to be written to the client.
+    /// </summary>
+    /// <remarks>
+    /// The headers still describe the content if no body is sent, e.g. for a HEAD request.
+    /// </remarks>
+    /// <param name="request">The request the response is written for, or null if the request could not be parsed</param>
+    /// <param name="response">The response to be written</param>
+    /// <param name="headRequest">Whether the client sent a HEAD request</param>
+    /// <returns>false, if there is no content, the content is known to be empty or this is a HEAD request</returns>
     public static bool ShouldSendBody(IRequest? request, IResponse response, bool headRequest)
     {
         if (request == null)
@@ -59,10 +67,27 @@ public static class ResponseSerializer
 
         var headers = response.Headers;
 
+        var count = headers.Count;
+
+        var size = 0;
+
+        var hasServer = false;
+        var hasDate = false;
+
+        for (var i = 0; i < count; i++)
+        {
+            var header = headers.GetMemoryEntry(i);
+
+            hasServer |= header.Key == KnownHeaders.Server;
+            hasDate |= header.Key == KnownHeaders.Date;
+
+            size += header.Key.Length + HeaderSeparator.Length + header.Value.Length + Newline.Length;
+        }
+
         var statusLine = StatusLine.Get(response.Status);
 
-        var server = headers.ContainsKey(KnownHeaders.Server) ? ReadOnlySpan<byte>.Empty : serverHeader.Span;
-        var date = headers.ContainsKey(KnownHeaders.Date) ? ReadOnlySpan<byte>.Empty : dateHeader.Span;
+        var server = hasServer ? ReadOnlySpan<byte>.Empty : serverHeader.Span;
+        var date = hasDate ? ReadOnlySpan<byte>.Empty : dateHeader.Span;
 
         var isUpgrade = response.Mode == Connection.Upgrade;
 
@@ -74,7 +99,7 @@ public static class ResponseSerializer
         var length = content?.Length;
         var encoding = content?.Encoding;
 
-        var size = statusLine.Length + server.Length + date.Length + connection.Length + Newline.Length;
+        size += statusLine.Length + server.Length + date.Length + connection.Length + Newline.Length;
 
         if (content != null)
         {
@@ -85,7 +110,7 @@ public static class ResponseSerializer
 
             if (length != null)
             {
-                size += ContentLengthPrefix.Length + MaxNumberLength + Newline.Length;
+                size += ContentLengthPrefix.Length + CountDigits(length.Value) + Newline.Length;
             }
             else if (!isUpgrade)
             {
@@ -100,15 +125,6 @@ public static class ResponseSerializer
         else
         {
             size += EmptyContentLength.Length;
-        }
-
-        var count = headers.Count;
-
-        for (var i = 0; i < count; i++)
-        {
-            var header = headers.GetMemoryEntry(i);
-
-            size += header.Key.Length + HeaderSeparator.Length + header.Value.Length + Newline.Length;
         }
 
         var span = writer.GetSpan(size);
@@ -188,6 +204,19 @@ public static class ResponseSerializer
 
         // HTTP/1.1 connections are persistent by default so we do not need to send a Keep-Alive header
         return keepAlive ? ReadOnlySpan<byte>.Empty : "Connection: Close\r\n"u8;
+    }
+
+    private static int CountDigits(ulong value)
+    {
+        var digits = 1;
+
+        while (value >= 10)
+        {
+            value /= 10;
+            digits++;
+        }
+
+        return digits;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
