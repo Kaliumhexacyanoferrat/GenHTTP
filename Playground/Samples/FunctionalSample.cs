@@ -25,18 +25,18 @@ public static class FunctionalSample
         };
 
         var service = Inline.Create()
-                            .Get(() => books) // GET http://localhost:8080/books/
-                            .Put((Book book) => // PUT http://localhost:8080/books/ with JSON/XML/... payload
+                            .Get(() => books) // GET http://localhost:8080/functional/books/
+                            .Put((Book book) => // PUT http://localhost:8080/functional/books/ with JSON/XML/... payload
                             {
                                 var toAdd = book with
                                 {
-                                    Id = books.Max(b => b.Id) + 1
+                                    Id = books.Select(b => b.Id).DefaultIfEmpty().Max() + 1
                                 };
 
                                 books.Add(toAdd);
                                 return toAdd;
                             })
-                            .Delete(":id", (int id) => books.RemoveAll(b => b.Id == id)); // DELETE http://localhost:8080/books/1
+                            .Delete(":id", (int id) => books.RemoveAll(b => b.Id == id)); // DELETE http://localhost:8080/functional/books/1
 
         return Layout.Create()
                      .Add("books", service);

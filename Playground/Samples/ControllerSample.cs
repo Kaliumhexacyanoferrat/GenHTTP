@@ -33,24 +33,24 @@ public static class ControllerSample
             new(1, "Lord of the Rings")
         ];
 
-        // GET http://localhost:8080/books/
-        [ControllerAction]
+        // GET http://localhost:8080/controllers/books/
+        [ControllerAction(Method.Get)]
         public List<Book> Index() => Books;
 
-        // PUT http://localhost:8080/books/create with JSON/XML/... payload
+        // PUT http://localhost:8080/controllers/books/create/ with JSON/XML/... payload
         [ControllerAction(Method.Put)]
         public Book Create(Book book)
         {
             var toAdd = book with
             {
-                Id = Books.Max(b => b.Id) + 1
+                Id = Books.Select(b => b.Id).DefaultIfEmpty().Max() + 1
             };
 
             Books.Add(toAdd);
             return toAdd;
         }
 
-        // DELETE http://localhost:8080/books/delete/1
+        // DELETE http://localhost:8080/controllers/books/delete/1/
         [ControllerAction(Method.Delete)]
         public void Delete([FromPath] int id)
         {

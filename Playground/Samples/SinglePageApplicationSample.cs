@@ -18,9 +18,12 @@ public static class SinglePageApplicationSample
          *
          */
 
-        var files = ResourceTree.FromDirectory("/var/app");
+        // embedded into the assembly here, use ResourceTree.FromDirectory("/var/app") to serve your build output
+        var files = ResourceTree.FromAssembly("Resources.Spa");
 
-        return SinglePageApplication.From(files);
+        // GET http://localhost:8080/spa/books/42 serves index.html, the route is rendered in the browser
+        return SinglePageApplication.From(files)
+                                    .ServerSideRouting();
     }
 
 }

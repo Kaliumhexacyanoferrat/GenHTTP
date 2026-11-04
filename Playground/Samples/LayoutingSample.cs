@@ -31,8 +31,8 @@ public static class LayoutingSample
         // assemble our application from the parts above and
         // register them at the given URLs
         return Layout.Create()
-                     .Add("assets", assets) // e.g. GET http://localhost:8080/assets/GenHTTP.Playground.xml
-                     .Add("api", api); // e.g. GET http://localhost:8080/api/
+                     .Add("assets", assets) // e.g. GET http://localhost:8080/layouting/assets/README.md
+                     .Add("api", api); // e.g. GET http://localhost:8080/layouting/api/
     }
 
 }

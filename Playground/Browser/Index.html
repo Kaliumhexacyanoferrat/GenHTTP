@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GenHTTP Playground</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+
+            --canvas: #f1f3f6;
+            --surface: #ffffff;
+            --ink: #16202d;
+            --ink-muted: #5a6677;
+            --line: #dce1e8;
+            --accent: #2456c9;
+            --accent-ink: #ffffff;
+            --wash: #e8ecf2;
+
+            --code-bg: #0f1826;
+            --code-line: #1e2a3c;
+            --code-ink: #d5dde9;
+            --code-muted: #5f6f86;
+            --tok-keyword: #93b4ff;
+            --tok-type: #7fd3c0;
+            --tok-method: #f0c878;
+            --tok-string: #a9d88b;
+            --tok-number: #f3a08f;
+            --tok-attribute: #dfa6ee;
+            --tok-comment: #6c7d95;
+
+            --get: #1d8558;
+            --post: #b5680b;
+            --put: #2456c9;
+            --delete: #c0304a;
+            --patch: #7b4cc4;
+            --other: #6b7586;
+
+            --ok: #1d8558;
+            --redirect: #b5680b;
+            --fail: #c0304a;
+
+            --sans: "Segoe UI Variable Text", "Segoe UI", -apple-system, "SF Pro Text", system-ui, sans-serif;
+            --display: "Segoe UI Variable Display", "Segoe UI", -apple-system, "SF Pro Display", system-ui, sans-serif;
+            --mono: "Cascadia Code", "JetBrains Mono", "SF Mono", ui-monospace, Consolas, monospace;
+
+            --radius: 8px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --canvas: #0d131c;
+                --surface: #151d29;
+                --ink: #e3e8ef;
+                --ink-muted: #93a0b3;
+                --line: #273244;
+                --accent: #7fa4ff;
+                --accent-ink: #0d131c;
+                --wash: #1c2635;
+
+                --code-bg: #0a1018;
+                --code-line: #1a2433;
+
+                --get: #4cc28b;
+                --post: #e8a24a;
+                --put: #7fa4ff;
+                --delete: #f07086;
+                --patch: #b493f0;
+                --other: #93a0b3;
+
+                --ok: #4cc28b;
+                --redirect: #e8a24a;
+                --fail: #f07086;
+            }
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html { scroll-padding-top: 1rem; }
+
+        body {
+            margin: 0;
+            font: 15px/1.55 var(--sans);
+            background: var(--canvas);
+            color: var(--ink);
+            display: grid;
+            grid-template-columns: 19rem minmax(0, 1fr);
+            min-height: 100vh;
+        }
+
+        a { color: var(--accent); text-underline-offset: 2px; }
+
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+        button {
+            font: inherit;
+            cursor: pointer;
+        }
+
+        /* navigation */
+
+        .sidebar {
+            --inset: 2rem;
+
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid var(--line);
+            background: var(--surface);
+            padding: 2.25rem 0 3rem;
+        }
+
+        .brand {
+            display: block;
+            margin: 0 var(--inset) 1.75rem;
+            color: var(--ink);
+            text-decoration: none;
+            font: 700 1.15rem/1.2 var(--display);
+            letter-spacing: -0.01em;
+        }
+
+        .brand span { display: block; font-weight: 400; color: var(--ink-muted); font-size: .95rem; }
+
+        .filter {
+            display: block;
+            width: calc(100% - 2 * var(--inset));
+            margin: 0 var(--inset) 1.5rem;
+            padding: .55rem .8rem;
+            font: inherit;
+            font-size: .9rem;
+            color: inherit;
+            background: var(--canvas);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+        }
+
+        .category + .category { margin-top: 1.75rem; }
+
+        .category h2 {
+            margin: 0 var(--inset) .5rem;
+            font-size: .8rem;
+            font-weight: 600;
+            color: var(--ink-muted);
+        }
+
+        .category a {
+            display: block;
+            padding: .42rem var(--inset) .42rem calc(var(--inset) - 3px);
+            border-left: 3px solid transparent;
+            color: var(--ink);
+            text-decoration: none;
+            font-size: .93rem;
+        }
+
+        .category a:hover { background: var(--wash); }
+
+        .category a[aria-current="page"] {
+            border-left-color: var(--accent);
+            background: var(--wash);
+            font-weight: 600;
+        }
+
+        .no-match { margin: 1rem var(--inset); color: var(--ink-muted); font-size: .9rem; }
+
+        .menu { display: none; }
+
+        /* page */
+
+        main {
+            padding: 2.75rem clamp(1.25rem, 4vw, 3.5rem) 4rem;
+            max-width: 74rem;
+            width: 100%;
+        }
+
+        .title {
+            margin: 0;
+            font: 700 clamp(2rem, 4vw, 2.75rem)/1.1 var(--display);
+            letter-spacing: -0.025em;
+        }
+
+        .lede { margin: .6rem 0 0; max-width: 40rem; font-size: 1.05rem; color: var(--ink-muted); }
+
+        .meta { margin: .75rem 0 2rem; display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: .9rem; }
+
+        h2.section {
+            margin: 2.5rem 0 .9rem;
+            font: 650 1.25rem/1.3 var(--display);
+            letter-spacing: -0.01em;
+        }
+
+        /* code */
+
+        .code {
+            border-radius: var(--radius);
+            background: var(--code-bg);
+            color: var(--code-ink);
+            overflow: hidden;
+            box-shadow: 0 1px 0 var(--line);
+        }
+
+        .code-bar {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .55rem .6rem .55rem 1rem;
+            border-bottom: 1px solid var(--code-line);
+            font-size: .85rem;
+        }
+
+        .code.collapsed .code-bar { border-bottom-color: transparent; }
+
+        .code-file { font-family: var(--mono); color: var(--code-ink); }
+
+        .code-lines { color: var(--code-muted); margin-right: auto; }
+
+        .code-bar button {
+            padding: .25rem .7rem;
+            color: var(--code-ink);
+            background: transparent;
+            border: 1px solid var(--code-line);
+            border-radius: 5px;
+            font-size: .82rem;
+        }
+
+        .code-bar button:hover { background: var(--code-line); }
+
+        .chevron { display: inline-block; transition: transform .15s; }
+
+        .code.collapsed .chevron { transform: rotate(-90deg); }
+
+        .code-body { max-height: min(36rem, 65vh); overflow: auto; }
+
+        .code.collapsed .code-body { display: none; }
+
+        pre.highlighted {
+            margin: 0;
+            padding: .9rem 0;
+            font: .84rem/1.6 var(--mono);
+            counter-reset: line;
+            tab-size: 4;
+        }
+
+        pre.highlighted .line {
+            display: block;
+            min-height: 1.6em;
+            padding: 0 1.25rem 0 0;
+            white-space: pre;
+        }
+
+        pre.highlighted .line::before {
+            counter-increment: line;
+            content: counter(line);
+            display: inline-block;
+            width: 3.25rem;
+            padding-right: 1.1rem;
+            text-align: right;
+            color: var(--code-muted);
+            user-select: none;
+        }
+
+        .t-keyword { color: var(--tok-keyword); }
+        .t-type { color: var(--tok-type); }
+        .t-method { color: var(--tok-method); }
+        .t-string { color: var(--tok-string); }
+        .t-number { color: var(--tok-number); }
+        .t-attribute { color: var(--tok-attribute); }
+        .t-comment { color: var(--tok-comment); font-style: italic; }
+        .t-key { color: var(--tok-keyword); }
+
+        /* calls */
+
+        .calls {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+        }
+
+        .call {
+            --method: var(--other);
+            padding: 1.1rem 1.25rem 1.2rem calc(1.25rem - 3px);
+            border-left: 3px solid var(--method);
+        }
+
+        .call + .call { border-top: 1px solid var(--line); }
+
+        .call:first-child { border-top-left-radius: var(--radius); }
+
+        .call:last-child { border-bottom-left-radius: var(--radius); }
+
+        .m-get { --method: var(--get); }
+        .m-post { --method: var(--post); }
+        .m-put { --method: var(--put); }
+        .m-delete { --method: var(--delete); }
+        .m-patch { --method: var(--patch); }
+
+        .call-title { margin: 0; font-weight: 600; }
+
+        .call-note { margin: .1rem 0 0; color: var(--ink-muted); font-size: .9rem; }
+
+        .request {
+            display: flex;
+            margin-top: .7rem;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: var(--canvas);
+            overflow: hidden;
+        }
+
+        .request:focus-within { border-color: var(--accent); }
+
+        .verb {
+            flex: none;
+            display: flex;
+            align-items: center;
+            padding: 0 .8rem;
+            font: 700 .78rem var(--mono);
+            letter-spacing: .02em;
+            color: var(--method);
+            border-right: 1px solid var(--line);
+        }
+
+        .request input, .request .target {
+            flex: 1;
+            min-width: 0;
+            padding: .5rem .75rem;
+            font: .88rem var(--mono);
+            color: inherit;
+            background: transparent;
+            border: 0;
+            outline: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .action {
+            flex: none;
+            padding: .5rem 1.15rem;
+            border: 0;
+            background: var(--accent);
+            color: var(--accent-ink);
+            font-weight: 600;
+            font-size: .9rem;
+            text-decoration: none;
+        }
+
+        .action:hover { filter: brightness(1.08); }
+
+        .action:disabled { opacity: .6; cursor: progress; }
+
+        .options { margin-top: .5rem; font-size: .88rem; }
+
+        .options summary { cursor: pointer; color: var(--ink-muted); width: fit-content; }
+
+        .options summary:hover { color: var(--ink); }
+
+        .field { display: block; margin-top: .6rem; }
+
+        .field span { display: block; font-size: .82rem; color: var(--ink-muted); margin-bottom: .2rem; }
+
+        .field textarea {
+            display: block;
+            width: 100%;
+            min-height: 2.4rem;
+            padding: .45rem .7rem;
+            font: .85rem/1.5 var(--mono);
+            color: inherit;
+            background: var(--canvas);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            resize: vertical;
+        }
+
+        .command {
+            display: flex;
+            align-items: flex-start;
+            gap: .5rem;
+            margin-top: .6rem;
+        }
+
+        .command code {
+            flex: 1;
+            min-width: 0;
+            padding: .4rem .7rem;
+            font: .8rem/1.55 var(--mono);
+            color: var(--ink-muted);
+            background: var(--canvas);
+            border-radius: 6px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .copy {
+            flex: none;
+            padding: .3rem .75rem;
+            font-size: .82rem;
+            color: var(--accent);
+            background: transparent;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+        }
+
+        .copy:hover { border-color: var(--accent); }
+
+        .response { margin-top: .9rem; }
+
+        .response:empty { display: none; }
+
+        .response-head {
+            display: flex;
+            align-items: baseline;
+            gap: .9rem;
+            flex-wrap: wrap;
+            font-size: .88rem;
+            color: var(--ink-muted);
+        }
+
+        .status {
+            padding: .1rem .55rem;
+            border-radius: 5px;
+            font: 700 .85rem var(--mono);
+            color: var(--surface);
+            background: var(--ok);
+            animation: arrive .6s ease-out;
+        }
+
+        .status.redirect { background: var(--redirect); }
+
+        .status.fail { background: var(--fail); }
+
+        @keyframes arrive {
+            from { box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 35%, transparent); }
+            to { box-shadow: 0 0 0 0 transparent; }
+        }
+
+        .response details { margin-top: .5rem; font-size: .85rem; }
+
+        .response summary { cursor: pointer; color: var(--ink-muted); width: fit-content; }
+
+        .response pre.plain, .response pre.highlighted {
+            margin: .5rem 0 0;
+            max-height: 22rem;
+            overflow: auto;
+            border-radius: 6px;
+            background: var(--code-bg);
+            color: var(--code-ink);
+        }
+
+        .response pre.plain {
+            padding: .75rem 1rem;
+            font: .82rem/1.55 var(--mono);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .response pre.highlighted { padding: .7rem 1rem; font-size: .82rem; }
+
+        .response pre.highlighted .line { padding: 0; }
+
+        .response pre.highlighted .line::before { content: none; }
+
+        .pending { color: var(--ink-muted); font-size: .88rem; }
+
+        .error { color: var(--fail); font-weight: 600; font-size: .9rem; }
+
+        .next {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 3rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--line);
+            font-size: .95rem;
+        }
+
+        /* overview */
+
+        .overview { margin-top: 2.5rem; }
+
+        .overview h2 { margin: 2rem 0 .5rem; font: 650 1.15rem var(--display); }
+
+        .overview dl {
+            display: grid;
+            grid-template-columns: minmax(10rem, 15rem) 1fr;
+            margin: 0;
+            border-top: 1px solid var(--line);
+        }
+
+        .overview dt, .overview dd { margin: 0; padding: .55rem 0; border-bottom: 1px solid var(--line); }
+
+        .overview dt a { font-weight: 600; text-decoration: none; }
+
+        .overview dt a:hover { text-decoration: underline; }
+
+        .overview dd { color: var(--ink-muted); }
+
+        /* small screens */
+
+        @media (max-width: 860px) {
+            body { grid-template-columns: minmax(0, 1fr); }
+
+            .sidebar {
+                position: static;
+                height: auto;
+                border-right: 0;
+                border-bottom: 1px solid var(--line);
+                padding: 1rem 0;
+            }
+
+            .brand { display: inline-block; margin-bottom: 0; }
+
+            .menu {
+                display: inline-block;
+                float: right;
+                margin-right: var(--inset);
+                padding: .35rem .8rem;
+                color: var(--ink);
+                background: var(--canvas);
+                border: 1px solid var(--line);
+                border-radius: 6px;
+            }
+
+            .sidebar .entries { display: none; margin-top: 1rem; }
+
+            .sidebar.open .entries { display: block; }
+
+            main { padding-top: 1.75rem; }
+
+            .overview dl { grid-template-columns: 1fr; }
+
+            .overview dt { border-bottom: 0; padding-bottom: 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+    <a class="brand" href="#">GenHTTP <span>Playground</span></a>
+    <button class="menu" id="menu" aria-expanded="false" aria-controls="entries">Samples</button>
+    <div class="entries" id="entries">
+        <input class="filter" id="filter" type="search" placeholder="Filter samples" aria-label="Filter samples">
+        <div id="navigation"></div>
+    </div>
+</aside>
+
+<main id="content"></main>
+
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const navigation = document.getElementById('navigation');
+    const filter = document.getElementById('filter');
+    const content = document.getElementById('content');
+
+    const CODE_STATE = 'genhttp.playground.code';
+
+    let samples = [];
+
+    // helpers
+
+    function element(tag, properties = {}, ...children) {
+        const result = Object.assign(document.createElement(tag), properties);
+        result.append(...children.flat(Infinity).filter(c => c != null && c !== false));
+        return result;
+    }
+
+    function escapeHtml(text) {
+        return text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+    }
+
+    function quote(value) {
+        return `'${value.replaceAll("'", "'\\''")}'`;
+    }
+
+    function absolute(path) {
+        return new URL(path, location.origin).href;
+    }
+
+    function copyButton(source, label = 'Copy', className = 'copy') {
+        const button = element('button', { className, type: 'button', textContent: label });
+
+        button.onclick = async () => {
+            await navigator.clipboard.writeText(source());
+            button.textContent = 'Copied';
+            setTimeout(() => button.textContent = label, 1500);
+        };
+
+        return button;
+    }
+
+    // syntax highlighting
+
+    const CSHARP_KEYWORDS = 'abstract as async await base bool break byte case catch char class const continue decimal default delegate do double else enum event explicit false finally float for foreach get if implicit in init int interface internal is lock long namespace new null object operator out override params private protected public readonly record ref required return sbyte sealed set short static string struct switch this throw true try typeof uint ulong ushort using var virtual void when where while with yield';
+
+    const CSHARP = new RegExp([
+        String.raw`(?<comment>\/\/[^\n]*|\/\*[\s\S]*?\*\/)`,
+        String.raw`(?<string>\$*"""[\s\S]*?"""|\$?@"(?:[^"]|"")*"|@\$"(?:[^"]|"")*"|\$?"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)')`,
+        String.raw`(?<attribute>(?<=(?:^|[(,])[ \t]*\[)[A-Z]\w*)`,
+        String.raw`(?<keyword>\b(?:${CSHARP_KEYWORDS.split(' ').join('|')})\b)`,
+        String.raw`(?<number>\b\d[\d_]*(?:\.\d+)?[fdmul]?\b)`,
+        String.raw`(?<method>\b[A-Za-z_]\w*(?=(?:<[\w<>, ?\[\]]*>)?\())`,
+        String.raw`(?<type>\b[A-Z]\w*\b)`
+    ].join('|'), 'gm');
+
+    const JSON_TOKENS = /(?<key>"(?:[^"\\]|\\.)*"(?=\s*:))|(?<string>"(?:[^"\\]|\\.)*")|(?<keyword>\b(?:true|false|null)\b)|(?<number>-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b)/g;
+
+    function tokenize(text, pattern) {
+        const tokens = [];
+        let last = 0;
+
+        for (const match of text.matchAll(pattern)) {
+            if (match.index > last) {
+                tokens.push([null, text.substring(last, match.index)]);
+            }
+
+            const kind = Object.keys(match.groups).find(k => match.groups[k] !== undefined);
+
+            tokens.push([kind, match[0]]);
+
+            last = match.index + match[0].length;
+        }
+
+        tokens.push([null, text.substring(last)]);
+
+        return tokens;
+    }
+
+    function highlight(text, language) {
+        const pattern = (language === 'json') ? JSON_TOKENS : CSHARP;
+
+        const tokens = tokenize(text.replaceAll('\r\n', '\n').replace(/\n$/, ''), pattern);
+
+        const lines = [[]];
+
+        for (const [kind, value] of tokens) {
+            value.split('\n').forEach((part, index) => {
+                if (index > 0) lines.push([]);
+                if (part) lines.at(-1).push(kind ? `<span class="t-${kind}">${escapeHtml(part)}</span>` : escapeHtml(part));
+            });
+        }
+
+        const pre = element('pre', { className: 'highlighted' });
+        pre.innerHTML = lines.map(l => `<span class="line">${l.join('')}</span>`).join('');
+
+        return pre;
+    }
+
+    // requests
+
+    function parseHeaders(text) {
+        const headers = [];
+
+        for (const line of text.split('\n')) {
+            const index = line.indexOf(':');
+
+            if (index > 0) {
+                headers.push([line.substring(0, index).trim(), line.substring(index + 1).trim()]);
+            }
+        }
+
+        return headers;
+    }
+
+    function toCurl(method, path, headers, body) {
+        const parts = ['curl', '-i'];
+
+        if (method !== 'GET') parts.push('-X', method);
+
+        for (const [name, value] of headers) parts.push('-H', quote(`${name}: ${value}`));
+
+        if (body) parts.push('-d', quote(body));
+
+        parts.push(quote(absolute(path)));
+
+        return parts.join(' ');
+    }
+
+    function formatSize(bytes) {
+        return (bytes < 1024) ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`;
+    }
+
+    function renderBody(text, type) {
+        if (type && type.includes('json')) {
+            try {
+                return highlight(JSON.stringify(JSON.parse(text), null, 2), 'json');
+            } catch {
+                // not valid JSON, show it as received
+            }
+        }
+
+        const shown = (text.length > 20000) ? text.substring(0, 20000) + '\n…' : text;
+
+        return element('pre', { className: 'plain', textContent: shown });
+    }
+
+    async function send(method, path, headers, body, target, button) {
+        button.disabled = true;
+        button.textContent = 'Sending…';
+
+        target.replaceChildren(element('p', { className: 'pending', textContent: 'Waiting for the response …' }));
+
+        const started = performance.now();
+
+        try {
+            const response = await fetch(path, { method, headers, body: body || undefined });
+            const text = await response.text();
+
+            const elapsed = Math.round(performance.now() - started);
+
+            const state = (response.status < 300) ? '' : (response.status < 400) ? 'redirect' : 'fail';
+
+            const headerText = [...response.headers].map(([name, value]) => `${name}: ${value}`).join('\n');
+
+            target.replaceChildren(
+                element('div', { className: 'response-head' },
+                    element('span', { className: `status ${state}`, textContent: `${response.status} ${response.statusText}`.trim() }),
+                    element('span', { textContent: `${elapsed} ms` }),
+                    element('span', { textContent: formatSize(new Blob([text]).size) }),
+                    response.redirected ? element('span', { textContent: `redirected to ${new URL(response.url).pathname}` }) : null),
+                element('details', {},
+                    element('summary', { textContent: 'Response headers' }),
+                    element('pre', { className: 'plain', textContent: headerText })),
+                text ? renderBody(text, response.headers.get('Content-Type')) : null
+            );
+        } catch (error) {
+            target.replaceChildren(element('p', { className: 'error', textContent: `The request failed: ${error.message}` }));
+        } finally {
+            button.disabled = false;
+            button.textContent = 'Send';
+        }
+    }
+
+    function methodClass(method) {
+        return `m-${(method ?? 'other').toLowerCase()}`;
+    }
+
+    function callHeader(example) {
+        return [
+            element('p', { className: 'call-title', textContent: example.title }),
+            example.note ? element('p', { className: 'call-note', textContent: example.note }) : null
+        ];
+    }
+
+    function renderRequest(example) {
+        const path = element('input', { value: example.path, spellcheck: false, ariaLabel: `Path for "${example.title}"` });
+
+        const headerText = Object.entries(example.headers ?? {}).map(([name, value]) => `${name}: ${value}`).join('\n');
+
+        const headers = element('textarea', { value: headerText, rows: Math.max(1, headerText.split('\n').length), spellcheck: false });
+        const body = element('textarea', { value: example.body ?? '', rows: 2, spellcheck: false });
+
+        const canHaveBody = !['GET', 'HEAD'].includes(example.method);
+
+        const options = element('details', { className: 'options', open: !!(headerText || example.body) },
+            element('summary', { textContent: canHaveBody ? 'Headers and body' : 'Headers' }),
+            element('label', { className: 'field' }, element('span', { textContent: 'Headers, one per line' }), headers),
+            canHaveBody ? element('label', { className: 'field' }, element('span', { textContent: 'Body' }), body) : null);
+
+        const command = element('code');
+
+        const update = () => command.textContent = toCurl(example.method, path.value, parseHeaders(headers.value), canHaveBody ? body.value : null);
+
+        for (const input of [path, headers, body]) input.addEventListener('input', update);
+
+        update();
+
+        const response = element('div', { className: 'response', ariaLive: 'polite' });
+
+        const button = element('button', { className: 'action', type: 'button', textContent: 'Send' });
+
+        button.onclick = () => send(example.method, path.value, parseHeaders(headers.value), canHaveBody ? body.value : null, response, button);
+
+        path.addEventListener('keydown', (event) => { if (event.key === 'Enter') button.click(); });
+
+        body.addEventListener('keydown', (event) => { if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) button.click(); });
+
+        return element('section', { className: `call ${methodClass(example.method)}` },
+            callHeader(example),
+            element('div', { className: 'request' },
+                element('span', { className: 'verb', textContent: example.method }),
+                path,
+                button),
+            options,
+            element('div', { className: 'command' }, command, copyButton(() => command.textContent)),
+            response);
+    }
+
+    function renderPage(example) {
+        const url = absolute(example.path);
+
+        return element('section', { className: 'call' },
+            callHeader(example),
+            element('div', { className: 'request' },
+                element('span', { className: 'verb', textContent: 'PAGE' }),
+                element('span', { className: 'target', textContent: url }),
+                element('a', { className: 'action', href: url, target: '_blank', rel: 'noopener', textContent: 'Open' })));
+    }
+
+    function renderShell(example) {
+        const command = example.command.replaceAll('{origin}', location.origin);
+
+        return element('section', { className: 'call' },
+            callHeader(example),
+            element('div', { className: 'command' }, element('code', { textContent: command }), copyButton(() => command)));
+    }
+
+    // pages
+
+    function renderCode(sample) {
+        const collapsed = localStorage.getItem(CODE_STATE) === 'collapsed';
+
+        const panel = element('section', { className: `code${collapsed ? ' collapsed' : ''}`, ariaLabel: 'Source code' });
+
+        const body = element('div', { className: 'code-body', id: 'code-body' }, element('pre', { className: 'highlighted' }));
+        const lines = element('span', { className: 'code-lines' });
+
+        let source = '';
+
+        const label = element('span', { textContent: collapsed ? 'Show' : 'Hide' });
+
+        const toggle = element('button', { type: 'button', ariaExpanded: String(!collapsed) },
+            element('span', { className: 'chevron', ariaHidden: 'true', textContent: '▾' }), ' ', label);
+
+        toggle.setAttribute('aria-controls', 'code-body');
+
+        toggle.onclick = () => {
+            const nowCollapsed = panel.classList.toggle('collapsed');
+            toggle.setAttribute('aria-expanded', String(!nowCollapsed));
+            label.textContent = nowCollapsed ? 'Show' : 'Hide';
+            localStorage.setItem(CODE_STATE, nowCollapsed ? 'collapsed' : 'expanded');
+        };
+
+        panel.append(
+            element('div', { className: 'code-bar' },
+                element('span', { className: 'code-file', textContent: `Samples/${sample.source}` }),
+                lines,
+                copyButton(() => source),
+                toggle),
+            body);
+
+        fetch(`/playground/source/${sample.source}`)
+            .then(r => r.text())
+            .then(text => {
+                source = text;
+                body.replaceChildren(highlight(text, 'csharp'));
+                lines.textContent = `${body.querySelectorAll('.line').length} lines`;
+            });
+
+        return panel;
+    }
+
+    function renderSample(sample) {
+        const renderers = { request: renderRequest, page: renderPage, shell: renderShell };
+
+        const index = samples.indexOf(sample);
+        const previous = samples[index - 1];
+        const next = samples[index + 1];
+
+        content.replaceChildren(
+            element('h1', { className: 'title', textContent: sample.name }),
+            element('p', { className: 'lede', textContent: sample.description }),
+            element('p', { className: 'meta' },
+                element('a', { href: sample.documentation, target: '_blank', rel: 'noopener', textContent: 'Read the documentation' }),
+                element('a', { href: `/${sample.segment}/`, target: '_blank', rel: 'noopener', textContent: `Served at /${sample.segment}/` })),
+            renderCode(sample),
+            element('h2', { className: 'section', textContent: 'Try it' }),
+            element('div', { className: 'calls' }, sample.examples.map(e => renderers[e.kind](e))),
+            element('nav', { className: 'next', ariaLabel: 'More samples' },
+                previous ? element('a', { href: `#${previous.segment}`, textContent: `← ${previous.name}` }) : element('span'),
+                next ? element('a', { href: `#${next.segment}`, textContent: `${next.name} →` }) : null)
+        );
+    }
+
+    function renderOverview() {
+        const categories = Map.groupBy(samples, s => s.category);
+
+        content.replaceChildren(
+            element('h1', { className: 'title', textContent: 'GenHTTP Playground' }),
+            element('p', { className: 'lede', textContent: 'Every sample below is running on this server. Pick one to read its code and call it from here.' }),
+            element('p', { className: 'meta' },
+                element('span', {}, 'Change a sample in the ', element('code', { textContent: 'Samples' }), ' folder and restart to try your change.'),
+                element('a', { href: 'https://genhttp.org/documentation/content/', target: '_blank', rel: 'noopener', textContent: 'Read the documentation' })),
+            element('div', { className: 'overview' },
+                [...categories].map(([category, entries]) => [
+                    element('h2', { textContent: category }),
+                    element('dl', {}, entries.map(s => [
+                        element('dt', {}, element('a', { href: `#${s.segment}`, textContent: s.name })),
+                        element('dd', { textContent: s.description })
+                    ]))
+                ]))
+        );
+    }
+
+    function renderNavigation() {
+        const term = filter.value.trim().toLowerCase();
+
+        const matching = samples.filter(s => !term || `${s.name} ${s.description} ${s.category}`.toLowerCase().includes(term));
+
+        const categories = Map.groupBy(matching, s => s.category);
+
+        navigation.replaceChildren(...[...categories].map(([category, entries]) =>
+            element('div', { className: 'category' },
+                element('h2', { textContent: category }),
+                entries.map(s => {
+                    const link = element('a', { href: `#${s.segment}`, textContent: s.name });
+                    link.dataset.segment = s.segment;
+                    return link;
+                }))));
+
+        if (matching.length === 0) {
+            navigation.append(element('p', { className: 'no-match', textContent: 'No sample matches this filter.' }));
+        }
+
+        markCurrent();
+    }
+
+    function markCurrent() {
+        const segment = location.hash.substring(1);
+
+        for (const link of navigation.querySelectorAll('a[data-segment]')) {
+            if (link.dataset.segment === segment) {
+                link.setAttribute('aria-current', 'page');
+            } else {
+                link.removeAttribute('aria-current');
+            }
+        }
+    }
+
+    function route() {
+        const sample = samples.find(s => s.segment === location.hash.substring(1));
+
+        if (sample) {
+            renderSample(sample);
+            document.title = `${sample.name} - GenHTTP Playground`;
+        } else {
+            renderOverview();
+            document.title = 'GenHTTP Playground';
+        }
+
+        markCurrent();
+
+        sidebar.classList.remove('open');
+        document.getElementById('menu').setAttribute('aria-expanded', 'false');
+
+        window.scrollTo(0, 0);
+    }
+
+    async function load() {
+        samples = await (await fetch('/playground/samples/')).json();
+
+        renderNavigation();
+
+        filter.addEventListener('input', renderNavigation);
+
+        filter.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                const first = navigation.querySelector('a[data-segment]');
+                if (first) location.hash = first.dataset.segment;
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+                event.preventDefault();
+                filter.focus();
+            }
+        });
+
+        document.getElementById('menu').onclick = (event) => {
+            const open = sidebar.classList.toggle('open');
+            event.currentTarget.setAttribute('aria-expanded', String(open));
+        };
+
+        window.addEventListener('hashchange', route);
+
+        route();
+    }
+
+    load();
+</script>
+
+</body>
+</html>

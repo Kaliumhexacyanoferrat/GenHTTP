@@ -3,7 +3,7 @@
     <PropertyGroup>
 
         <OutputType>Exe</OutputType>
-        <TargetFramework>net11.0</TargetFramework>
+        <TargetFrameworks>net11.0</TargetFrameworks>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
         <IsPackable>false</IsPackable>
@@ -40,6 +40,7 @@
         <ProjectReference Include="..\Modules\LoadBalancing\GenHTTP.Modules.LoadBalancing.csproj"/>
         <ProjectReference Include="..\Modules\Mcp\GenHTTP.Modules.Mcp.csproj"/>
         <ProjectReference Include="..\Modules\OpenApi\GenHTTP.Modules.OpenApi.csproj"/>
+        <ProjectReference Include="..\Modules\Pages\GenHTTP.Modules.Pages.csproj"/>
         <ProjectReference Include="..\Modules\Practices\GenHTTP.Modules.Practices.csproj"/>
         <ProjectReference Include="..\Modules\Protobuf\GenHTTP.Modules.Protobuf.csproj" />
         <ProjectReference Include="..\Modules\Reflection\GenHTTP.Modules.Reflection.csproj"/>
@@ -53,6 +54,22 @@
         <ProjectReference Include="..\Modules\Websockets\GenHTTP.Modules.Websockets.csproj"/>
         <ProjectReference Include="..\Modules\I18n\GenHTTP.Modules.I18n.csproj" />
         <ProjectReference Include="..\Testing\Acceptance\GenHTTP.Testing.Acceptance.csproj" />
+
+    </ItemGroup>
+
+    <ItemGroup>
+
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.14" />
+
+    </ItemGroup>
+
+    <ItemGroup>
+
+        <EmbeddedResource Include="Resources\**\*" />
+        <EmbeddedResource Include="Browser\Index.html" />
+        <EmbeddedResource Include="Samples\*.cs" LogicalName="Source.%(Filename)%(Extension)" />
+
+        <None Update="README.md" CopyToOutputDirectory="PreserveNewest" />
 
     </ItemGroup>
 

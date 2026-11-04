@@ -34,17 +34,17 @@ public static class WebserviceSample
             new(1, "Lord of the Rings")
         ];
 
-        // GET http://localhost:8080/books/
+        // GET http://localhost:8080/webservices/books/
         [ResourceMethod]
         public List<Book> List() => Books;
 
-        // PUT http://localhost:8080/books/ with JSON/XML/... payload
+        // PUT http://localhost:8080/webservices/books/ with JSON/XML/... payload
         [ResourceMethod(Method.Put)]
         public Book Create(Book book)
         {
             var toAdd = book with
             {
-                Id = Books.Max(b => b.Id) + 1
+                Id = Books.Select(b => b.Id).DefaultIfEmpty().Max() + 1
             };
 
             Books.Add(toAdd);
@@ -52,7 +52,7 @@ public static class WebserviceSample
             return toAdd;
         }
 
-        // DELETE http://localhost:8080/books/1
+        // DELETE http://localhost:8080/webservices/books/1
         [ResourceMethod(Method.Delete, ":id")]
         public void Delete([FromPath] int id)
         {
