@@ -1,10 +1,12 @@
+using System.Buffers;
+using System.IO.Pipelines;
+
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using ioxide;
 using ioxide.nghttp3;
 
-using Microsoft.Extensions.Logging;
 using GenHTTP.Engine.Ioxide.Protocol.Requests;
 using GenHTTP.Engine.Ioxide.Protocol.Responses;
 
@@ -20,18 +22,11 @@ internal static class Http3Driver
         => new Nghttp3Connection(connection, options)
             .RunStreamedResponseAsync((request, writer) => DispatchAsync(server, endPoint, request, writer));
 
-    // One stream through the handler chain; a fault becomes a 500 rather than a dead stream.
+    // Maps one stream's request, and runs it through the dispatch HTTP/2 and HTTP/3 share.
     private static async ValueTask DispatchAsync(IServer server, IEndPoint endPoint, Nghttp3Request request,
         Nghttp3ResponseWriter writer)
     {
         StreamedRequest? mapped = null;
-
-        // Whether the head is already on the wire. IsCompleted cannot answer this - it means
-        // END_STREAM has been sent - so a fault AFTER the headers went out used to take the error
-        // path anyway, where WriteHeaders throws "headers have already been written". That second
-        // exception replaced the first, so the only thing ever reported was the masking error and
-        // the real fault was never logged at all.
-        var headersWritten = false;
 
         try
         {
@@ -52,32 +47,7 @@ internal static class Http3Driver
             mapped.Apply(server, endPoint, request.Method, request.Path, request.Authority,
                 reader is null ? null : reader.ReadAsync, remoteAddress: null, HttpProtocol.Http3, secure: true);
 
-            var response = await server.Handler.HandleAsync(mapped)
-                           ?? throw new InvalidOperationException("The root request handler did not return a response");
-
-            var data = StreamedResponder.BuildHeaders(response, mapped);
-
-            var head = new Nghttp3Response { Status = data.Status };
-
-            foreach ((ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value) in data.Headers)
-            {
-                head.Headers.Add(name, value);
-            }
-
-            writer.WriteHeaders(head);
-            headersWritten = true;
-
-            await StreamedResponder.WriteBodyAsync(response, writer, writer.FlushAsync, headRequest);
-        }
-        catch (Exception e)
-        {
-            server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.Drivers.Quic.Http3Driver")
-                  .LogError(e, "Failed to handle HTTP/3 request");
-
-            if (!headersWritten && !writer.IsCompleted)
-            {
-                writer.WriteHeaders(new Nghttp3Response { Status = 500 });
-            }
+            await StreamedDriver.DispatchAsync(server, mapped, new Writer(writer), headRequest, "HTTP/3");
         }
         finally
         {
@@ -85,9 +55,33 @@ internal static class Http3Driver
             {
                 StreamedRequest.Return(mapped);
             }
-
-            await writer.CompleteAsync();
         }
     }
-    
+
+    /// <summary>ioxide's HTTP/3 response writer, as the shared dispatch drives it.</summary>
+    private readonly struct Writer(Nghttp3ResponseWriter writer) : IStreamedWriter
+    {
+        public IBufferWriter<byte> Body => writer;
+
+        public Func<ValueTask<FlushResult>> Flush => writer.FlushAsync;
+
+        public bool IsCompleted => writer.IsCompleted;
+
+        public void WriteHead(StreamedResponseData head)
+        {
+            var response = new Nghttp3Response { Status = head.Status };
+
+            foreach ((ReadOnlyMemory<byte> name, ReadOnlyMemory<byte> value) in head.Headers)
+            {
+                response.Headers.Add(name, value);
+            }
+
+            writer.WriteHeaders(response);
+        }
+
+        public void WriteHead(int status) => writer.WriteHeaders(new Nghttp3Response { Status = status });
+
+        public ValueTask CompleteAsync() => writer.CompleteAsync();
+    }
+
 }

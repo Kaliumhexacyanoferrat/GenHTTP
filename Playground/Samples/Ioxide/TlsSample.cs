@@ -18,17 +18,17 @@ public static class TlsSample
     {
         /*
          *
-         * TLS is terminated in OpenSSL, and the handshake rides the same io_uring reads and
+         * TLS is terminated in BoringSSL, and the handshake rides the same io_uring reads and
          * writes as everything else. Where a port serves both protocols, ALPN decides: the
          * server offers h2 first, so a client that speaks it gets HTTP/2 and everyone else
          * falls back to HTTP/1.1.
          *
          * The certificate can come as files or as an X509Certificate2 here - unlike HTTP/3,
-         * OpenSSL takes the certificate as data. Files are still preferred: OpenSSL reads a
+         * BoringSSL takes the certificate as data. Files are still preferred: BoringSSL reads a
          * chain file whole, so intermediates come from the file rather than the machine store,
          * and the private key never enters managed memory.
          *
-         * SslProtocols names the floor. OpenSSL takes a minimum version and has no maximum, so
+         * SslProtocols names the floor. ioxide takes a minimum version and has no maximum, so
          * Tls12 | Tls13 means "1.2 and up" and Tls13 alone means 1.3-only.
          *
          *     curl -k --http1.1 https://localhost:8443/ok

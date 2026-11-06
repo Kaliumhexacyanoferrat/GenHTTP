@@ -52,6 +52,17 @@ public sealed class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebso
     }
 
     /// <summary>
+    /// Serializes every write on a connection, including the pong and close frames the default
+    /// <see cref="OnPing"/> and <see cref="OnClose"/> handlers send, so frames can be sent from
+    /// several threads at once.
+    /// </summary>
+    public FunctionalWebsocketBuilder SynchronizeWrites()
+    {
+        _builder.SynchronizeWrites();
+        return this;
+    }
+
+    /// <summary>
     /// Invoked when a new client has connected.
     /// </summary>
     /// <param name="connection">The connection to the client</param>
@@ -106,6 +117,11 @@ public sealed class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebso
     /// </summary>
     /// <param name="connection">The connection to the client</param>
     /// <param name="message">The incoming ping frame</param>
+    /// <remarks>
+    /// The default answers with a pong, written from the message pump. If you write to the
+    /// connection from other threads and serialize those writes with a lock of your own, replace
+    /// it with one that goes through that lock as well, or use <see cref="SynchronizeWrites"/>.
+    /// </remarks>
     public FunctionalWebsocketBuilder OnPing(Func<IReactiveConnection, IWebsocketFrame, ValueTask> handler)
     {
         _onPing = handler;
@@ -128,6 +144,10 @@ public sealed class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebso
     /// </summary>
     /// <param name="connection">The connection to the client</param>
     /// <param name="message">The frame sent by the client</param>
+    /// <remarks>
+    /// The default answers with a close frame, written from the message pump - see
+    /// <see cref="OnPing"/> on serializing writes made from other threads.
+    /// </remarks>
     public FunctionalWebsocketBuilder OnClose(Func<IReactiveConnection, IWebsocketFrame, ValueTask> handler)
     {
         _onClose = handler;
