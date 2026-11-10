@@ -12,13 +12,21 @@ public static class CodeProviderArgumentExtensions
 
     public static void AppendArguments(this StringBuilder sb, Operation operation, StringBuilder declarations)
     {
-        if (operation.Arguments.Count > 0)
-        {
-            var index = 0;
+        sb.AppendArguments(operation, declarations, consumingBody: false);
+        sb.AppendArguments(operation, declarations, consumingBody: true);
+    }
 
-            foreach (var arg in operation.Arguments)
+    private static void AppendArguments(this StringBuilder sb, Operation operation, StringBuilder declarations, bool consumingBody)
+    {
+        var index = 0;
+
+        foreach (var arg in operation.Arguments)
+        {
+            index++;
+
+            if (arg.Value.ConsumesBody == consumingBody)
             {
-                sb.AppendArgument(arg.Value, ++index, declarations);
+                sb.AppendArgument(arg.Value, index, declarations);
                 sb.AppendLine();
             }
         }

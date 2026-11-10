@@ -70,6 +70,15 @@ public sealed class OperationArgument
     /// </summary>
     public object? DefaultValue { get; }
 
+    /// <summary>
+    /// True, if the argument is read from the request body.
+    /// </summary>
+    /// <remarks>
+    /// Reading the body releases the request headers, so these arguments
+    /// are resolved after all other arguments of an operation.
+    /// </remarks>
+    internal bool ConsumesBody => Source is OperationArgumentSource.Body or OperationArgumentSource.Content or OperationArgumentSource.Streamed;
+
     #endregion
 
     #region Initialization
