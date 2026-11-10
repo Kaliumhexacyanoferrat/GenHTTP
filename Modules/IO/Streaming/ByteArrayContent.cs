@@ -11,7 +11,7 @@ public sealed class ByteArrayContent : IResponseContent
 {
     private readonly byte[] _content;
 
-    private readonly ChecksumProvider _checksumProvider;
+    private readonly Func<ValueTask<ulong?>>? _checksumProvider;
 
     #region Initialization
 
@@ -22,7 +22,7 @@ public sealed class ByteArrayContent : IResponseContent
         Length = (ulong)_content.Length;
         Type = contentType ?? ContentType.ApplicationOctetStream;
 
-        _checksumProvider = new ChecksumProvider(checksumProvider ?? (() => new(CalculateChecksum(content))));
+        _checksumProvider = checksumProvider;
     }
 
     #endregion
@@ -39,7 +39,7 @@ public sealed class ByteArrayContent : IResponseContent
 
     #region Functionality
 
-    public ValueTask<ulong?> CalculateChecksumAsync() => _checksumProvider.Compute();
+    public ValueTask<ulong?> CalculateChecksumAsync() => (_checksumProvider != null) ? _checksumProvider() : new(CalculateChecksum(_content));
 
     public ValueTask WriteAsync(IResponseSink sink)
     {
