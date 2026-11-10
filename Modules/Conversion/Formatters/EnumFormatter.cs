@@ -35,6 +35,6 @@ public sealed class EnumFormatter : IFormatter
 
     public string? Write(object value, Type type) => value.ToString();
 
-    public IResponseContent GetContent<T>(T value) => new StringContent(value!.ToString()!);
+    public IResponseContent GetContent<T>(T value) => StringContent.Rent(value!.ToString()!);
 
 }

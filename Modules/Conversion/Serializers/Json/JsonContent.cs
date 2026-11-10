@@ -3,9 +3,11 @@ using System.Text.Json;
 
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Modules.IO.Pooling;
+
 namespace GenHTTP.Modules.Conversion.Serializers.Json;
 
-public sealed class JsonContent : IResponseContent
+public sealed class JsonContent : PooledContent<JsonContent>, IResponseContent
 {
     private static readonly JsonWriterOptions WriterOptions = new()
     {
@@ -14,6 +16,8 @@ public sealed class JsonContent : IResponseContent
 
     // Utf8JsonWriter.Reset() keeps the previous output, so the cached writer is pointed here instead
     private static readonly IBufferWriter<byte> Detached = new ArrayBufferWriter<byte>();
+
+    private static readonly object NoData = new();
 
     [ThreadStatic]
     private static Utf8JsonWriter? _cachedWriter;
@@ -26,9 +30,9 @@ public sealed class JsonContent : IResponseContent
 
     public ReadOnlyMemory<byte>? Encoding => null;
 
-    private object Data { get; }
+    private object Data { get; set; }
 
-    private JsonSerializerOptions SerializerOptions { get; }
+    private JsonSerializerOptions SerializerOptions { get; set; }
 
     #endregion
     
@@ -38,6 +42,16 @@ public sealed class JsonContent : IResponseContent
     {
         Data = data;
         SerializerOptions = serializerOptions;
+    }
+
+    internal static JsonContent Rent(object data, JsonSerializerOptions serializerOptions)
+    {
+        var content = FromPool(static () => new JsonContent(NoData, JsonSerializerOptions.Default));
+
+        content.Data = data;
+        content.SerializerOptions = serializerOptions;
+
+        return content;
     }
 
     #endregion
@@ -88,6 +102,12 @@ public sealed class JsonContent : IResponseContent
         writer.Reset(Detached);
 
         _cachedWriter = writer;
+    }
+
+    protected override void Reset()
+    {
+        Data = NoData;
+        SerializerOptions = JsonSerializerOptions.Default;
     }
 
     #endregion

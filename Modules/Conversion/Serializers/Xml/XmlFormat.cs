@@ -16,7 +16,7 @@ public sealed class XmlFormat : ISerializationFormat
     public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
     {
         var result = request.Respond()
-                            .Content(new XmlContent(response));
+                            .Content(XmlContent.Rent(response));
 
         return new ValueTask<IResponseBuilder>(result);
     }

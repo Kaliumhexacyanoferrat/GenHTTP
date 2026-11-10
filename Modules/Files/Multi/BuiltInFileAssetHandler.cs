@@ -25,7 +25,7 @@ internal sealed class BuiltInFileAssetHandler : AbstractAssetsHandler
         {
             var resource = new FileResource(file, file.Name, contentType);
 
-            return new(new ResourceContent(resource, contentType, contentEncoding));
+            return new(ResourceContent.Rent(resource, contentType, contentEncoding));
         }
 
         return default;

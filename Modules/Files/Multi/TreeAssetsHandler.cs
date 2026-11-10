@@ -20,7 +20,7 @@ public sealed class TreeAssetsHandler : AbstractAssetsHandler
 
         if (resource is not null)
         {
-            return new ResourceContent(resource, contentType, contentEncoding);
+            return ResourceContent.Rent(resource, contentType, contentEncoding);
         }
 
         return null;
