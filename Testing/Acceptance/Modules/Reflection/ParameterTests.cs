@@ -111,6 +111,31 @@ public sealed class ParameterTests
         Assert.AreEqual("[a%20b+ä]", await response.GetContentAsync());
     }
 
+    [TestMethod]
+    [MultiEngineFrameworkTest]
+    public async Task TestPathAndQueryCanFollowStreamedBody(ServerEngine engine, ExecutionMode mode)
+    {
+        var inline = Inline.Create()
+                           .Put("/:id/", async (Stream content, string id, string tag) =>
+                           {
+                               using var reader = new StreamReader(content);
+                               return $"{id}:{tag}:{await reader.ReadToEndAsync()}";
+                           })
+                           .ExecutionMode(mode);
+
+        await using var runner = await TestHost.RunAsync(inline, engine: engine);
+
+        var request = runner.GetRequest("/file-1/?tag=draft", HttpMethod.Put);
+
+        request.Content = new StringContent("content", null, "text/plain");
+
+        using var response = await runner.GetResponseAsync(request);
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        Assert.AreEqual("file-1:draft:content", await response.GetContentAsync());
+    }
+
     private static async Task AssertContentAsync(TestHost host, string path, string expected)
     {
         using var response = await host.GetResponseAsync(path);
