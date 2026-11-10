@@ -12,11 +12,11 @@ public static class CodeProviderResultFormattingExtensions
 
         if (type == typeof(string))
         {
-            sb.AppendLine("        var resultContent = new StringContent(result);");
+            sb.AppendLine("        var resultContent = StringContent.Rent(result);");
         }
         else if (IsFormattable(type))
         {
-            sb.AppendLine($"        var resultContent = new FormattableContent<{CompilationUtil.GetQualifiedName(type, false)}>(result);");
+            sb.AppendLine($"        var resultContent = FormattableContent<{CompilationUtil.GetQualifiedName(type, false)}>.Rent(result);");
         }
         else
         {

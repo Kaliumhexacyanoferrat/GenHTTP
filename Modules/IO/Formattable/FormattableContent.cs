@@ -2,13 +2,17 @@
 
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Modules.IO.Pooling;
+
 namespace GenHTTP.Modules.IO.Formattable;
 
-public sealed class FormattableContent : IResponseContent
+public sealed class FormattableContent : PooledContent<FormattableContent>, IResponseContent
 {
-    private readonly IUtf8SpanFormattable _value;
+    private static readonly IUtf8SpanFormattable NoValue = 0;
 
-    private readonly int _length;
+    private IUtf8SpanFormattable _value = NoValue;
+
+    private int _length;
 
     internal static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
     
@@ -25,6 +29,36 @@ public sealed class FormattableContent : IResponseContent
     #region Initialization
 
     public FormattableContent(IUtf8SpanFormattable value)
+    {
+        Apply(value);
+    }
+
+    private FormattableContent() { }
+
+    /// <summary>
+    /// Fetches a pooled instance that renders the given value.
+    /// </summary>
+    /// <remarks>
+    /// The instance is returned to the pool when the server disposes it after
+    /// writing the response, so it must be passed to exactly one response.
+    /// </remarks>
+    /// <param name="value">The value to be written</param>
+    /// <returns>The pooled content rendering the given value</returns>
+    /// <example>
+    /// <code>
+    /// request.Respond().Content(FormattableContent.Rent(DateOnly.FromDateTime(DateTime.Now))).Build();
+    /// </code>
+    /// </example>
+    public static FormattableContent Rent(IUtf8SpanFormattable value)
+    {
+        var content = FromPool(static () => new FormattableContent());
+
+        content.Apply(value);
+
+        return content;
+    }
+
+    private void Apply(IUtf8SpanFormattable value)
     {
         _value = value;
 
@@ -53,6 +87,12 @@ public sealed class FormattableContent : IResponseContent
         writer.Advance(_length);
 
         return ValueTask.CompletedTask;
+    }
+
+    protected override void Reset()
+    {
+        _value = NoValue;
+        _length = 0;
     }
 
     #endregion

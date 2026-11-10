@@ -60,7 +60,7 @@ public sealed class FormattableFormatter : IFormatter
     {
         if (value is IUtf8SpanFormattable formattable)
         {
-            return new FormattableContent(formattable);
+            return FormattableContent.Rent(formattable);
         }
 
         throw new NotSupportedException();

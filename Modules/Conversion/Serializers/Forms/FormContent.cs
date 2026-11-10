@@ -3,11 +3,15 @@ using System.Reflection;
 using System.Web;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.Conversion.Formatters;
+using GenHTTP.Modules.IO.Pooling;
 
 namespace GenHTTP.Modules.Conversion.Serializers.Forms;
 
-public sealed class FormContent : IResponseContent
+public sealed class FormContent : PooledContent<FormContent>, IResponseContent
 {
+    private static readonly object NoData = new();
+
+    private static readonly FormatterRegistry NoFormatters = Formatting.Empty().Build();
 
     #region Initialization
 
@@ -17,6 +21,17 @@ public sealed class FormContent : IResponseContent
         Data = data;
 
         Formatters = formatters;
+    }
+
+    internal static FormContent Rent(Type type, object data, FormatterRegistry formatters)
+    {
+        var content = FromPool(static () => new FormContent(typeof(object), NoData, NoFormatters));
+
+        content.DataType = type;
+        content.Data = data;
+        content.Formatters = formatters;
+
+        return content;
     }
 
     #endregion
@@ -29,11 +44,11 @@ public sealed class FormContent : IResponseContent
 
     public ReadOnlyMemory<byte>? Encoding => null;
 
-    private Type DataType { get; }
+    private Type DataType { get; set; }
 
-    private object Data { get; }
+    private object Data { get; set; }
 
-    private FormatterRegistry Formatters { get; }
+    private FormatterRegistry Formatters { get; set; }
 
     #endregion
 
@@ -79,6 +94,13 @@ public sealed class FormContent : IResponseContent
                 query[field] = formatted;
             }
         }
+    }
+
+    protected override void Reset()
+    {
+        DataType = typeof(object);
+        Data = NoData;
+        Formatters = NoFormatters;
     }
 
     #endregion

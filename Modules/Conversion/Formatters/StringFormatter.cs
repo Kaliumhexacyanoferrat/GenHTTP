@@ -19,7 +19,7 @@ public sealed class StringFormatter : IFormatter
     {
         if (value is string s)
         {
-            return new StringContent(s);
+            return StringContent.Rent(s);
         }
 
         throw new NotSupportedException();

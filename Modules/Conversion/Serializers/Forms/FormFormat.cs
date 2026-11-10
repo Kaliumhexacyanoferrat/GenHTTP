@@ -84,7 +84,7 @@ public sealed class FormFormat : ISerializationFormat
     public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
     {
         var result = request.Respond()
-                            .Content(new FormContent(response.GetType(), response, Formatters));
+                            .Content(FormContent.Rent(response.GetType(), response, Formatters));
 
         return new ValueTask<IResponseBuilder>(result);
     }

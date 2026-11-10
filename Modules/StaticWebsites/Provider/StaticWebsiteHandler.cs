@@ -55,7 +55,7 @@ public sealed class StaticWebsiteHandler : IHandler
                     {
                         return request.Respond()
                                       .Status(ResponseStatus.Ok)
-                                      .Content(new ResourceContent(file))
+                                      .Content(ResourceContent.Rent(file))
                                       .Build();
                     }
                 }

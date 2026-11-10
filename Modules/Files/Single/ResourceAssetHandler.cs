@@ -28,7 +28,7 @@ public sealed class ResourceAssetHandler(IResource resource, bool asDownload, st
         }
 
         var response = request.Respond()
-                              .Content(new ResourceContent(resource, contentType));
+                              .Content(ResourceContent.Rent(resource, contentType));
 
         if (asDownload)
         {
