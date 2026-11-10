@@ -45,6 +45,34 @@ public sealed class GeneratedContentTests
         }
     }
 
+    /// <summary>
+    /// As a client that only accepts gzip, I expect every response to be correct,
+    /// although the server reuses its buffers between responses.
+    /// </summary>
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestSubsequentGzipResponsesAreCorrect(ServerEngine engine)
+    {
+        var app = Inline.Create()
+                        .Get((string letter, int length) => new Blob(new string(letter[0], length)));
+
+        await using var runner = await TestHost.RunAsync(app, engine: engine);
+
+        foreach (var (letter, length) in new[] { ('a', 80_000), ('b', 100), ('c', 40_000) })
+        {
+            var request = runner.GetRequest($"/?letter={letter}&length={length}");
+            request.Headers.Add("Accept-Encoding", "gzip");
+
+            using var response = await runner.GetResponseAsync(request);
+
+            await response.AssertStatusAsync(HttpStatusCode.OK);
+
+            var body = await ReadAsync(response, "gzip");
+
+            Assert.AreEqual($"{{\"data\":\"{new string(letter, length)}\"}}", body);
+        }
+    }
+
     private static List<string> GetAlgorithms()
     {
         var list = new List<string> { "gzip", "br" };
