@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Buffers;
+using System.Text.Json;
 
 using GenHTTP.Api.Protocol;
 
@@ -6,10 +7,16 @@ namespace GenHTTP.Modules.Conversion.Serializers.Json;
 
 public sealed class JsonContent : IResponseContent
 {
-    private readonly JsonWriterOptions _writerOptions = new()
+    private static readonly JsonWriterOptions WriterOptions = new()
     {
         SkipValidation = true
     };
+
+    // Utf8JsonWriter.Reset() keeps the previous output, so the cached writer is pointed here instead
+    private static readonly IBufferWriter<byte> Detached = new ArrayBufferWriter<byte>();
+
+    [ThreadStatic]
+    private static Utf8JsonWriter? _cachedWriter;
 
     #region Get-/Setters
 
@@ -46,11 +53,41 @@ public sealed class JsonContent : IResponseContent
 
     public ValueTask WriteAsync(IResponseSink sink)
     {
-        using var writer = new Utf8JsonWriter(sink.Writer, _writerOptions);
+        var writer = RentWriter(sink.Writer);
 
-        JsonSerializer.Serialize(writer, Data, SerializerOptions);
+        try
+        {
+            JsonSerializer.Serialize(writer, Data, SerializerOptions);
+        }
+        finally
+        {
+            ReturnWriter(writer);
+        }
 
         return default;
+    }
+
+    private static Utf8JsonWriter RentWriter(IBufferWriter<byte> output)
+    {
+        var writer = _cachedWriter;
+
+        if (writer == null)
+        {
+            return new Utf8JsonWriter(output, WriterOptions);
+        }
+
+        _cachedWriter = null;
+
+        writer.Reset(output);
+
+        return writer;
+    }
+
+    private static void ReturnWriter(Utf8JsonWriter writer)
+    {
+        writer.Reset(Detached);
+
+        _cachedWriter = writer;
     }
 
     #endregion
