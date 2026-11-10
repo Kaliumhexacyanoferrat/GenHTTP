@@ -13,6 +13,10 @@ public interface IRoutingSegment
     /// <summary>
     /// The path arguments that are provided by this segment, if any.
     /// </summary>
+    /// <remarks>
+    /// When matching, the segment adds exactly one value per argument
+    /// to the sink, in the order of this list.
+    /// </remarks>
     string[] ProvidedArguments { get; }
 
     /// <summary>

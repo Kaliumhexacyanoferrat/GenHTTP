@@ -3,13 +3,14 @@ using System.Reflection;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Reflection.Routing;
 
 namespace GenHTTP.Modules.Reflection.Operations;
 
 public static class SignatureAnalyzer
 {
 
-    public static Dictionary<string, OperationArgument> GetArguments(IServer server, MethodInfo method, HashSet<string> pathArguments, MethodRegistry registry)
+    public static Dictionary<string, OperationArgument> GetArguments(IServer server, MethodInfo method, OperationRoute route, MethodRegistry registry)
     {
         var result = new Dictionary<string, OperationArgument>(StringComparer.OrdinalIgnoreCase);
 
@@ -22,9 +23,11 @@ public static class SignatureAnalyzer
                 continue;
             }
 
-            if (pathArguments.Contains(name))
+            var pathIndex = route.GetArgumentIndex(name);
+
+            if (pathIndex != null)
             {
-                result.Add(name, CreateArgument(name, param, OperationArgumentSource.Path));
+                result.Add(name, new(name, param.ParameterType, OperationArgumentSource.Path, GetDefaultValue(param), pathIndex));
                 continue;
             }
 
