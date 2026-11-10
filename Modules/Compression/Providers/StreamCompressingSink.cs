@@ -18,7 +18,15 @@ internal sealed class StreamCompressingSink : IResponseSink, IDisposable, IAsync
 
     public Stream Stream { get; }
 
-    public void Dispose() => Stream.Dispose();
+    public void Dispose()
+    {
+        _writer?.Dispose();
+        Stream.Dispose();
+    }
 
-    public async ValueTask DisposeAsync() => await Stream.DisposeAsync();
+    public async ValueTask DisposeAsync()
+    {
+        _writer?.Dispose();
+        await Stream.DisposeAsync();
+    }
 }

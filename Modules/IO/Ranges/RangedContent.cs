@@ -53,7 +53,12 @@ public sealed class RangedContent : IResponseContent
         return checksum;
     }
 
-    public ValueTask WriteAsync(IResponseSink sink) => Source.WriteAsync(new RangedSink(new RangedStream(sink.Stream, Start, End)));
+    public async ValueTask WriteAsync(IResponseSink sink)
+    {
+        using var rangedSink = new RangedSink(new RangedStream(sink.Stream, Start, End));
+
+        await Source.WriteAsync(rangedSink);
+    }
 
     #endregion
 

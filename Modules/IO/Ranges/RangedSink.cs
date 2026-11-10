@@ -5,12 +5,14 @@ using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.IO.Ranges;
 
-public sealed class RangedSink(RangedStream stream) : IResponseSink
+public sealed class RangedSink(RangedStream stream) : IResponseSink, IDisposable
 {
     private StreamBufferWriter? _writer;
 
     public IBufferWriter<byte> Writer => _writer ??= new StreamBufferWriter(Stream);
 
     public Stream Stream => stream;
-    
+
+    public void Dispose() => _writer?.Dispose();
+
 }
