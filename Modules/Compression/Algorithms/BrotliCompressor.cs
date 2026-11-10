@@ -4,7 +4,7 @@ using System.IO.Compression;
 
 namespace GenHTTP.Modules.Compression.Algorithms;
 
-internal sealed class BrotliCompressor : ICompressor
+internal struct BrotliCompressor : ICompressor
 {
     private BrotliEncoder _encoder;
 

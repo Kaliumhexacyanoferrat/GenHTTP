@@ -14,6 +14,8 @@ public sealed class ZstdAlgorithm : ICompressionAlgorithm
 {
     private static readonly AlgorithmName CachedName = new("zstd");
 
+    private static readonly SinkFactories Factories = new(level => sink => new CompressingSink<ZstdCompressor>(sink, new ZstdCompressor(level)));
+
     public AlgorithmName Name => CachedName;
 
     public string FileExtension => "zst";
@@ -22,7 +24,7 @@ public sealed class ZstdAlgorithm : ICompressionAlgorithm
 
     public IResponseContent Compress(IResponseContent content, CompressionLevel level)
     {
-        return new CompressedResponseContent(content, sink => new CompressingSink(sink, new ZstdCompressor(level)), Name);
+        return new CompressedResponseContent(content, Factories.Get(level), Name);
     }
 
     public Stream Decompress(Stream content)

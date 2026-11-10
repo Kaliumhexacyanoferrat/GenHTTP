@@ -10,6 +10,8 @@ public sealed class GzipAlgorithm : ICompressionAlgorithm
 {
     private static readonly AlgorithmName CachedName = new("gzip");
 
+    private static readonly SinkFactories Factories = new(level => sink => new StreamCompressingSink(new GZipStream(sink.Stream, level, leaveOpen: false)));
+
     public AlgorithmName Name => CachedName;
 
     public string FileExtension => "gz";
@@ -18,7 +20,7 @@ public sealed class GzipAlgorithm : ICompressionAlgorithm
 
     public IResponseContent Compress(IResponseContent content, CompressionLevel level)
     {
-        return new CompressedResponseContent(content, sink => new StreamCompressingSink(sink, target => new GZipStream(target, level, leaveOpen: false)), Name);
+        return new CompressedResponseContent(content, Factories.Get(level), Name);
     }
 
     public Stream Decompress(Stream content)

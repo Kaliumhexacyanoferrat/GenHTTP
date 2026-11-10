@@ -9,9 +9,9 @@ internal sealed class StreamCompressingSink : IResponseSink, IAsyncDisposable
 {
     private StreamBufferWriter? _writer;
 
-    internal StreamCompressingSink(IResponseSink originalSink, Func<Stream, Stream> generator)
+    internal StreamCompressingSink(Stream compressingStream)
     {
-        Stream = generator(originalSink.Stream);
+        Stream = compressingStream;
     }
 
     public IBufferWriter<byte> Writer => _writer ??= new StreamBufferWriter(Stream);

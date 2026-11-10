@@ -5,7 +5,7 @@ using System.IO.Compression;
 
 namespace GenHTTP.Modules.Compression.Algorithms;
 
-internal sealed class ZstdCompressor : ICompressor
+internal struct ZstdCompressor : ICompressor
 {
     private readonly ZstandardEncoder _encoder;
 
