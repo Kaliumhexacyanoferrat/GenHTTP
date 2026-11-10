@@ -24,11 +24,13 @@ public static class ArgumentProvider
         return null;
     }
 
-    public static object? GetPathArgument(ByteString name, Type type, RoutingMatch match, MethodRegistry registry)
+    public static object? GetPathArgument(OperationArgument argument, RoutingMatch match, MethodRegistry registry)
     {
-        if (match.PathArguments?.TryGetValue(name, out var pathArgument) ?? false)
+        var index = argument.PathIndex;
+
+        if (index != null && match.TryGetPathArgument(index.Value, out var pathArgument))
         {
-            return pathArgument.ConvertTo(type, registry.Formatting);
+            return pathArgument.ConvertTo(argument.Type, registry.Formatting);
         }
 
         return null;

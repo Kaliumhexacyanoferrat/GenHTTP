@@ -79,16 +79,23 @@ public sealed class OperationArgument
     /// </remarks>
     internal bool ConsumesBody => Source is OperationArgumentSource.Body or OperationArgumentSource.Content or OperationArgumentSource.Streamed;
 
+    /// <summary>
+    /// For path arguments, the position of the value in the
+    /// <see cref="Routing.RoutingMatch" /> (null otherwise).
+    /// </summary>
+    public int? PathIndex { get; }
+
     #endregion
 
     #region Initialization
 
-    public OperationArgument(string name, Type type, OperationArgumentSource source, object? defaultValue = null)
+    public OperationArgument(string name, Type type, OperationArgumentSource source, object? defaultValue = null, int? pathIndex = null)
     {
         Name = new(name);
         Type = type;
         Source = source;
         DefaultValue = defaultValue;
+        PathIndex = pathIndex;
     }
 
     #endregion
