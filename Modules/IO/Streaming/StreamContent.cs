@@ -4,9 +4,7 @@ namespace GenHTTP.Modules.IO.Streaming;
 
 public sealed class StreamContent : IResponseContent, IDisposable
 {
-    private readonly ChecksumProvider _checksumProvider;
-
-    private readonly ulong? _knownLength;
+    private readonly Func<ValueTask<ulong?>>? _checksumProvider;
 
     #region Initialization
 
@@ -16,9 +14,9 @@ public sealed class StreamContent : IResponseContent, IDisposable
         Type = contentType ?? ContentType.ApplicationOctetStream;
         Encoding = encoding;
 
-        _knownLength = knownLength;
+        Length = knownLength;
 
-        _checksumProvider = new ChecksumProvider(checksumProvider ?? content.CalculateChecksumAsync);
+        _checksumProvider = checksumProvider;
     }
 
     #endregion
@@ -33,9 +31,9 @@ public sealed class StreamContent : IResponseContent, IDisposable
     {
         get
         {
-            if (_knownLength != null)
+            if (field != null)
             {
-                return _knownLength;
+                return field;
             }
 
             if (Content.CanSeek)
@@ -53,7 +51,7 @@ public sealed class StreamContent : IResponseContent, IDisposable
 
     #region Functionality
 
-    public ValueTask<ulong?> CalculateChecksumAsync() => _checksumProvider.Compute();
+    public ValueTask<ulong?> CalculateChecksumAsync() => _checksumProvider?.Invoke() ?? Content.CalculateChecksumAsync();
 
     public ValueTask WriteAsync(Stream target, uint bufferSize) => Content.CopyPooledAsync(target, bufferSize);
 

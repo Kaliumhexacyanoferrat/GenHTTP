@@ -133,4 +133,88 @@ public sealed class CacheValidationTests
         Assert.HasCount(1, cached.Headers.GetValues("ETag"));
     }
 
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestStreamedContentReturnsUnmodified(ServerEngine engine)
+    {
+        var streamed = new FunctionalHandler(responseProvider: r =>
+        {
+            return r.Respond().Content(new MemoryStream("Hello World!"u8.ToArray())).Build();
+        });
+
+        await using var runner = await TestHost.RunAsync(streamed, engine: engine);
+
+        using var response = await runner.GetResponseAsync();
+
+        var eTag = response.GetHeader("ETag");
+
+        Assert.IsNotNull(eTag);
+
+        var request = runner.GetRequest();
+
+        request.Headers.Add("If-None-Match", eTag);
+
+        using var cached = await runner.GetResponseAsync(request);
+
+        await cached.AssertStatusAsync(HttpStatusCode.NotModified);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestStreamedContentWithCustomChecksum(ServerEngine engine)
+    {
+        var streamed = new FunctionalHandler(responseProvider: r =>
+        {
+            return r.Respond().Content(new MemoryStream("Hello World!"u8.ToArray()), checksumProvider: () => new(42UL)).Build();
+        });
+
+        await using var runner = await TestHost.RunAsync(streamed, engine: engine);
+
+        using var response = await runner.GetResponseAsync();
+
+        Assert.AreEqual("\"42\"", response.GetHeader("ETag"));
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestBinaryContentReturnsUnmodified(ServerEngine engine)
+    {
+        var binary = new FunctionalHandler(responseProvider: r =>
+        {
+            return r.Respond().Content("Hello World!"u8.ToArray()).Build();
+        });
+
+        await using var runner = await TestHost.RunAsync(binary, engine: engine);
+
+        using var response = await runner.GetResponseAsync();
+
+        var eTag = response.GetHeader("ETag");
+
+        Assert.IsNotNull(eTag);
+
+        var request = runner.GetRequest();
+
+        request.Headers.Add("If-None-Match", eTag);
+
+        using var cached = await runner.GetResponseAsync(request);
+
+        await cached.AssertStatusAsync(HttpStatusCode.NotModified);
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestMemoryContentWithCustomChecksum(ServerEngine engine)
+    {
+        var memory = new FunctionalHandler(responseProvider: r =>
+        {
+            return r.Respond().Content(new ReadOnlyMemory<byte>("Hello World!"u8.ToArray()), checksumProvider: () => new(42UL)).Build();
+        });
+
+        await using var runner = await TestHost.RunAsync(memory, engine: engine);
+
+        using var response = await runner.GetResponseAsync();
+
+        Assert.AreEqual("\"42\"", response.GetHeader("ETag"));
+    }
+
 }
