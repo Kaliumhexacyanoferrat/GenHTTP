@@ -49,7 +49,7 @@ cd Playground && dotnet run                                # minimal app on http
 | `Testing/Acceptance`  | The test suite. Folder structure mirrors `API/`, `Engine/`, `Modules/`, `Adapters/`.                                                     |
 | `Benchmarks/`         | BenchmarkDotNet micro-benchmarks.                                                                                                        |
 | `Packages/`           | Meta-package `.nuspec` files (`GenHTTP.Core`, `GenHTTP.Full`, and per-engine variants).                                                  |
-| `Playground/`         | A minimal app for manual checks. The samples for users are on the website (genhttp.org/playground).                                      |
+| `Playground/`         | A minimal app for manual checks. The samples for users are on the website (genhttp.org/samples).                                         |
 
 The parser (Glyph11) and ioxide are separate projects consumed as NuGet packages. If they are checked
 out next to this repository (`../Glyph11`, `../ioxide`), read their source rather than guessing. Flag

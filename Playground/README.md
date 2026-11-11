@@ -12,8 +12,8 @@ The app is then served at http://localhost:8080/.
 
 ## Samples
 
-Samples for the frameworks, handlers and concerns of GenHTTP can be found in the
-[playground on the website](https://genhttp.org/playground/), where you can read their
-code and send requests to them as they run live.
+Samples for the frameworks, handlers and concerns of GenHTTP can be found
+[on the website](https://genhttp.org/samples/), where you can read their code and
+send requests to them as they run live.
 
 The [Ioxide](./Samples/Ioxide/README.md) folder contains samples for the io_uring based engine.

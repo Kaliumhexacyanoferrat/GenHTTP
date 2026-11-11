@@ -45,8 +45,8 @@ Running this snippet will provide the following endpoints:
 
 ## Samples
 
-The [playground](https://genhttp.org/playground/) on the website shows sample code for the frameworks, handlers and
-concerns of GenHTTP and lets you send requests to the samples as they run live. See [the documentation](https://genhttp.org/documentation/content/) for all available capabilities.
+The [samples](https://genhttp.org/samples/) on the website show the frameworks, handlers and concerns of GenHTTP as
+complete programs, and let you send requests to them as they run live. See [the documentation](https://genhttp.org/documentation/content/) for all available capabilities.
 
 ## Engines
 
