@@ -19,7 +19,7 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
     private readonly Stream _stream;
     private readonly PipeReader _pipeReader;
 
-    // Taken across each write and its flush, if the settings ask for writes to be serialized.
+    // Taken across each write and its flush, unless the settings turn write synchronization off.
     private readonly SemaphoreSlim? _writeLock;
 
     private SequencePosition _consumed;
@@ -66,7 +66,7 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
     public async ValueTask WriteAsync(ReadOnlyMemory<byte> payload, FrameType opcode = FrameType.Text, bool fin = true, bool flush = true, CancellationToken token = default)
     {
-        await LockAsync(token);
+        if (_writeLock is not null) await _writeLock.WaitAsync(token);
 
         try
         {
@@ -75,13 +75,13 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
         }
         finally
         {
-            Unlock();
+            _writeLock?.Release();
         }
     }
 
     public async ValueTask PingAsync(bool flush = true, CancellationToken token = default)
     {
-        await LockAsync(token);
+        if (_writeLock is not null) await _writeLock.WaitAsync(token);
 
         try
         {
@@ -90,13 +90,13 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
         }
         finally
         {
-            Unlock();
+            _writeLock?.Release();
         }
     }
 
     public async ValueTask PongAsync(ReadOnlyMemory<byte> payload, bool flush = true, CancellationToken token = default)
     {
-        await LockAsync(token);
+        if (_writeLock is not null) await _writeLock.WaitAsync(token);
 
         try
         {
@@ -105,7 +105,7 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
         }
         finally
         {
-            Unlock();
+            _writeLock?.Release();
         }
     }
 
@@ -121,7 +121,7 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
     public async ValueTask CloseAsync(string? reason = null, ushort statusCode = 1000, bool flush = true, CancellationToken token = default)
     {
-        await LockAsync(token);
+        if (_writeLock is not null) await _writeLock.WaitAsync(token);
 
         try
         {
@@ -130,13 +130,13 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
         }
         finally
         {
-            Unlock();
+            _writeLock?.Release();
         }
     }
 
     public async ValueTask FlushAsync(CancellationToken token = default)
     {
-        await LockAsync(token);
+        if (_writeLock is not null) await _writeLock.WaitAsync(token);
 
         try
         {
@@ -144,13 +144,9 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
         }
         finally
         {
-            Unlock();
+            _writeLock?.Release();
         }
     }
-
-    private ValueTask LockAsync(CancellationToken token) => _writeLock is null ? ValueTask.CompletedTask : new(_writeLock.WaitAsync(token));
-
-    private void Unlock() => _writeLock?.Release();
 
     public async ValueTask<IWebsocketFrame> ReadFrameAsync(CancellationToken token = default)
     {

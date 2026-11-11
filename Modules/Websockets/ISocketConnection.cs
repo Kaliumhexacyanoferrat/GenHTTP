@@ -10,9 +10,10 @@ namespace GenHTTP.Modules.Websockets;
 /// to the underlying stream.
 /// </summary>
 /// <remarks>
-/// A connection is not thread safe unless it was built with <c>SynchronizeWrites()</c>.
-/// Without that, writes from several threads have to be serialized by the caller - including
-/// the pong and close frames the default <c>OnPing</c> and <c>OnClose</c> handlers write.
+/// A connection serializes its writes, so frames can be sent from several threads at once, unless
+/// it was built with <c>DisableWriteSynchronization()</c>. Then writes from several threads have to
+/// be serialized by the caller - including the pong and close frames the default <c>OnPing</c> and
+/// <c>OnClose</c> handlers write.
 /// </remarks>
 public interface ISocketConnection
 {

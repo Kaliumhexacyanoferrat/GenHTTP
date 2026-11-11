@@ -11,7 +11,7 @@ public abstract class WebsocketBuilder<T> : IHandlerBuilder<T> where T : Websock
 {
     protected readonly List<IConcernBuilder> _concerns = [];
 
-    protected bool _handleContinuationFramesManually, _allocateFrameData = true, _synchronizeWrites;
+    protected bool _handleContinuationFramesManually, _allocateFrameData = true, _synchronizeWrites = true;
 
     protected int _maxRxBufferSize = BufferSize.Read;
 
@@ -72,18 +72,22 @@ public abstract class WebsocketBuilder<T> : IHandlerBuilder<T> where T : Websock
     }
 
     /// <summary>
-    /// By default, a connection is not thread safe, and writes from several threads need to be
-    /// serialized by the caller. With this option, the connection serializes every write itself -
-    /// including the pong and close frames sent by the default <c>OnPing</c> and <c>OnClose</c>
-    /// handlers, which run on the message pump rather than behind the caller's own lock.
+    /// By default, a connection serializes every write and its flush, so frames can be sent from
+    /// several threads at once - including the pong and close frames sent by the default
+    /// <c>OnPing</c> and <c>OnClose</c> handlers, which run on the message pump.
     /// </summary>
     /// <remarks>
-    /// Each call is atomic on its own. A message split into several frames (<c>fin: false</c>)
-    /// still needs the caller's lock across all of them, so another message cannot get in between.
+    /// If a connection is only ever written by one thread at a time, you can disable this to skip
+    /// the lock on every write. Writes from several threads then need to be serialized by the
+    /// caller, the frames of the default <c>OnPing</c> and <c>OnClose</c> handlers included.
+    ///
+    /// The synchronization covers one call at a time. A message split into several frames
+    /// (<c>fin: false</c>) still needs the caller's lock across all of them, so another message
+    /// cannot get in between.
     /// </remarks>
-    public T SynchronizeWrites()
+    public T DisableWriteSynchronization()
     {
-        _synchronizeWrites = true;
+        _synchronizeWrites = false;
         return (T)this;
     }
 

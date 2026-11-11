@@ -37,10 +37,10 @@ public interface IReactiveHandler
     /// <param name="connection">The connection to the client</param>
     /// <param name="message">The incoming ping frame</param>
     /// <remarks>
-    /// The default answers with a pong, written from the message pump. If you write to the
-    /// connection from other threads and serialize those writes with a lock of your own, override
-    /// this to go through that lock as well, or let the connection serialize every write
-    /// (<c>SynchronizeWrites()</c> on the builder).
+    /// The default answers with a pong, written from the message pump. The connection serializes it
+    /// with every other write, unless built with <c>DisableWriteSynchronization()</c> - then, if you
+    /// write from other threads behind a lock of your own, override this to go through that lock
+    /// as well.
     /// </remarks>
     ValueTask OnPing(IReactiveConnection connection, IWebsocketFrame message) => connection.PongAsync(message.Data);
 

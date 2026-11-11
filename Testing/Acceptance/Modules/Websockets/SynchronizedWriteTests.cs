@@ -7,8 +7,8 @@ using GenHTTP.Api.Infrastructure;
 namespace GenHTTP.Testing.Acceptance.Modules.Websockets;
 
 /// <summary>
-/// A connection built with <c>SynchronizeWrites()</c> serializes every write, the framework's own
-/// pongs included, so several threads can write while the client keeps pinging.
+/// A connection serializes every write by default, the framework's own pongs included, so several
+/// threads can write while the client keeps pinging.
 /// </summary>
 [TestClass]
 public sealed class SynchronizedWriteTests
@@ -24,7 +24,6 @@ public sealed class SynchronizedWriteTests
         var faults = new ConcurrentQueue<Exception>();
 
         var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
-                               .SynchronizeWrites()
                                .OnConnected(connection =>
                                {
                                    for (var w = 0; w < Writers; w++)
@@ -83,6 +82,23 @@ public sealed class SynchronizedWriteTests
         await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", cts.Token);
 
         Assert.IsTrue(faults.IsEmpty, string.Join(Environment.NewLine, faults));
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
+    public async Task TestConnectionWritesWithoutSynchronization(ServerEngine engine)
+    {
+        // one writer at a time, as the option requires: the message pump echoing and answering pings
+        var websocket = GenHTTP.Modules.Websockets.Websocket.Functional()
+                               .DisableWriteSynchronization()
+                               .HandleContinuationFramesManually()
+                               .OnConnected(c => c.PingAsync())
+                               .OnMessage((c, m) => c.WriteAsync(m.Data))
+                               .OnContinue((c, m) => c.WriteAsync(m.Data));
+
+        await using var host = await TestHost.RunAsync(websocket, engine: engine);
+
+        await Integration.Client.Execute(host.Port);
     }
 
 }

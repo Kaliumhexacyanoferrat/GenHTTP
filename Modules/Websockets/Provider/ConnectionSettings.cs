@@ -21,6 +21,6 @@ public record ConnectionSettings(
 
     bool AllocateFrameData,
 
-    bool SynchronizeWrites = false
+    bool SynchronizeWrites = true
 
 );
