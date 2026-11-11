@@ -49,6 +49,13 @@ public static class AllProtocolsSample
         return Host.Create(options: new EngineOptions
                    {
                        Reactor = new ReactorOptions { ReactorCount = 2 },
+                       Tcp = new TcpTransportOptions
+                       {
+                           // A client that sends nothing for a minute, between requests or within one, is let go,
+                           // and so is one that stops reading, once a flush has waited a minute.
+                           ReadTimeoutMs = 60_000,
+                           SendTimeoutMs = 60_000,
+                       },
                    })
                    .Handler(app)
                    .Bind(IPAddress.Loopback, 8080, HttpProtocols.Http1)

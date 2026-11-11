@@ -7,6 +7,7 @@ using GenHTTP.Api.Infrastructure;
 
 using GenHTTP.Engine.Ioxide;
 
+using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 
@@ -159,6 +160,77 @@ public sealed class Http3Tests
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, $"HTTP/{version} was not served");
                 Assert.AreEqual(version, response.Version);
             }
+        }
+        finally
+        {
+            await server.StopAsync();
+        }
+    }
+
+    [IoxideTestMethod]
+    public async Task TestHttp3StreamsTheRequestBody()
+    {
+        // Large enough to arrive in many chunks, which the handler reads through the body reader
+        // ioxide hands the driver - an echo that comes back whole proves none went missing.
+        if (!QuicConnection.IsSupported)
+        {
+            Assert.Inconclusive("QUIC is not supported on this machine (msquic missing).");
+        }
+
+        var (certificate, key) = IoxideCertificates.Create("localhost", IoxideCertificates.Isolated());
+
+        var port = (ushort)TestHost.NextPort();
+
+        var echo = Inline.Create().Post(async (Stream body) =>
+        {
+            var copy = new MemoryStream();
+            var buffer = new byte[8192];
+
+            // not CopyToAsync: its ConfigureAwait(false) resumes off the reactor, where the body
+            // reader must not be called
+            int read;
+
+            while ((read = await body.ReadAsync(buffer)) > 0)
+            {
+                copy.Write(buffer, 0, read);
+            }
+
+            copy.Seek(0, SeekOrigin.Begin);
+
+            return copy;
+        });
+
+        var server = Host.Create()
+                         .Handler(echo)
+                         .Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key),
+                               httpProtocols: HttpProtocols.Http3);
+
+        await server.StartAsync();
+
+        try
+        {
+            using var handler = new SocketsHttpHandler
+            {
+                SslOptions = new SslClientAuthenticationOptions { RemoteCertificateValidationCallback = (_, _, _, _) => true },
+            };
+
+            using var client = new HttpClient(handler)
+            {
+                DefaultRequestVersion = HttpVersion.Version30,
+                DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact,
+            };
+
+            var payload = new byte[256 * 1024];
+            new Random(42).NextBytes(payload);
+
+            using var content = new ByteArrayContent(payload);
+
+            using var response = await client.PostAsync($"https://localhost:{port}/", content);
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.AreEqual(HttpVersion.Version30, response.Version);
+
+            CollectionAssert.AreEqual(payload, await response.Content.ReadAsByteArrayAsync());
         }
         finally
         {

@@ -14,9 +14,10 @@ namespace GenHTTP.Modules.Files.Multi;
 /// <see cref="Chunk"/> bytes into the ioxide write slab at once. Re-resolves the asset under its own
 /// lease, so nothing is held across an await.
 ///
-/// The body is read positionally off the ring through a per-reactor <see cref="AssetReader"/> pool.
-/// It cannot use the connection's write slab directly - <c>TcpConnection.ReadFileAsync</c> reads
-/// into that slab, and this writes into GenHTTP's response sink instead - so the copy stays.
+/// Where the sink is an <see cref="IIoxideFileSink"/> (HTTP/1.1 in cleartext, or with kernel TLS), the
+/// body is read off the ring straight into the connection's write buffer. Elsewhere (TLS in BoringSSL,
+/// HTTP/2, HTTP/3) it is read positionally through a per-reactor <see cref="AssetReader"/> pool and
+/// copied into the sink.
 /// </summary>
 internal sealed class IoxideAssetContent(StaticAssets assets, string path, long length, ContentType contentType, ReadOnlyMemory<byte>? contentEncoding) : IResponseContent
 {
@@ -45,6 +46,12 @@ internal sealed class IoxideAssetContent(StaticAssets assets, string path, long 
         // The body is always read off the ring, from the descriptor the snapshot holds. Keeping
         // that descriptor honest is AssetRefresh's job, and it rebuilds the whole snapshot rather
         // than having every request ask whether its own file still matches.
+        if (sink is IIoxideFileSink files)
+        {
+            await files.WriteFileAsync(asset.Fd, 0, length);
+            return;
+        }
+
         await WriteFromDisk(sink, asset.Fd, length);
     }
 

@@ -115,6 +115,10 @@ public static class ShowcaseSample
                                Tcp = new TcpTransportOptions
                                {
                                    HandshakeTimeoutMs = 10_000,
+                                   // A client that sends nothing for a minute, between requests or within one, is let go,
+                                   // and so is one that stops reading, once a flush has waited a minute.
+                                   ReadTimeoutMs = 60_000,
+                                   SendTimeoutMs = 60_000,
                                    CipherSuites = null,
                                    CipherList = null,
                                    // kTLS needs the Linux tls module and pins TLS 1.3 - see
@@ -132,7 +136,7 @@ public static class ShowcaseSample
                                Quic = new QuicTransportOptions
                                {
                                    HandshakeTimeoutMs = 10_000,
-                                   IdleTimeoutMs = 60_000,
+                                   ReadTimeoutMs = 60_000,
                                    Routing = QuicRouting.Forward,
                                    PinMigratedPeers = true,
                                    // Clamped by net.core.rmem_max, and worth measuring rather than
@@ -184,7 +188,7 @@ public static class ShowcaseSample
 /// different issuer.
 /// </summary>
 /// <remarks>
-/// OpenSSL (or ngtcp2 on HTTP/3) validates the chain against that CA before the handshake
+/// BoringSSL (or ngtcp2 on HTTP/3) validates the chain against that CA before the handshake
 /// completes, so a bad one is refused before any request exists. Validate still runs afterwards on
 /// the TCP transports, for whatever the application wants to decide for itself.
 /// </remarks>

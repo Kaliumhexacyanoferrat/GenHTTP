@@ -52,6 +52,17 @@ public sealed class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebso
     }
 
     /// <summary>
+    /// Stops the connection from serializing its writes, which it does by default. Writes from
+    /// several threads then need to be serialized by the caller, including the pong and close
+    /// frames the default <see cref="OnPing"/> and <see cref="OnClose"/> handlers send.
+    /// </summary>
+    public FunctionalWebsocketBuilder DisableWriteSynchronization()
+    {
+        _builder.DisableWriteSynchronization();
+        return this;
+    }
+
+    /// <summary>
     /// Invoked when a new client has connected.
     /// </summary>
     /// <param name="connection">The connection to the client</param>
@@ -106,6 +117,12 @@ public sealed class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebso
     /// </summary>
     /// <param name="connection">The connection to the client</param>
     /// <param name="message">The incoming ping frame</param>
+    /// <remarks>
+    /// The default answers with a pong, written from the message pump. The connection serializes it
+    /// with every other write, unless built with <see cref="DisableWriteSynchronization"/> - then, if
+    /// you write from other threads behind a lock of your own, replace it with one that goes through
+    /// that lock as well.
+    /// </remarks>
     public FunctionalWebsocketBuilder OnPing(Func<IReactiveConnection, IWebsocketFrame, ValueTask> handler)
     {
         _onPing = handler;
@@ -128,6 +145,10 @@ public sealed class FunctionalWebsocketBuilder : IHandlerBuilder<FunctionalWebso
     /// </summary>
     /// <param name="connection">The connection to the client</param>
     /// <param name="message">The frame sent by the client</param>
+    /// <remarks>
+    /// The default answers with a close frame, written from the message pump - see
+    /// <see cref="OnPing"/> on serializing writes made from other threads.
+    /// </remarks>
     public FunctionalWebsocketBuilder OnClose(Func<IReactiveConnection, IWebsocketFrame, ValueTask> handler)
     {
         _onClose = handler;
