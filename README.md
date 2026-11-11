@@ -45,8 +45,8 @@ Running this snippet will provide the following endpoints:
 
 ## Samples
 
-The [playground](./Playground/) project provides a quick starting point to view sample code and find more complex apps
-built with GenHTTP. See [the documentation](https://genhttp.org/documentation/content/) for all available capabilities.
+The [playground](https://genhttp.org/playground/) on the website shows sample code for the frameworks, handlers and
+concerns of GenHTTP and lets you send requests to the samples as they run live. See [the documentation](https://genhttp.org/documentation/content/) for all available capabilities.
 
 ## Engines
 
