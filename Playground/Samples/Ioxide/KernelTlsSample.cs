@@ -53,6 +53,10 @@ public static class KernelTlsSample
                        {
                            TxKernelTls = true,
                            RxKernelTls = true,
+                           // A client that sends nothing for a minute, between requests or within one, is let go,
+                           // and so is one that stops reading, once a flush has waited a minute.
+                           ReadTimeoutMs = 60_000,
+                           SendTimeoutMs = 60_000,
                        },
                    })
                    .Handler(app)

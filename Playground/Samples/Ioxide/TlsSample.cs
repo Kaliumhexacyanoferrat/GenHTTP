@@ -47,6 +47,10 @@ public static class TlsSample
                        {
                            // A peer that connects and then says nothing is swept rather than held.
                            HandshakeTimeoutMs = 10_000,
+                           // A client that sends nothing for a minute, between requests or within one, is let go,
+                           // and so is one that stops reading, once a flush has waited a minute.
+                           ReadTimeoutMs = 60_000,
+                           SendTimeoutMs = 60_000,
                        },
                    })
                    .Handler(app)

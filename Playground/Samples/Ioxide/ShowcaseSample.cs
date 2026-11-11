@@ -115,6 +115,10 @@ public static class ShowcaseSample
                                Tcp = new TcpTransportOptions
                                {
                                    HandshakeTimeoutMs = 10_000,
+                                   // A client that sends nothing for a minute, between requests or within one, is let go,
+                                   // and so is one that stops reading, once a flush has waited a minute.
+                                   ReadTimeoutMs = 60_000,
+                                   SendTimeoutMs = 60_000,
                                    CipherSuites = null,
                                    CipherList = null,
                                    // kTLS needs the Linux tls module and pins TLS 1.3 - see

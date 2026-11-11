@@ -36,7 +36,16 @@ public static class Http2Sample
         var app = Layout.Create()
                         .Add("ok", Content.From(Resource.FromString("ok")));
 
-        return Host.Create()
+        return Host.Create(options: new EngineOptions
+                   {
+                       Tcp = new TcpTransportOptions
+                       {
+                           // A client that sends nothing for a minute, between requests or within one, is let go,
+                           // and so is one that stops reading, once a flush has waited a minute.
+                           ReadTimeoutMs = 60_000,
+                           SendTimeoutMs = 60_000,
+                       },
+                   })
                    .Handler(app)
                    .Bind(IPAddress.Loopback, 8081, HttpProtocols.Http2)
                    .Bind(IPAddress.Loopback, 8082, HttpProtocols.Http1AndHttp2);
