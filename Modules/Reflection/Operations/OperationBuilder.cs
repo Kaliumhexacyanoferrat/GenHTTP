@@ -71,17 +71,7 @@ public static class OperationBuilder
             route = new OperationRoute(displayName, segments, isWildcard);
         }
 
-        var pathArguments = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var segment in route.Segments)
-        {
-            foreach (var pathArg in segment.ProvidedArguments)
-            {
-                pathArguments.Add(pathArg);
-            }
-        }
-
-        var arguments = SignatureAnalyzer.GetArguments(server, method, pathArguments, registry);
+        var arguments = SignatureAnalyzer.GetArguments(server, method, route, registry);
 
         var result = SignatureAnalyzer.GetResult(method, registry);
 

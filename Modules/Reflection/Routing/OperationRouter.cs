@@ -15,7 +15,7 @@ internal static class OperationRouter
     {
         var segments = route.Segments;
 
-        var sink = new PathArgumentSink();
+        var sink = new PathArgumentSink(route.Arguments.Count);
 
         var offset = 0;
 
@@ -33,7 +33,7 @@ internal static class OperationRouter
             offset += offsetBy;
         }
 
-        return new(offset, sink.Arguments);
+        return new(offset, sink.Values);
     }
 
 }

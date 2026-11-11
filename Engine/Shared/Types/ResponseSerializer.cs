@@ -1,5 +1,5 @@
-using System.Buffers;
 using System.IO.Pipelines;
+using System.Runtime.CompilerServices;
 
 using GenHTTP.Api.Protocol;
 
@@ -7,7 +7,30 @@ namespace GenHTTP.Engine.Shared.Types;
 
 public static class ResponseSerializer
 {
+    private static ReadOnlySpan<byte> Newline => "\r\n"u8;
 
+    private static ReadOnlySpan<byte> HeaderSeparator => ": "u8;
+
+    private static ReadOnlySpan<byte> ContentTypePrefix => "Content-Type: "u8;
+
+    private static ReadOnlySpan<byte> ContentLengthPrefix => "Content-Length: "u8;
+
+    private static ReadOnlySpan<byte> ContentEncodingPrefix => "Content-Encoding: "u8;
+
+    private static ReadOnlySpan<byte> ChunkedHeader => "Transfer-Encoding: chunked\r\n"u8;
+
+    private static ReadOnlySpan<byte> EmptyContentLength => "Content-Length: 0\r\n"u8;
+
+    /// <summary>
+    /// Checks, whether the body of the given response needs to be written to the client.
+    /// </summary>
+    /// <remarks>
+    /// The headers still describe the content if no body is sent, e.g. for a HEAD request.
+    /// </remarks>
+    /// <param name="request">The request the response is written for, or null if the request could not be parsed</param>
+    /// <param name="response">The response to be written</param>
+    /// <param name="headRequest">Whether the client sent a HEAD request</param>
+    /// <returns>false, if there is no content, the content is known to be empty or this is a HEAD request</returns>
     public static bool ShouldSendBody(IRequest? request, IResponse response, bool headRequest)
     {
         if (request == null)
@@ -33,97 +56,174 @@ public static class ResponseSerializer
     /// <summary>
     /// Writes the status line and the headers of the final response to the given request.
     /// </summary>
+    /// <remarks>
+    /// Calculates the size of the head first, so that it can be written into a single span
+    /// instead of issuing a separate write for every fragment.
+    /// </remarks>
     /// <param name="request">The request the response is written for, if any</param>
     public static void WriteHead(PipeWriter writer, Request? request, IResponse response, bool keepAlive, ReadOnlyMemory<byte> serverHeader, ReadOnlyMemory<byte> dateHeader, bool isHttp10)
     {
         request?.ResponseStarting();
 
-        writer.Write(StatusLine.Get(response.Status));
+        var headers = response.Headers;
 
-        WriteHeader(writer, response, keepAlive, serverHeader, dateHeader, isHttp10);
+        var count = headers.Count;
 
-        writer.Write("\r\n"u8);
-    }
+        var size = 0;
 
-    private static void WriteHeader(PipeWriter writer, IResponse response, bool keepAlive, ReadOnlyMemory<byte> serverHeader, ReadOnlyMemory<byte> dateHeader, bool isHttp10)
-    {
+        var hasServer = false;
+        var hasDate = false;
+
+        for (var i = 0; i < count; i++)
+        {
+            var header = headers.GetMemoryEntry(i);
+
+            hasServer |= header.Key == KnownHeaders.Server;
+            hasDate |= header.Key == KnownHeaders.Date;
+
+            size += header.Key.Length + HeaderSeparator.Length + header.Value.Length + Newline.Length;
+        }
+
+        var statusLine = StatusLine.Get(response.Status);
+
+        var server = hasServer ? ReadOnlySpan<byte>.Empty : serverHeader.Span;
+        var date = hasDate ? ReadOnlySpan<byte>.Empty : dateHeader.Span;
+
         var isUpgrade = response.Mode == Connection.Upgrade;
 
-        if (!response.Headers.ContainsKey(KnownHeaders.Server))
-        {
-            writer.Write(serverHeader.Span);
-        }
-
-        if (!response.Headers.ContainsKey(KnownHeaders.Date))
-        {
-            writer.Write(dateHeader.Span);
-        }
-
-        if (isUpgrade)
-        {
-            writer.Write("Connection: Upgrade\r\n"u8);
-        }
-        else if (isHttp10)
-        {
-            writer.Write(keepAlive ? "Connection: Keep-Alive\r\n"u8 : "Connection: Close\r\n"u8);
-        }
-        else if (!keepAlive)
-        {
-            // HTTP/1.1 connections are persistent by default so we do not need to send a Keep-Alive header
-            writer.Write("Connection: Close\r\n"u8);
-        }
+        var connection = GetConnectionHeader(isUpgrade, keepAlive, isHttp10);
 
         var content = response.Content;
 
+        var type = content?.Type;
+        var length = content?.Length;
+        var encoding = content?.Encoding;
+
+        size += statusLine.Length + server.Length + date.Length + connection.Length + Newline.Length;
+
         if (content != null)
         {
-            var type = content.Type;
-
             if (type != null)
             {
-                writer.Write("Content-Type: "u8);
-                writer.Write(type.Value.Bytes.Span);
-                writer.Write("\r\n"u8);
+                size += ContentTypePrefix.Length + type.Value.Bytes.Length + Newline.Length;
             }
-
-            var length = content.Length;
 
             if (length != null)
             {
-                writer.Write("Content-Length: "u8);
-                writer.Write(length.Value);
-                writer.Write("\r\n"u8);
+                size += ContentLengthPrefix.Length + CountDigits(length.Value) + Newline.Length;
             }
             else if (!isUpgrade)
             {
-                writer.Write("Transfer-Encoding: chunked\r\n"u8);
+                size += ChunkedHeader.Length;
             }
-
-            var encoding = content.Encoding;
 
             if (encoding != null)
             {
-                writer.Write("Content-Encoding: "u8);
-                writer.Write(encoding.Value.Span);
-                writer.Write("\r\n"u8);
+                size += ContentEncodingPrefix.Length + encoding.Value.Length + Newline.Length;
             }
         }
         else
         {
-            writer.Write("Content-Length: 0\r\n"u8);
+            size += EmptyContentLength.Length;
         }
 
-        var headers = response.Headers;
+        var span = writer.GetSpan(size);
 
-        for (var i = 0; i < headers.Count; i++)
+        var offset = 0;
+
+        Append(span, ref offset, statusLine);
+        Append(span, ref offset, server);
+        Append(span, ref offset, date);
+        Append(span, ref offset, connection);
+
+        if (content != null)
+        {
+            if (type != null)
+            {
+                Append(span, ref offset, ContentTypePrefix);
+                Append(span, ref offset, type.Value.Bytes.Span);
+                Append(span, ref offset, Newline);
+            }
+
+            if (length != null)
+            {
+                Append(span, ref offset, ContentLengthPrefix);
+
+                if (!length.Value.TryFormat(span[offset..], out var written))
+                {
+                    throw new InvalidOperationException("Unable to write number to buffer");
+                }
+
+                offset += written;
+
+                Append(span, ref offset, Newline);
+            }
+            else if (!isUpgrade)
+            {
+                Append(span, ref offset, ChunkedHeader);
+            }
+
+            if (encoding != null)
+            {
+                Append(span, ref offset, ContentEncodingPrefix);
+                Append(span, ref offset, encoding.Value.Span);
+                Append(span, ref offset, Newline);
+            }
+        }
+        else
+        {
+            Append(span, ref offset, EmptyContentLength);
+        }
+
+        for (var i = 0; i < count; i++)
         {
             var header = headers.GetMemoryEntry(i);
 
-            writer.Write(header.Key.Span);
-            writer.Write(": "u8);
-            writer.Write(header.Value.Span);
-            writer.Write("\r\n"u8);
+            Append(span, ref offset, header.Key.Span);
+            Append(span, ref offset, HeaderSeparator);
+            Append(span, ref offset, header.Value.Span);
+            Append(span, ref offset, Newline);
         }
+
+        Append(span, ref offset, Newline);
+
+        writer.Advance(offset);
+    }
+
+    private static ReadOnlySpan<byte> GetConnectionHeader(bool isUpgrade, bool keepAlive, bool isHttp10)
+    {
+        if (isUpgrade)
+        {
+            return "Connection: Upgrade\r\n"u8;
+        }
+
+        if (isHttp10)
+        {
+            return keepAlive ? "Connection: Keep-Alive\r\n"u8 : "Connection: Close\r\n"u8;
+        }
+
+        // HTTP/1.1 connections are persistent by default so we do not need to send a Keep-Alive header
+        return keepAlive ? ReadOnlySpan<byte>.Empty : "Connection: Close\r\n"u8;
+    }
+
+    private static int CountDigits(ulong value)
+    {
+        var digits = 1;
+
+        while (value >= 10)
+        {
+            value /= 10;
+            digits++;
+        }
+
+        return digits;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void Append(Span<byte> target, ref int offset, ReadOnlySpan<byte> value)
+    {
+        value.CopyTo(target[offset..]);
+        offset += value.Length;
     }
 
 }

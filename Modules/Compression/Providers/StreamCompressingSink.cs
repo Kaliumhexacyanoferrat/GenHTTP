@@ -5,20 +5,22 @@ using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.Compression.Providers;
 
-internal sealed class StreamCompressingSink : IResponseSink, IDisposable, IAsyncDisposable
+internal sealed class StreamCompressingSink : IResponseSink, IAsyncDisposable
 {
     private StreamBufferWriter? _writer;
 
-    internal StreamCompressingSink(IResponseSink originalSink, Func<Stream, Stream> generator)
+    internal StreamCompressingSink(Stream compressingStream)
     {
-        Stream = generator(originalSink.Stream);
+        Stream = compressingStream;
     }
 
     public IBufferWriter<byte> Writer => _writer ??= new StreamBufferWriter(Stream);
 
     public Stream Stream { get; }
 
-    public void Dispose() => Stream.Dispose();
-
-    public async ValueTask DisposeAsync() => await Stream.DisposeAsync();
+    public async ValueTask DisposeAsync()
+    {
+        _writer?.Dispose();
+        await Stream.DisposeAsync();
+    }
 }

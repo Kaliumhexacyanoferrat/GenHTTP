@@ -12,13 +12,21 @@ public static class CodeProviderArgumentExtensions
 
     public static void AppendArguments(this StringBuilder sb, Operation operation, StringBuilder declarations)
     {
-        if (operation.Arguments.Count > 0)
-        {
-            var index = 0;
+        sb.AppendArguments(operation, declarations, consumingBody: false);
+        sb.AppendArguments(operation, declarations, consumingBody: true);
+    }
 
-            foreach (var arg in operation.Arguments)
+    private static void AppendArguments(this StringBuilder sb, Operation operation, StringBuilder declarations, bool consumingBody)
+    {
+        var index = 0;
+
+        foreach (var arg in operation.Arguments)
+        {
+            index++;
+
+            if (arg.Value.ConsumesBody == consumingBody)
             {
-                sb.AppendArgument(arg.Value, ++index, declarations);
+                sb.AppendArgument(arg.Value, index, declarations);
                 sb.AppendLine();
             }
         }
@@ -30,7 +38,7 @@ public static class CodeProviderArgumentExtensions
         {
             case OperationArgumentSource.Path:
                 {
-                    sb.AppendPathArgument(argument, index, declarations);
+                    sb.AppendPathArgument(argument, index);
                     break;
                 }
             case OperationArgumentSource.Query:
@@ -142,17 +150,20 @@ public static class CodeProviderArgumentExtensions
         sb.AppendLine();
     }
 
-    private static void AppendPathArgument(this StringBuilder sb, OperationArgument argument, int index, StringBuilder declarations)
+    private static void AppendPathArgument(this StringBuilder sb, OperationArgument argument, int index)
     {
         var safeType = CompilationUtil.GetQualifiedName(argument.Type, false);
-
-        declarations.AppendDeclaration(argument, index);
 
         sb.AppendLine($"        {safeType}? arg{index} = null;");
         sb.AppendLine();
 
-        sb.AppendLine($"        if (routingMatch.PathArguments?.TryGetValue(PathArg{index}Name, out var pathArg{index}) ?? false)");
-        sb.AppendArgumentAssignment(argument, index, "path", false);
+        var pathIndex = argument.PathIndex;
+
+        if (pathIndex != null)
+        {
+            sb.AppendLine($"        if (routingMatch.TryGetPathArgument({pathIndex}, out var pathArg{index}))");
+            sb.AppendArgumentAssignment(argument, index, "path", false);
+        }
     }
 
     private static void AppendArgumentAssignment(this StringBuilder sb, OperationArgument argument, int index, string readFrom, bool optional)
@@ -214,7 +225,6 @@ public static class CodeProviderArgumentExtensions
         var source = argument.Source switch
         {
             OperationArgumentSource.Query => "Query",
-            OperationArgumentSource.Path => "Path",
             OperationArgumentSource.Body => "Body",
             _ => throw new InvalidOperationException($"Unsupported declaration type '{argument.Source}'")
         };

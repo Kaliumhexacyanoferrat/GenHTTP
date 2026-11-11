@@ -1,15 +1,26 @@
-﻿using System.Text.Json;
+﻿using System.Buffers;
+using System.Text.Json;
 
 using GenHTTP.Api.Protocol;
 
+using GenHTTP.Modules.IO.Pooling;
+
 namespace GenHTTP.Modules.Conversion.Serializers.Json;
 
-public sealed class JsonContent : IResponseContent
+public sealed class JsonContent : PooledContent<JsonContent>, IResponseContent
 {
-    private readonly JsonWriterOptions _writerOptions = new()
+    private static readonly JsonWriterOptions WriterOptions = new()
     {
         SkipValidation = true
     };
+
+    // Utf8JsonWriter.Reset() keeps the previous output, so the cached writer is pointed here instead
+    private static readonly IBufferWriter<byte> Detached = new ArrayBufferWriter<byte>();
+
+    private static readonly object NoData = new();
+
+    [ThreadStatic]
+    private static Utf8JsonWriter? _cachedWriter;
 
     #region Get-/Setters
 
@@ -19,9 +30,9 @@ public sealed class JsonContent : IResponseContent
 
     public ReadOnlyMemory<byte>? Encoding => null;
 
-    private object Data { get; }
+    private object Data { get; set; }
 
-    private JsonSerializerOptions SerializerOptions { get; }
+    private JsonSerializerOptions SerializerOptions { get; set; }
 
     #endregion
     
@@ -31,6 +42,16 @@ public sealed class JsonContent : IResponseContent
     {
         Data = data;
         SerializerOptions = serializerOptions;
+    }
+
+    internal static JsonContent Rent(object data, JsonSerializerOptions serializerOptions)
+    {
+        var content = FromPool(static () => new JsonContent(NoData, JsonSerializerOptions.Default));
+
+        content.Data = data;
+        content.SerializerOptions = serializerOptions;
+
+        return content;
     }
 
     #endregion
@@ -46,11 +67,47 @@ public sealed class JsonContent : IResponseContent
 
     public ValueTask WriteAsync(IResponseSink sink)
     {
-        using var writer = new Utf8JsonWriter(sink.Writer, _writerOptions);
+        var writer = RentWriter(sink.Writer);
 
-        JsonSerializer.Serialize(writer, Data, SerializerOptions);
+        try
+        {
+            JsonSerializer.Serialize(writer, Data, SerializerOptions);
+        }
+        finally
+        {
+            ReturnWriter(writer);
+        }
 
         return default;
+    }
+
+    private static Utf8JsonWriter RentWriter(IBufferWriter<byte> output)
+    {
+        var writer = _cachedWriter;
+
+        if (writer == null)
+        {
+            return new Utf8JsonWriter(output, WriterOptions);
+        }
+
+        _cachedWriter = null;
+
+        writer.Reset(output);
+
+        return writer;
+    }
+
+    private static void ReturnWriter(Utf8JsonWriter writer)
+    {
+        writer.Reset(Detached);
+
+        _cachedWriter = writer;
+    }
+
+    protected override void Reset()
+    {
+        Data = NoData;
+        SerializerOptions = JsonSerializerOptions.Default;
     }
 
     #endregion

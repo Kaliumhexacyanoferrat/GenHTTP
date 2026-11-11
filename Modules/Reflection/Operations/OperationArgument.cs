@@ -70,16 +70,32 @@ public sealed class OperationArgument
     /// </summary>
     public object? DefaultValue { get; }
 
+    /// <summary>
+    /// True, if the argument is read from the request body.
+    /// </summary>
+    /// <remarks>
+    /// Reading the body releases the request headers, so these arguments
+    /// are resolved after all other arguments of an operation.
+    /// </remarks>
+    internal bool ConsumesBody => Source is OperationArgumentSource.Body or OperationArgumentSource.Content or OperationArgumentSource.Streamed;
+
+    /// <summary>
+    /// For path arguments, the position of the value in the
+    /// <see cref="Routing.RoutingMatch" /> (null otherwise).
+    /// </summary>
+    public int? PathIndex { get; }
+
     #endregion
 
     #region Initialization
 
-    public OperationArgument(string name, Type type, OperationArgumentSource source, object? defaultValue = null)
+    public OperationArgument(string name, Type type, OperationArgumentSource source, object? defaultValue = null, int? pathIndex = null)
     {
         Name = new(name);
         Type = type;
         Source = source;
         DefaultValue = defaultValue;
+        PathIndex = pathIndex;
     }
 
     #endregion

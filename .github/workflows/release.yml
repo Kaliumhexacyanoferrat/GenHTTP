@@ -54,9 +54,15 @@ jobs:
       - name: List gathered packages
         run: dir artifacts 
 
+      - name: Login to NuGet (trusted publishing)
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: Kaliumhexacyanoferrat
+
       - name: Publish packages to NuGet
         working-directory: artifacts
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: dotnet nuget push *.nupkg --api-key "$env:NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
 

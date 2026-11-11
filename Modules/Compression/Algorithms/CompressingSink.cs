@@ -7,7 +7,7 @@ using GenHTTP.Modules.IO.Streaming;
 
 namespace GenHTTP.Modules.Compression.Algorithms;
 
-internal sealed class CompressingSink : IResponseSink, IAsyncDisposable, IDisposable
+internal sealed class CompressingSink<TCompressor> : IResponseSink, IBufferWriter<byte>, IAsyncDisposable, IDisposable where TCompressor : struct, ICompressor
 {
     private const int InputBufferSize = BufferSize.Write;
     private const int OutputBufferSize = BufferSize.Write;
@@ -15,49 +15,36 @@ internal sealed class CompressingSink : IResponseSink, IAsyncDisposable, IDispos
     private static readonly ArrayPool<byte> Pool = ArrayPool<byte>.Shared;
 
     private readonly IResponseSink _inner;
-    private readonly ICompressor _compressor;
-    private readonly IBufferWriter<byte> _writer;
+
+    private TCompressor _compressor;
 
     private byte[] _inputBuffer;
 
     private bool _disposed;
 
-    private sealed class EncoderBufferWriter : IBufferWriter<byte>
-    {
-        private readonly CompressingSink _sink;
-
-        internal EncoderBufferWriter(CompressingSink sink)
-        {
-            _sink = sink;
-        }
-
-        public Span<byte> GetSpan(int sizeHint = 0) => _sink.EnsureInputBuffer(sizeHint);
-
-        public Memory<byte> GetMemory(int sizeHint = 0) => _sink.EnsureInputBuffer(sizeHint);
-
-        public void Advance(int count)
-        {
-            if ((uint)count > (uint)_sink._inputBuffer.Length)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count));
-            }
-
-            _sink.Compress(
-                _sink._inputBuffer.AsSpan(0, count),
-                isFinalBlock: false);
-        }
-    }
-
-    internal CompressingSink(IResponseSink inner, ICompressor compressor)
+    internal CompressingSink(IResponseSink inner, TCompressor compressor)
     {
         _inner = inner;
         _compressor = compressor;
 
         _inputBuffer = Pool.Rent(InputBufferSize);
-        _writer = new EncoderBufferWriter(this);
     }
 
-    public IBufferWriter<byte> Writer => _writer;
+    public IBufferWriter<byte> Writer => this;
+
+    public Span<byte> GetSpan(int sizeHint = 0) => EnsureInputBuffer(sizeHint);
+
+    public Memory<byte> GetMemory(int sizeHint = 0) => EnsureInputBuffer(sizeHint);
+
+    public void Advance(int count)
+    {
+        if ((uint)count > (uint)_inputBuffer.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(count));
+        }
+
+        Compress(_inputBuffer.AsSpan(0, count), isFinalBlock: false);
+    }
 
     /// <summary>
     /// Returns the input buffer, replacing it with a larger one if the caller
@@ -83,7 +70,7 @@ internal sealed class CompressingSink : IResponseSink, IAsyncDisposable, IDispos
         return _inputBuffer;
     }
 
-    public Stream Stream => _stream ??= new WriterStreamAdapter(_writer);
+    public Stream Stream => _stream ??= new WriterStreamAdapter(this);
 
     private WriterStreamAdapter? _stream;
 

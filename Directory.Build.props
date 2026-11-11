@@ -11,9 +11,9 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ImplicitUsings>enable</ImplicitUsings>
 
-        <AssemblyVersion>11.1.0.0</AssemblyVersion>
-        <FileVersion>11.1.0.0</FileVersion>
-        <Version>11.1.0</Version>
+        <AssemblyVersion>11.3.0.0</AssemblyVersion>
+        <FileVersion>11.3.0.0</FileVersion>
+        <Version>11.3.0</Version>
 
         <Authors>Andreas Nägeli</Authors>
 
@@ -42,7 +42,7 @@
 
     <ItemGroup>
 
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.402" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.403" PrivateAssets="All" />
 
     </ItemGroup>
 

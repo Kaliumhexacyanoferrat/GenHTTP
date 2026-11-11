@@ -12,39 +12,23 @@ internal sealed partial class RegexSegment : IRoutingSegment
 {
     private static readonly Regex VarPattern = CreateVarPattern();
 
-    private static readonly Regex RegexPattern = CreateRegexPattern();
-
     private readonly Regex _matcher;
 
     public string[] ProvidedArguments { get; }
 
     public RegexSegment(string definition)
     {
-        var providedArguments = new List<string>();
-
         var matchBuilder = new StringBuilder(definition);
 
         // convert parameters of the format ":var" into appropriate groups
         foreach (Match match in VarPattern.Matches(definition))
         {
-            var name = match.Groups[1].Value;
-
-            matchBuilder.Replace(match.Value, name.ToParameter());
-
-            providedArguments.Add(name);
+            matchBuilder.Replace(match.Value, match.Groups[1].Value.ToParameter());
         }
 
-        // convert advanced regex params as well
-        foreach (Match match in RegexPattern.Matches(definition))
-        {
-            var name = match.Groups[1].Value;
+        _matcher = new Regex($"^{matchBuilder}$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
-            providedArguments.Add(name);
-        }
-
-        _matcher = new Regex($"^{matchBuilder}$", RegexOptions.Compiled);
-
-        ProvidedArguments = providedArguments.ToArray();
+        ProvidedArguments = _matcher.GetGroupNames()[1..];
     }
 
     public (bool matched, int offsetBy) TryMatch(IRequestTarget target, int offset, ref PathArgumentSink argumentSink)
@@ -69,7 +53,7 @@ internal sealed partial class RegexSegment : IRoutingSegment
 
         for (var i = 1; i < groups.Count; i++)
         {
-            argumentSink.Add(new(groups[i].Name), new(groups[i].Value));
+            argumentSink.Add(new(groups[i].Value));
         }
 
         return (true, 1);
@@ -77,8 +61,5 @@ internal sealed partial class RegexSegment : IRoutingSegment
 
     [GeneratedRegex(@"\:([a-z]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
     private static partial Regex CreateVarPattern();
-
-    [GeneratedRegex(@"\(\?\<([a-z]+)\>([^)]+)\)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
-    private static partial Regex CreateRegexPattern();
 
 }

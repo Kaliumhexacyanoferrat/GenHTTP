@@ -81,6 +81,9 @@ public sealed class WebserviceTests
         [ResourceMethod("param/:param")]
         public int PathParam(int param) => param;
 
+        [ResourceMethod("date/:year/:month/:day")]
+        public string Date(int year, int month, int day) => $"{day}.{month}.{year}";
+
         [ResourceMethod("regex/(?<param>[0-9]+)")]
         public int RegexParam(int param) => param;
 
@@ -157,6 +160,13 @@ public sealed class WebserviceTests
     public async Task TestParam(ServerEngine engine, ExecutionMode mode)
     {
         await WithResponse(engine, mode, "param/42", async r => Assert.AreEqual("42", await r.GetContentAsync()));
+    }
+
+    [TestMethod]
+    [MultiEngineFrameworkTest]
+    public async Task TestMultipleParams(ServerEngine engine, ExecutionMode mode)
+    {
+        await WithResponse(engine, mode, "date/2026/11/10", async r => Assert.AreEqual("10.11.2026", await r.GetContentAsync()));
     }
 
     [TestMethod]

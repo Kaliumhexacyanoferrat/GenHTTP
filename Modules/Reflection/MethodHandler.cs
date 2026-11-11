@@ -43,6 +43,8 @@ public sealed class MethodHandler : IHandler
 
     private readonly RequestInterception _interceptor;
 
+    private readonly OperationArgument?[] _parameterArguments;
+
     #region Get-/Setters
 
     public Operation Operation { get; }
@@ -79,6 +81,27 @@ public sealed class MethodHandler : IHandler
         UseCodeGeneration = OptimizedDelegate.Supported && effectiveMode == ExecutionMode.Auto;
 
         _interceptor = InterceptAsync;
+
+        _parameterArguments = GetParameterArguments(operation);
+    }
+
+    private static OperationArgument?[] GetParameterArguments(Operation operation)
+    {
+        var parameters = operation.Method.GetParameters();
+
+        var arguments = new OperationArgument?[parameters.Length];
+
+        for (var i = 0; i < parameters.Length; i++)
+        {
+            var name = parameters[i].Name;
+
+            if (name != null && operation.Arguments.TryGetValue(name, out var arg))
+            {
+                arguments[i] = arg;
+            }
+        }
+
+        return arguments;
     }
 
     #endregion
@@ -170,33 +193,24 @@ public sealed class MethodHandler : IHandler
 
     private async ValueTask<IReadOnlyDictionary<ByteString, object?>> GetArguments(IRequest request, RoutingMatch match)
     {
-        var targetParameters = Operation.Method.GetParameters();
+        var arguments = _parameterArguments;
 
-        if (targetParameters.Length > 0)
+        if (arguments.Length > 0)
         {
-            var targetArguments = new Dictionary<ByteString, object?>(targetParameters.Length);
+            var values = new object?[arguments.Length];
 
-            for (var i = 0; i < targetParameters.Length; i++)
+            await ResolveArgumentsAsync(request, match, arguments, values, consumingBody: false);
+            await ResolveArgumentsAsync(request, match, arguments, values, consumingBody: true);
+
+            var targetArguments = new Dictionary<ByteString, object?>(arguments.Length);
+
+            for (var i = 0; i < arguments.Length; i++)
             {
-                var par = targetParameters[i];
+                var arg = arguments[i];
 
-                if (par.Name != null)
+                if (arg != null)
                 {
-                    if (Operation.Arguments.TryGetValue(par.Name, out var arg))
-                    {
-                        var value = arg.Source switch
-                        {
-                            OperationArgumentSource.Injected => await ArgumentProvider.GetInjectedArgumentAsync(request, this, arg, Registry),
-                            OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg.Name, arg.Type, match, Registry),
-                            OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg.Name, arg.Type, Registry),
-                            OperationArgumentSource.Query => ArgumentProvider.GetQueryArgument(request, arg, Registry),
-                            OperationArgumentSource.Content => await ArgumentProvider.GetContentAsync(request, arg, Registry),
-                            OperationArgumentSource.Streamed => ArgumentProvider.GetStream(request),
-                            _ => throw new ProviderException(ResponseStatus.InternalServerError, $"Unable to map argument '{arg.Name}' of type '{arg.Type}' because source '{arg.Source}' is not supported")
-                        };
-
-                        targetArguments[arg.Name] = value ?? arg.DefaultValue;
-                    }
+                    targetArguments[arg.Name] = values[i] ?? arg.DefaultValue;
                 }
             }
 
@@ -204,6 +218,28 @@ public sealed class MethodHandler : IHandler
         }
 
         return NoArguments;
+    }
+
+    private async ValueTask ResolveArgumentsAsync(IRequest request, RoutingMatch match, OperationArgument?[] arguments, object?[] values, bool consumingBody)
+    {
+        for (var i = 0; i < arguments.Length; i++)
+        {
+            var arg = arguments[i];
+
+            if (arg != null && arg.ConsumesBody == consumingBody)
+            {
+                values[i] = arg.Source switch
+                {
+                    OperationArgumentSource.Injected => await ArgumentProvider.GetInjectedArgumentAsync(request, this, arg, Registry),
+                    OperationArgumentSource.Path => ArgumentProvider.GetPathArgument(arg, match, Registry),
+                    OperationArgumentSource.Body => await ArgumentProvider.GetBodyArgumentAsync(request, arg.Name, arg.Type, Registry),
+                    OperationArgumentSource.Query => ArgumentProvider.GetQueryArgument(request, arg, Registry),
+                    OperationArgumentSource.Content => await ArgumentProvider.GetContentAsync(request, arg, Registry),
+                    OperationArgumentSource.Streamed => ArgumentProvider.GetStream(request),
+                    _ => throw new ProviderException(ResponseStatus.InternalServerError, $"Unable to map argument '{arg.Name}' of type '{arg.Type}' because source '{arg.Source}' is not supported")
+                };
+            }
+        }
     }
 
     private async ValueTask<IResponse?> InterceptAsync(IRequest request, IReadOnlyDictionary<ByteString, object?> arguments, ByteString? acceptedFormat)

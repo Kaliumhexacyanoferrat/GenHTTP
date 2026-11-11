@@ -26,4 +26,28 @@ public sealed class OperationRoute(string name, IReadOnlyList<IRoutingSegment> s
     /// </summary>
     public IReadOnlyList<IRoutingSegment> Segments { get; } = segments;
 
+    /// <summary>
+    /// The path arguments provided by the segments of this route,
+    /// in the order their values are stored in a <see cref="RoutingMatch" />.
+    /// </summary>
+    public IReadOnlyList<string> Arguments { get; } = segments.SelectMany(s => s.ProvidedArguments).ToArray();
+
+    /// <summary>
+    /// Returns the position of the given path argument (ignoring case),
+    /// or null if the route does not provide it.
+    /// </summary>
+    /// <param name="argument">The name of the argument to look for</param>
+    public int? GetArgumentIndex(string argument)
+    {
+        for (var i = 0; i < Arguments.Count; i++)
+        {
+            if (string.Equals(Arguments[i], argument, StringComparison.OrdinalIgnoreCase))
+            {
+                return i;
+            }
+        }
+
+        return null;
+    }
+
 }

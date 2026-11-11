@@ -104,10 +104,10 @@ public sealed class ResponseProvider
                 response.Content(new StreamContent(stream, ContentType.ApplicationForceDownload, null, null, null));
                 break;
             case byte[] bytes:
-                response.Content(new ByteArrayContent(bytes, ContentType.ApplicationForceDownload, null));
+                response.Content(ByteArrayContent.Rent(bytes, ContentType.ApplicationForceDownload, null));
                 break;
             case ReadOnlyMemory<byte> memory:
-                response.Content(new MemoryContent(memory, ContentType.ApplicationForceDownload, null));
+                response.Content(MemoryContent.Rent(memory, ContentType.ApplicationForceDownload, null));
                 break;
             default:
                 throw new ProviderException(ResponseStatus.InternalServerError, $"Unexpected type '{data.GetType()}' for stream sink");

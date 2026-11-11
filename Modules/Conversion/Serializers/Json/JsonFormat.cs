@@ -44,7 +44,7 @@ public sealed class JsonFormat : ISerializationFormat
     public ValueTask<IResponseBuilder> SerializeAsync(IRequest request, object response)
     {
         var result = request.Respond()
-                            .Content(new JsonContent(response, Options));
+                            .Content(JsonContent.Rent(response, Options));
 
         return new ValueTask<IResponseBuilder>(result);
     }

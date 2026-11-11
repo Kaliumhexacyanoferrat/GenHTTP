@@ -114,7 +114,7 @@ public sealed class DateFormatter : IFormatter
         throw new InvalidOperationException($"Unsupported type {type}");
     }
 
-    public IResponseContent GetContent<T>(T value) => new StringContent(Write(value!, typeof(T)));
+    public IResponseContent GetContent<T>(T value) => StringContent.Rent(Write(value!, typeof(T)));
 
     private static string StringFromUtf8(ReadOnlySpan<byte> utf8)
         => Encoding.UTF8.GetString(utf8);

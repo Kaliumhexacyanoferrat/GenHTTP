@@ -22,7 +22,7 @@ public class RoutingTests
         Assert.IsNotNull(match);
 
         Assert.AreEqual(0, match.Value.Offset);
-        Assert.IsNull(match.Value.PathArguments);
+        Assert.IsFalse(match.Value.TryGetPathArgument(0, out _));
     }
 
     [TestMethod]
@@ -37,7 +37,7 @@ public class RoutingTests
         Assert.IsNotNull(match);
 
         Assert.AreEqual(1, match.Value.Offset);
-        Assert.IsNull(match.Value.PathArguments);
+        Assert.IsFalse(match.Value.TryGetPathArgument(0, out _));
     }
 
     [TestMethod]
@@ -76,7 +76,7 @@ public class RoutingTests
         Assert.IsNotNull(match);
 
         Assert.AreEqual(1, match.Value.Offset);
-        Assert.IsNull(match.Value.PathArguments);
+        Assert.IsFalse(match.Value.TryGetPathArgument(0, out _));
     }
 
     [TestMethod]
@@ -92,10 +92,9 @@ public class RoutingTests
 
         Assert.AreEqual(1, match.Value.Offset);
 
-        Assert.IsNotNull(match.Value.PathArguments);
-        Assert.HasCount(1, match.Value.PathArguments);
+        CollectionAssert.AreEqual(new[] { "var" }, route.Arguments.ToArray());
 
-        MatchArgument(match.Value.PathArguments, "var", "99");
+        MatchArgument(match.Value, 0, "99");
     }
 
     [TestMethod]
@@ -111,12 +110,13 @@ public class RoutingTests
 
         Assert.AreEqual(1, match.Value.Offset);
 
-        Assert.IsNotNull(match.Value.PathArguments);
-        Assert.HasCount(3, match.Value.PathArguments);
+        CollectionAssert.AreEqual(new[] { "one", "two", "three" }, route.Arguments.ToArray());
 
-        MatchArgument(match.Value.PathArguments, "one", "99");
-        MatchArgument(match.Value.PathArguments, "two", "88");
-        MatchArgument(match.Value.PathArguments, "three", "77");
+        MatchArgument(match.Value, 0, "99");
+        MatchArgument(match.Value, 1, "88");
+        MatchArgument(match.Value, 2, "77");
+
+        Assert.IsFalse(match.Value.TryGetPathArgument(3, out _));
     }
 
     private static OperationRoute CreateRoute(bool wildcard, params IRoutingSegment[] segments) => new("name", segments, wildcard);
@@ -129,9 +129,10 @@ public class RoutingTests
         return target;
     }
 
-    private static void MatchArgument(IReadOnlyDictionary<ByteString, ByteString> arguments, string key, string value)
+    private static void MatchArgument(RoutingMatch match, int index, string value)
     {
-        Assert.AreEqual(value, arguments[new(key)].ToString());
+        Assert.IsTrue(match.TryGetPathArgument(index, out var argument));
+        Assert.AreEqual(value, argument.ToString());
     }
 
 }
