@@ -86,9 +86,6 @@ public sealed record TcpTransportOptions
     /// </remarks>
     public int ReadTimeoutMs { get; init; }
 
-    [Obsolete("Please use 'ReadTimeoutMs' instead")]
-    public int IdleTimeoutMs { get => ReadTimeoutMs; init => ReadTimeoutMs = value; }
-
     /// <summary>
     /// Close a connection whose send has been in flight for this long. 0 (the default) disables it.
     /// </summary>
@@ -128,9 +125,6 @@ public sealed record QuicTransportOptions
     /// pending is.
     /// </remarks>
     public int ReadTimeoutMs { get; init; } = 60_000;
-
-    [Obsolete("Please use 'ReadTimeoutMs' instead")]
-    public int IdleTimeoutMs { get => ReadTimeoutMs; init => ReadTimeoutMs = value; }
 
     public QuicRouting Routing { get; init; } = QuicRouting.Forward;
 
