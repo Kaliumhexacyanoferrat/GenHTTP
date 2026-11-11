@@ -14,6 +14,10 @@ namespace GenHTTP.Modules.Websockets;
 /// it was built with <c>DisableWriteSynchronization()</c>. Then writes from several threads have to
 /// be serialized by the caller - including the pong and close frames the default <c>OnPing</c> and
 /// <c>OnClose</c> handlers write.
+///
+/// Once the handler has ended, every write throws a <see cref="GenHTTP.Api.Infrastructure.ConnectionClosedException"/>
+/// instead of reaching the client. A background writer, such as a broadcaster or a timer started
+/// from <c>OnConnected</c>, should stop on it.
 /// </remarks>
 public interface ISocketConnection
 {

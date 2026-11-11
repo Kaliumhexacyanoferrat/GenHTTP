@@ -4,6 +4,7 @@ using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Websockets.Protocol;
@@ -21,6 +22,9 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
     // Taken across each write and its flush, unless the settings turn write synchronization off.
     private readonly SemaphoreSlim? _writeLock;
+
+    // Set once the handler has ended: the sink is the engine's again, so every later write throws.
+    private bool _closed;
 
     private SequencePosition _consumed;
     private SequencePosition _examined;
@@ -70,6 +74,7 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
         try
         {
+            ThrowIfClosed();
             Frame.Write(_writer, payload, opcode: (byte)opcode, fin);
             if (flush) await _stream.FlushAsync(token);
         }
@@ -85,6 +90,7 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
         try
         {
+            ThrowIfClosed();
             Frame.WritePing(_writer);
             if (flush) await _stream.FlushAsync(token);
         }
@@ -100,6 +106,7 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
         try
         {
+            ThrowIfClosed();
             Frame.WritePong(_writer, payload);
             if (flush) await _stream.FlushAsync(token);
         }
@@ -125,6 +132,7 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
         try
         {
+            ThrowIfClosed();
             Frame.WriteClose(_writer, reason, statusCode);
             if (flush) await _stream.FlushAsync(token);
         }
@@ -140,11 +148,20 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
         try
         {
+            ThrowIfClosed();
             await _stream.FlushAsync(token);
         }
         finally
         {
             _writeLock?.Release();
+        }
+    }
+
+    private void ThrowIfClosed()
+    {
+        if (Volatile.Read(ref _closed))
+        {
+            throw new ConnectionClosedException();
         }
     }
 
@@ -412,7 +429,20 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
     #region Disposable Pattern
 
-    public ValueTask DisposeAsync() => _pipeReader.CompleteAsync();
+    // The handler has ended. A write in flight finishes first, under the lock, and every one after it is refused rather
+    // than reaching a sink the engine may already have given to another connection.
+    public async ValueTask DisposeAsync()
+    {
+        if (_writeLock is not null)
+        {
+            await _writeLock.WaitAsync();
+        }
+
+        Volatile.Write(ref _closed, true);
+        _writeLock?.Release();
+
+        await _pipeReader.CompleteAsync();
+    }
 
     #endregion
 
