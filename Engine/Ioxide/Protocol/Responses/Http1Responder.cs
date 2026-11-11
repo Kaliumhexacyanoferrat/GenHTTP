@@ -5,6 +5,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Shared.Types;
 using GenHTTP.Engine.Ioxide.Protocol.Sinks;
 
+using IoConnection = ioxide.TcpConnection;
+
 namespace GenHTTP.Engine.Ioxide.Protocol.Responses;
 
 /// <summary>Writes an HTTP/1.1 response onto the connection.</summary>
@@ -12,8 +14,10 @@ internal static class Http1Responder
 {
     private static readonly byte[] ServerHeader = "Server: ioxide-genhttp\r\n"u8.ToArray();
 
-    // Writes the status line and headers, and the body where the request is owed one.
-    internal static async ValueTask WriteAsync(PipeWriter writer, Request? request, IResponse response, bool keepAlive, bool headRequest)
+    // Writes the status line and headers, and the body where the request is owed one. The connection is given when
+    // the writer is its own write buffer, so a file can be read straight into it.
+    internal static async ValueTask WriteAsync(PipeWriter writer, Request? request, IResponse response, bool keepAlive, bool headRequest,
+        IoConnection? connection = null)
     {
         ResponseSerializer.WriteHead(writer, request, response, keepAlive, ServerHeader, Http1DateHeader.Get(), isHttp10: false);
 
@@ -43,7 +47,7 @@ internal static class Http1Responder
             }
             else
             {
-                await content.WriteAsync(new Http1Sink(writer));
+                await content.WriteAsync(connection is null ? new Http1Sink(writer) : new Http1FileSink(writer, connection));
             }
         }
         finally

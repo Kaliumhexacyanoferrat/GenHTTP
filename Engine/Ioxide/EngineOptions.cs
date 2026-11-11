@@ -39,6 +39,15 @@ public sealed record TcpTransportOptions
 
     public string? CipherList { get; init; }
 
+    /// <summary>
+    /// Hands each TLS connection's sending to the kernel after its handshake (kTLS), so a response is
+    /// encrypted on send, and a static file served over HTTP/1.1 is read straight into the connection's
+    /// write buffer.
+    /// </summary>
+    /// <remarks>
+    /// Needs the kernel's <c>tls</c> module: without it the server's start fails, rather than every
+    /// connection after its handshake.
+    /// </remarks>
     public bool TxKernelTls { get; init; }
 
     public bool RxKernelTls { get; init; }
@@ -95,6 +104,12 @@ public sealed record TcpTransportOptions
     /// slow client counts against it. Size it against your slowest legitimate response rather than
     /// against a stall - for an API that serves small payloads, something like 30s is a
     /// straightforward win.
+    ///
+    /// The listener also carries it as TCP_USER_TIMEOUT, so the kernel aborts a connection whose
+    /// client left sent data unacknowledged, or kept its window shut with data waiting, for that long.
+    /// That covers a client that stopped reading or vanished behind a stream of small flushes, which
+    /// each complete into the send buffer. A client whose network drops for longer than this, with data
+    /// in flight, is cut too.
     /// </remarks>
     public int SendTimeoutMs { get; init; }
 }

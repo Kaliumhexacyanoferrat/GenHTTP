@@ -17,22 +17,21 @@ internal static class Http3Driver
 {
     private static readonly ReadOnlyMemory<byte> Head = "HEAD"u8.ToArray();
 
-    // Runs one QUIC connection as HTTP/3, dispatching each stream as it opens.
+    // Runs one QUIC connection as HTTP/3, dispatching each stream as soon as its headers are in. Taking
+    // the body reader is what makes ioxide stream the request body instead of assembling it first.
     internal static Task RunAsync(IServer server, IEndPoint endPoint, QuicConnection connection, Nghttp3Options options)
         => new Nghttp3Connection(connection, options)
-            .RunStreamedResponseAsync((request, writer) => DispatchAsync(server, endPoint, request, writer));
+            .RunAsync((request, body, writer) => DispatchAsync(server, endPoint, request, body, writer));
 
     // Maps one stream's request, and runs it through the dispatch HTTP/2 and HTTP/3 share.
     private static async ValueTask DispatchAsync(IServer server, IEndPoint endPoint, Nghttp3Request request,
-        Nghttp3ResponseWriter writer)
+        Nghttp3BodyReader body, Nghttp3ResponseWriter writer)
     {
         StreamedRequest? mapped = null;
 
         try
         {
             var headRequest = request.Method.Span.SequenceEqual(Head.Span);
-
-            var reader = request.BodyReader;
 
             mapped = StreamedRequest.Rent();
 
@@ -45,7 +44,7 @@ internal static class Http3Driver
             // No remote address: ioxide's QuicConnection exposes none, and a QUIC peer may migrate
             // mid-connection anyway.
             mapped.Apply(server, endPoint, request.Method, request.Path, request.Authority,
-                reader is null ? null : reader.ReadAsync, remoteAddress: null, HttpProtocol.Http3, secure: true);
+                body.ReadAsync, remoteAddress: null, HttpProtocol.Http3, secure: true);
 
             await StreamedDriver.DispatchAsync(server, mapped, new Writer(writer), headRequest, "HTTP/3");
         }

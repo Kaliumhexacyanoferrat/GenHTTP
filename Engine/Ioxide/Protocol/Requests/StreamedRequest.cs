@@ -87,7 +87,7 @@ internal sealed class StreamedRequest : IRequest
 
     // Points this request at one stream, once its headers are in.
     internal void Apply(IServer server, IEndPoint endPoint, ReadOnlyMemory<byte> method, ReadOnlyMemory<byte> path,
-        ReadOnlyMemory<byte> authority, Func<ValueTask<ReadOnlyMemory<byte>>>? read, IPAddress? remoteAddress,
+        ReadOnlyMemory<byte> authority, Func<ValueTask<ReadOnlyMemory<byte>>> read, IPAddress? remoteAddress,
         HttpProtocol protocol, bool secure)
     {
         _server = server;
@@ -100,11 +100,11 @@ internal sealed class StreamedRequest : IRequest
         // A stream carries a body only when it declares one: HTTP/2 and HTTP/3 forbid Transfer-Encoding,
         // so Content-Length is the signal - and its absence means no body, matching what the other engines
         // report for a request that carries neither header.
-        _hasBody = read is not null && CheckForBody(_headerEntries);
+        _hasBody = CheckForBody(_headerEntries);
 
         if (_hasBody)
         {
-            _body.Apply(read!);
+            _body.Apply(read);
         }
 
         _client.Apply(remoteAddress, secure ? ClientProtocol.Https : ClientProtocol.Http, null);

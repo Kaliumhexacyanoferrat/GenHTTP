@@ -16,6 +16,8 @@ using Microsoft.Extensions.Logging;
 
 using Connection = GenHTTP.Api.Protocol.Connection;
 using IoConnection = ioxide.TcpConnection;
+using IoReactor = ioxide.Reactor;
+using ReactorSwitch = ioxide.ReactorSwitch;
 using GenHTTP.Engine.Ioxide.Protocol.Responses;
 
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
@@ -40,10 +42,16 @@ internal static class Http1Driver
         var reader = pipe.Input;
         var writer = pipe.Output;
 
+        // In cleartext, or with kernel TLS, the writer is the connection's own write buffer, which a file can be read into.
+        var fileConnection = writer is ioxide.TcpConnectionPipeWriter ? conn : null;
+
         var request = RentRequest();
         var into = request.Source;
 
         var reactorThreadId = Environment.CurrentManagedThreadId;
+
+        // Taken here, on the reactor: the handler may come back on another thread.
+        var reactor = IoReactor.Current;
 
         try
         {
@@ -74,7 +82,7 @@ internal static class Http1Driver
 
                 request.Apply(server, endPoint, reader, buffer.Start, remoteAddress, null, writer);
 
-                var keepAlive = await HandleRequestAsync(server, writer, request);
+                var keepAlive = await HandleRequestAsync(server, writer, request, reactor, fileConnection);
                 WarnIfThreadHopped(server, reactorThreadId, "after-handle");
 
                 if (!keepAlive || !await request.FinishAsync())
@@ -154,7 +162,8 @@ internal static class Http1Driver
     }
 
     // Runs one request through the handler chain and writes the response; returns whether the connection lives on.
-    private static async ValueTask<bool> HandleRequestAsync(IServer server, PipeWriter writer, Request request)
+    private static async ValueTask<bool> HandleRequestAsync(IServer server, PipeWriter writer, Request request, IoReactor? reactor,
+        IoConnection? fileConnection)
     {
         var header = request.Header;
 
@@ -175,9 +184,13 @@ internal static class Http1Driver
 
         var response = await server.Handler.HandleAsync(request) ?? throw new InvalidOperationException("The root request handler did not return a response");
 
+        // A handler that awaited something other than ioxide resumes on the thread that completed it, and the
+        // response, with the thread-statics it reads, has to be written on the reactor.
+        await new ReactorSwitch(reactor);
+
         var closeRequested = response.Mode is Connection.Close or Connection.Upgrade;
 
-        await Http1Responder.WriteAsync(writer, request, response, keepAliveRequested && !closeRequested, headRequest);
+        await Http1Responder.WriteAsync(writer, request, response, keepAliveRequested && !closeRequested, headRequest, fileConnection);
 
         return keepAliveRequested && !closeRequested;
     }

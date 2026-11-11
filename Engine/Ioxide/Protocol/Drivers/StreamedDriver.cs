@@ -6,6 +6,8 @@ using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Ioxide.Protocol.Requests;
 using GenHTTP.Engine.Ioxide.Protocol.Responses;
 
+using ioxide;
+
 using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Ioxide.Protocol.Drivers;
@@ -52,10 +54,16 @@ internal static class StreamedDriver
         // the only thing ever reported was the masking error and the real fault was never logged.
         var headersWritten = false;
 
+        // Taken here, on the reactor: the handler may come back on another thread.
+        var reactor = Reactor.Current;
+
         try
         {
             var response = await server.Handler.HandleAsync(request)
                            ?? throw new InvalidOperationException("The root request handler did not return a response");
+
+            // The response, with the thread-statics it reads, is written on the reactor.
+            await new ReactorSwitch(reactor);
 
             writer.WriteHead(StreamedResponder.BuildHeaders(response, request));
             headersWritten = true;

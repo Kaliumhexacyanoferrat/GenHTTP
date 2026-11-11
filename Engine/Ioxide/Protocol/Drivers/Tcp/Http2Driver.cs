@@ -17,24 +17,21 @@ internal static class Http2Driver
 {
     private static readonly ReadOnlyMemory<byte> Head = "HEAD"u8.ToArray();
 
-    private static readonly Http2Options Options = new() { StreamRequestBodies = true };
-
-    // Runs one HTTP/2 connection, dispatching each stream as it opens.
+    // Runs one HTTP/2 connection, dispatching each stream as soon as its headers are in. Taking the
+    // body reader is what makes ioxide stream the request body instead of assembling it first.
     internal static Task RunAsync(IServer server, IEndPoint endPoint, IDuplexPipe pipe, IPAddress? remoteAddress, bool secure)
-        => new Http2Connection(pipe, Options)
-            .RunAsync((request, writer) => DispatchAsync(server, endPoint, request, writer, remoteAddress, secure));
+        => new Http2Connection(pipe)
+            .RunAsync((request, body, writer) => DispatchAsync(server, endPoint, request, body, writer, remoteAddress, secure));
 
     // Maps one stream's request, and runs it through the dispatch HTTP/2 and HTTP/3 share.
     private static async ValueTask DispatchAsync(IServer server, IEndPoint endPoint, Http2Request request,
-        Http2ResponseWriter writer, IPAddress? remoteAddress, bool secure)
+        Http2BodyReader body, Http2ResponseWriter writer, IPAddress? remoteAddress, bool secure)
     {
         StreamedRequest? mapped = null;
 
         try
         {
             var headRequest = request.Method.Span.SequenceEqual(Head.Span);
-
-            var reader = request.BodyReader;
 
             mapped = StreamedRequest.Rent();
 
@@ -45,7 +42,7 @@ internal static class Http2Driver
             }
 
             mapped.Apply(server, endPoint, request.Method, request.Path, request.Authority,
-                reader is null ? null : reader.ReadAsync, remoteAddress, HttpProtocol.Http2, secure);
+                body.ReadAsync, remoteAddress, HttpProtocol.Http2, secure);
 
             await StreamedDriver.DispatchAsync(server, mapped, new Writer(writer), headRequest, "HTTP/2");
         }
