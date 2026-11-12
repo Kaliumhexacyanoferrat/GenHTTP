@@ -48,6 +48,10 @@ Running this snippet will provide the following endpoints:
 The [samples](https://genhttp.org/samples/) on the website show the frameworks, handlers and concerns of GenHTTP as
 complete programs, and let you send requests to them as they run live. See [the documentation](https://genhttp.org/documentation/content/) for all available capabilities.
 
+## Agentic Coding
+
+GenHTTP’s modules are decoupled and wired together explicitly, with no hidden magic, so every part of an application can be understood by reading its code. This makes GenHTTP a strong fit for agentic coding in C#, where AI agents can reliably understand, change and extend projects without unexpected side effects.
+
 ## Engines
 
 GenHTTP runs on different runtime implementations that can simply be switched by changing a single nuget package 
