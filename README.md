@@ -45,8 +45,12 @@ Running this snippet will provide the following endpoints:
 
 ## Samples
 
-The [playground](./Playground/) project provides a quick starting point to view sample code and find more complex apps
-built with GenHTTP. See [the documentation](https://genhttp.org/documentation/content/) for all available capabilities.
+The [samples](https://genhttp.org/samples/) on the website show the frameworks, handlers and concerns of GenHTTP as
+complete programs, and let you send requests to them as they run live. See [the documentation](https://genhttp.org/documentation/content/) for all available capabilities.
+
+## Agentic Coding
+
+GenHTTP’s modules are decoupled and wired together explicitly, with no hidden magic, so every part of an application can be understood by reading its code. This makes GenHTTP a strong fit for agentic coding in C#, where AI agents can reliably understand, change and extend projects without unexpected side effects.
 
 ## Engines
 
