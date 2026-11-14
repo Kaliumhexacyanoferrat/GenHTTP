@@ -111,6 +111,45 @@ public sealed class ChunkedFramingTests
     }
 
     [TestMethod]
+    public async Task TestReadWholeChunkStartingInLaterSegment()
+    {
+        // The second chunk starts in the pipe's second segment and ends in its third. Advancing past
+        // it hands the second segment back to the pool, which resets it, so the length of the chunk
+        // has to be known before.
+        var first = new byte[6000];
+        var second = new byte[6000];
+
+        new Random(7).NextBytes(first);
+        new Random(8).NextBytes(second);
+
+        var pipe = new Pipe();
+
+        await pipe.Writer.WriteAsync(Encoding.ASCII.GetBytes($"{first.Length:X}\r\n"));
+        await pipe.Writer.WriteAsync(first);
+        await pipe.Writer.WriteAsync(Encoding.ASCII.GetBytes($"\r\n{second.Length:X}\r\n"));
+        await pipe.Writer.WriteAsync(second);
+        await pipe.Writer.WriteAsync("\r\n0\r\n\r\nNEXT"u8.ToArray());
+        await pipe.Writer.CompleteAsync();
+
+        var framing = new ChunkedFraming();
+        framing.Apply(pipe.Reader);
+
+        var buffer = new byte[8192];
+
+        Assert.AreEqual(first.Length, await framing.ReadAsync(buffer, CancellationToken.None));
+        CollectionAssert.AreEqual(first, buffer[..first.Length]);
+
+        Assert.AreEqual(second.Length, await framing.ReadAsync(buffer, CancellationToken.None));
+        CollectionAssert.AreEqual(second, buffer[..second.Length]);
+
+        Assert.AreEqual(0, await framing.ReadAsync(buffer, CancellationToken.None));
+
+        Assert.IsTrue(await framing.SkipAsync());
+
+        Assert.AreEqual("NEXT", await RestAsync(pipe));
+    }
+
+    [TestMethod]
     public async Task TestReadToEndOfChunkSpanningSegments()
     {
         var payload = new byte[20_000];

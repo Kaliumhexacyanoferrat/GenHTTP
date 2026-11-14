@@ -251,11 +251,13 @@ internal sealed class ChunkedFraming : IBodyFraming
 
     private int CopyChunk(ReadOnlySequence<byte> data, SequencePosition end, Span<byte> destination)
     {
+        // Taken before the reader is advanced: the length is computed from the reader's
+        // segments, which it may reuse once they have been handed back
+        var length = (int)data.Length;
+
         data.CopyTo(destination);
 
         Reader.AdvanceTo(end);
-
-        var length = (int)data.Length;
 
         _position += length;
 
