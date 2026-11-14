@@ -50,7 +50,7 @@ complete programs, and let you send requests to them as they run live. See [the 
 
 ## Agentic Coding
 
-GenHTTP’s modules are decoupled and wired together explicitly, with no hidden magic, so every part of an application can be understood by reading its code. This makes GenHTTP a strong fit for agentic coding in C#, where AI agents can reliably understand, change and extend projects without unexpected side effects.
+GenHTTP’s modules are decoupled and wired together explicitly, with no hidden magic, so every part of an application can be understood by reading its code. This makes GenHTTP a strong fit for agentic coding in C#, where AI agents can reliably understand, change and extend projects without unexpected side effects. [GenHTTP Lambda](https://github.com/MDA2AV/GenHTTP.Lambda) uses those properties to build an agentic coding platform on top of GenHTTP.
 
 ## Engines
 
