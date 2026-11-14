@@ -50,6 +50,11 @@ public abstract class WebsocketBuilder<T> : IHandlerBuilder<T> where T : Websock
     /// handled and aggregated by the frame readers. If you would like to handle
     /// such frames manually, you can set this option.
     /// </summary>
+    /// <remarks>
+    /// The frames of a fragmented text message are then passed on as they arrive, so checking
+    /// that the message is valid UTF-8 is up to the handler. Unfragmented text messages are
+    /// still checked.
+    /// </remarks>
     public T HandleContinuationFramesManually()
     {
         _handleContinuationFramesManually = true;
@@ -91,7 +96,29 @@ public abstract class WebsocketBuilder<T> : IHandlerBuilder<T> where T : Websock
         return (T)this;
     }
 
-    protected ConnectionSettings BuildSettings() => new(_formatters, _serializationFormat, _handleContinuationFramesManually, _allocateFrameData, _synchronizeWrites);
+    /// <summary>
+    /// Sets the largest payload, in bytes, a single frame sent by the client may carry (16 KiB by default).
+    /// A larger frame is reported as a <see cref="Protocol.FrameErrorType.PayloadTooLarge" /> error.
+    /// </summary>
+    /// <remarks>
+    /// A frame is kept in memory until it has been received completely. A message split into
+    /// several frames may be larger than this.
+    /// </remarks>
+    /// <param name="bytes">The largest payload of a single frame</param>
+    /// <example>
+    /// <code>
+    /// Websocket.Imperative().MaxFrameSize(64 * 1024).Handler(new MyHandler());
+    /// </code>
+    /// </example>
+    public T MaxFrameSize(int bytes)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bytes);
+
+        _maxRxBufferSize = bytes;
+        return (T)this;
+    }
+
+    protected ConnectionSettings BuildSettings() => new(_formatters, _serializationFormat, _handleContinuationFramesManually, _allocateFrameData, _synchronizeWrites, _maxRxBufferSize);
 
     public abstract IHandler Build();
 

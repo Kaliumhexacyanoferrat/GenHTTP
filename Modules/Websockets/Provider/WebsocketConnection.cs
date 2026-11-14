@@ -14,7 +14,9 @@ namespace GenHTTP.Modules.Websockets.Provider;
 
 public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
 {
-    private const int MaxFrameSize = 16 * 1024;
+    private const string NothingToContinue = "Continuation frame without a message to continue";
+    private const string MessageNotFinished = "New message started before the previous one was finished";
+    private const string InvalidUtf8 = "Invalid UTF-8";
 
     private readonly IBufferWriter<byte> _writer;
     private readonly Stream _stream;
@@ -38,6 +40,9 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
     private bool _skipFrameInit;
     private bool _keepPipeReaderBufferValid;
     private bool _pendingAdvance;
+
+    // A data frame without FIN has been read and the continuation frame finishing its message has not
+    private bool _inMessage;
 
     private WebsocketFrame _frame = null!;
 
@@ -181,6 +186,13 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
     {
         Advance();
 
+        if (_skipFrameInit)
+        {
+            // A message interrupted by a control frame is completed by ReadFrameAsync, which reassembles it
+            frame = default!;
+            return false;
+        }
+
         if (!_pipeReader.TryRead(out var result))
         {
             frame = default!;
@@ -204,7 +216,18 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
         var currentSequence = result.Buffer;
 
-        var decoded = Frame.Decode(this, ref currentSequence, MaxFrameSize, out var consumed, out var examined);
+        if (!Settings.HandleContinuationFramesManually && StartsFragmentedMessage(currentSequence))
+        {
+            // Left in the pipe for ReadFrameAsync, which reassembles the message. It is not decoded here,
+            // as decoding unmasks the payload in place.
+            _pipeReader.AdvanceTo(result.Buffer.Start);
+            _consumed = result.Buffer.Start;
+            _examined = result.Buffer.Start;
+            frame = default!;
+            return false;
+        }
+
+        var decoded = Frame.Decode(this, ref currentSequence, Settings.MaxFrameSize, out var consumed, out var examined);
         _consumed = consumed;
         _examined = examined;
 
@@ -216,6 +239,8 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
             frame = default!;
             return false;
         }
+
+        decoded = CheckSequence(decoded);
 
         if (Settings.AllocateFrameData)
         {
@@ -288,6 +313,11 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
                 {
                     _frame.Memory = SequenceUtils.ConcatSequences(_frame.Segments);
 
+                    if (_frame.Type == FrameType.Text && !Frame.IsValidUtf8(_frame.Memory))
+                    {
+                        return new WebsocketFrame(this, new FrameError(InvalidUtf8, FrameErrorType.InvalidUtf8));
+                    }
+
                     return _frame;
                 }
             }
@@ -342,7 +372,7 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
                 ? result.Buffer.Slice(innerExamined)
                 : result.Buffer;
 
-            var frame = Frame.Decode(this, ref currentSequence, MaxFrameSize, out var consumed, out var examined);
+            var frame = Frame.Decode(this, ref currentSequence, Settings.MaxFrameSize, out var consumed, out var examined);
             _consumed = consumed;
             _examined = examined;
 
@@ -372,10 +402,38 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
             // Any other frame (including other errors)
             _pendingAdvance = true;
-            return frame;
+            return CheckSequence(frame);
         }
 
         throw new InvalidOperationException("Server has been stopped");
+    }
+
+    // RFC 6455 5.4: a continuation frame continues the message in progress, and a new message waits for it to finish
+    private WebsocketFrame CheckSequence(WebsocketFrame frame)
+    {
+        switch (frame.Type)
+        {
+            case FrameType.Continue:
+                if (!_inMessage)
+                {
+                    return new WebsocketFrame(this, new FrameError(NothingToContinue, FrameErrorType.InvalidContinuation));
+                }
+
+                _inMessage = !frame.Fin;
+                return frame;
+
+            case FrameType.Text or FrameType.Binary:
+                if (_inMessage)
+                {
+                    return new WebsocketFrame(this, new FrameError(MessageNotFinished, FrameErrorType.InvalidContinuation));
+                }
+
+                _inMessage = !frame.Fin;
+                return frame;
+
+            default:
+                return frame;
+        }
     }
 
     private void Examine()
@@ -411,6 +469,14 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsErrorFrame(WebsocketFrame frame) => frame.Type == FrameType.Error;
+
+    // A Text or Binary frame without FIN, read from its first header byte
+    private static bool StartsFragmentedMessage(in ReadOnlySequence<byte> buffer)
+    {
+        var reader = new SequenceReader<byte>(buffer);
+
+        return reader.TryPeek(out var b0) && (b0 & 0x80) == 0 && (b0 & 0x0F) is 0x1 or 0x2;
+    }
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
