@@ -211,4 +211,75 @@ public sealed class ContentLengthFramingTests
         return rest;
     }
 
+    #region Readers reusing their buffers
+
+    [TestMethod]
+    public async Task TestLargeBodyFromRecyclingReader()
+    {
+        // Through a reader that overwrites every segment it is advanced past: however segments
+        // and reads fall, the payload comes back exactly.
+        var payload = RandomPayload(256 * 1024, 31);
+        var body = payload.Concat("NEXT"u8.ToArray()).ToArray();
+
+        foreach (var segmentSize in (int[])[1000, 4096, 16_384])
+        {
+            foreach (var bufferSize in (int[])[7, 3000, 8192, 70_000])
+            {
+                var layout = $"segments of {segmentSize} bytes, reads of {bufferSize}";
+
+                var reader = new RecyclingPipeReader(body, segmentSize, segmentsPerRead: 3);
+
+                var framing = new ContentLengthFraming();
+                framing.Apply(reader, payload.Length);
+
+                var result = new MemoryStream();
+                var buffer = new byte[bufferSize];
+
+                int read;
+
+                while ((read = await framing.ReadAsync(buffer, CancellationToken.None)) > 0)
+                {
+                    Assert.IsTrue(read <= bufferSize, $"{read} bytes read into {bufferSize} ({layout})");
+                    result.Write(buffer, 0, read);
+                }
+
+                Assert.IsTrue(payload.AsSpan().SequenceEqual(result.ToArray()), layout);
+                Assert.AreEqual(payload.Length, framing.Position, layout);
+
+                Assert.IsTrue(await framing.SkipAsync(), layout);
+                Assert.AreEqual("NEXT", reader.Rest(), layout);
+
+                Assert.IsTrue(reader.Recycled > 0, layout);
+            }
+        }
+    }
+
+    [TestMethod]
+    public async Task TestLargeBodyToEndFromRecyclingReader()
+    {
+        var payload = RandomPayload(4 * 1024 * 1024, 32);
+
+        var reader = new RecyclingPipeReader(payload.Concat("NEXT"u8.ToArray()).ToArray(), 4096, segmentsPerRead: 4);
+
+        var framing = new ContentLengthFraming();
+        framing.Apply(reader, payload.Length);
+
+        var body = await framing.ReadToEndAsync(CancellationToken.None);
+
+        Assert.IsTrue(payload.AsSpan().SequenceEqual(body.Span));
+
+        Assert.IsTrue(await framing.SkipAsync());
+        Assert.AreEqual("NEXT", reader.Rest());
+    }
+
+    private static byte[] RandomPayload(int length, int seed)
+    {
+        var payload = new byte[length];
+        new Random(seed).NextBytes(payload);
+
+        return payload;
+    }
+
+    #endregion
+
 }
