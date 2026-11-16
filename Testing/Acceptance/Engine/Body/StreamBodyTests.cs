@@ -110,6 +110,34 @@ public sealed class StreamBodyTests
 
     [TestMethod]
     [MultiEngineTest]
+    public async Task TestLargeChunkedStreamedBack(ServerEngine engine)
+    {
+        // A megabyte in chunks of uneven sizes, streamed straight back while it is still being read
+        var payload = new byte[1024 * 1024];
+        new Random(44).NextBytes(payload);
+
+        await using var runner = await TestHost.RunAsync(new StreamingEchoHandler().Wrap(), engine: engine);
+
+        using var client = TestHost.GetClient();
+
+        var request = new HttpRequestMessage(HttpMethod.Post, runner.GetUrl())
+        {
+            Content = new UnevenContent(payload, [1, 100, 4095, 4097, 16_384, 65_536, 100_000])
+        };
+
+        request.Headers.TransferEncodingChunked = true;
+
+        using var response = await client.SendAsync(request);
+
+        await response.AssertStatusAsync(HttpStatusCode.OK);
+
+        var echoed = await response.Content.ReadAsByteArrayAsync();
+
+        Assert.IsTrue(payload.AsSpan().SequenceEqual(echoed));
+    }
+
+    [TestMethod]
+    [MultiEngineTest]
     public async Task TestKeepAliveContentLength(ServerEngine engine)
     {
         var first = "first request body"u8.ToArray();

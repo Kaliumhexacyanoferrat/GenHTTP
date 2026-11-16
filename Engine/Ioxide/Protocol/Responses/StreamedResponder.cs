@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.IO.Pipelines;
 using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Ioxide.Protocol.Requests;
 using GenHTTP.Engine.Ioxide.Protocol.Sinks;
@@ -89,7 +90,7 @@ internal static class StreamedResponder
     }
 
     // Writes the content, or skips it for a HEAD while still disposing it.
-    internal static async ValueTask WriteBodyAsync(IResponse response, IBufferWriter<byte> writer, Func<ValueTask> flush, bool headRequest)
+    internal static async ValueTask WriteBodyAsync(IResponse response, IBufferWriter<byte> writer, Func<ValueTask<FlushResult>> flush, bool headRequest)
     {
         var content = response.Content;
 

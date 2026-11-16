@@ -10,6 +10,8 @@ namespace GenHTTP.Modules.Websockets.Provider;
 /// <param name="SerializationFormat">The serialization handler to send and receive structured data</param>
 /// <param name="HandleContinuationFramesManually">Whether the API user is expected to handle continuation frames manually</param>
 /// <param name="AllocateFrameData">Whether data will automatically be allocated so it can still be accessed after the next message has been read</param>
+/// <param name="SynchronizeWrites">Whether every write to the connection is serialized, so frames can be sent from several threads at once</param>
+/// <param name="MaxFrameSize">The largest payload, in bytes, a single frame sent by the client may carry</param>
 public record ConnectionSettings(
 
     FormatterRegistry Formatters,
@@ -18,6 +20,10 @@ public record ConnectionSettings(
 
     bool HandleContinuationFramesManually,
 
-    bool AllocateFrameData
+    bool AllocateFrameData,
+
+    bool SynchronizeWrites = true,
+
+    int MaxFrameSize = 16 * 1024
 
 );

@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
-/// <summary>TLS termination on the TCP transports, in OpenSSL.</summary>
+/// <summary>TLS termination on the TCP transports, in BoringSSL.</summary>
 public sealed partial class Server
 {
     // The TLS options for every secure TCP port that can produce a certificate; the rest refuse their handshakes.
@@ -119,7 +119,7 @@ public sealed partial class Server
         return byHost.Count > 0 ? byHost : null;
     }
 
-    // The TLS floor for one endpoint, widening rather than throwing where SslProtocols asks for something OpenSSL cannot express.
+    // The TLS floor for one endpoint, widening rather than throwing where SslProtocols asks for something BoringSSL cannot express.
     private TlsProtocolVersion ResolveMinProtocolVersion(SecureEndPoint endPoint)
     {
         var protocols = endPoint.SecurityConfiguration.Protocols;
@@ -130,7 +130,7 @@ public sealed partial class Server
         if ((protocols & ~(SslProtocols.Tls12 | SslProtocols.Tls13)) != 0)
         {
             _logger.LogWarning(
-                "Port {Port} was bound asking for a TLS version below 1.2. This engine terminates TLS in OpenSSL, whose floor is 1.2, "
+                "Port {Port} was bound asking for a TLS version below 1.2. This engine terminates TLS in BoringSSL, whose floor is 1.2, "
                 + "so those versions are not served and never were; the endpoint serves {Served}.",
                 endPoint.Port, tls13 && !tls12 ? "TLS 1.3" : "TLS 1.2 and above");
         }
@@ -164,7 +164,7 @@ public sealed partial class Server
             if (validator.RevocationCheck != X509RevocationMode.NoCheck)
             {
                 _logger.LogWarning(
-                    "The validator on port {Port} asks for {Mode} revocation checking, which this engine does not perform - neither OpenSSL "
+                    "The validator on port {Port} asks for {Mode} revocation checking, which this engine does not perform - neither BoringSSL "
                     + "nor ngtcp2 is given a CRL or an OCSP responder here, so a revoked client certificate is accepted until it expires. "
                     + "Use short-lived certificates, or check the peer in ICertificateValidator.Validate against your own source of truth.",
                     endPoint.Port, validator.RevocationCheck);
@@ -173,9 +173,8 @@ public sealed partial class Server
             if (endPoint.Protocols.HasFlag(HttpProtocols.Http3))
             {
                 _logger.LogWarning(
-                    "Port {Port} serves HTTP/3 with a certificate validator. Validate runs on the TCP transports, where OpenSSL hands over the "
-                    + "peer certificate, but NOT over QUIC: ngtcp2 exposes only the peer's subject and common name, so there is no certificate "
-                    + "to hand it. An HTTP/3 client is admitted on the chain check and RequireCertificate alone. Keep the two transports on "
+                    "Port {Port} serves HTTP/3 with a certificate validator. Validate runs on the TCP transports, but NOT over QUIC: "
+                    + "an HTTP/3 client is admitted on the chain check and RequireCertificate alone. Keep the two transports on "
                     + "separate ports if that difference matters.",
                     endPoint.Port);
             }

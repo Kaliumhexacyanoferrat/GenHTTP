@@ -111,6 +111,45 @@ public sealed class ChunkedFramingTests
     }
 
     [TestMethod]
+    public async Task TestReadWholeChunkStartingInLaterSegment()
+    {
+        // The second chunk starts in the pipe's second segment and ends in its third. Advancing past
+        // it hands the second segment back to the pool, which resets it, so the length of the chunk
+        // has to be known before.
+        var first = new byte[6000];
+        var second = new byte[6000];
+
+        new Random(7).NextBytes(first);
+        new Random(8).NextBytes(second);
+
+        var pipe = new Pipe();
+
+        await pipe.Writer.WriteAsync(Encoding.ASCII.GetBytes($"{first.Length:X}\r\n"));
+        await pipe.Writer.WriteAsync(first);
+        await pipe.Writer.WriteAsync(Encoding.ASCII.GetBytes($"\r\n{second.Length:X}\r\n"));
+        await pipe.Writer.WriteAsync(second);
+        await pipe.Writer.WriteAsync("\r\n0\r\n\r\nNEXT"u8.ToArray());
+        await pipe.Writer.CompleteAsync();
+
+        var framing = new ChunkedFraming();
+        framing.Apply(pipe.Reader);
+
+        var buffer = new byte[8192];
+
+        Assert.AreEqual(first.Length, await framing.ReadAsync(buffer, CancellationToken.None));
+        CollectionAssert.AreEqual(first, buffer[..first.Length]);
+
+        Assert.AreEqual(second.Length, await framing.ReadAsync(buffer, CancellationToken.None));
+        CollectionAssert.AreEqual(second, buffer[..second.Length]);
+
+        Assert.AreEqual(0, await framing.ReadAsync(buffer, CancellationToken.None));
+
+        Assert.IsTrue(await framing.SkipAsync());
+
+        Assert.AreEqual("NEXT", await RestAsync(pipe));
+    }
+
+    [TestMethod]
     public async Task TestReadToEndOfChunkSpanningSegments()
     {
         var payload = new byte[20_000];
@@ -315,5 +354,115 @@ public sealed class ChunkedFramingTests
 
         return (pipe, framing);
     }
+
+    #region Readers reusing their buffers
+
+    [TestMethod]
+    public async Task TestLargeBodyFromRecyclingReader()
+    {
+        // Chunks of uneven sizes, some larger than a read, through a reader that overwrites every
+        // segment it is advanced past. However segments and reads fall, the payload comes back exactly.
+        var payload = Payload(256 * 1024, 21);
+        var body = Chunked(payload, [1, 100, 4095, 4096, 4097, 16_384, 65_536, 100_000]);
+
+        foreach (var segmentSize in (int[])[1000, 4096, 16_384])
+        {
+            foreach (var bufferSize in (int[])[7, 3000, 8192, 70_000])
+            {
+                var layout = $"segments of {segmentSize} bytes, reads of {bufferSize}";
+
+                var reader = new RecyclingPipeReader(body, segmentSize, segmentsPerRead: 3);
+
+                var framing = new ChunkedFraming();
+                framing.Apply(reader);
+
+                var result = new MemoryStream();
+                var buffer = new byte[bufferSize];
+
+                int read;
+
+                while ((read = await framing.ReadAsync(buffer, CancellationToken.None)) > 0)
+                {
+                    Assert.IsTrue(read <= bufferSize, $"{read} bytes read into {bufferSize} ({layout})");
+                    result.Write(buffer, 0, read);
+                }
+
+                Assert.IsTrue(payload.AsSpan().SequenceEqual(result.ToArray()), layout);
+                Assert.AreEqual(payload.Length, framing.Position, layout);
+
+                Assert.IsTrue(await framing.SkipAsync(), layout);
+                Assert.AreEqual("NEXT", reader.Rest(), layout);
+
+                Assert.IsTrue(reader.Recycled > 0, layout);
+            }
+        }
+    }
+
+    [TestMethod]
+    public async Task TestLargeBodyToEndFromRecyclingReader()
+    {
+        var payload = Payload(4 * 1024 * 1024, 22);
+
+        var reader = new RecyclingPipeReader(Chunked(payload, [4096, 65_536, 4095, 100_000]), 4096, segmentsPerRead: 4);
+
+        var framing = new ChunkedFraming();
+        framing.Apply(reader);
+
+        var body = await framing.ReadToEndAsync(CancellationToken.None);
+
+        Assert.IsTrue(payload.AsSpan().SequenceEqual(body.Span));
+
+        Assert.IsTrue(await framing.SkipAsync());
+        Assert.AreEqual("NEXT", reader.Rest());
+    }
+
+    [TestMethod]
+    public async Task TestSkipLargeBodyFromRecyclingReader()
+    {
+        var reader = new RecyclingPipeReader(Chunked(Payload(1024 * 1024, 23), [4095, 65_536, 1]), 4096, segmentsPerRead: 2);
+
+        var framing = new ChunkedFraming();
+        framing.Apply(reader);
+
+        Assert.IsTrue(await framing.SkipAsync());
+        Assert.AreEqual("NEXT", reader.Rest());
+    }
+
+    private static byte[] Payload(int length, int seed)
+    {
+        var payload = new byte[length];
+        new Random(seed).NextBytes(payload);
+
+        return payload;
+    }
+
+    /// <summary>
+    /// The payload chunk-encoded in chunks of the given sizes, taken in turn, followed by the
+    /// start of a next request.
+    /// </summary>
+    private static byte[] Chunked(byte[] payload, int[] chunkSizes)
+    {
+        var body = new MemoryStream();
+
+        var offset = 0;
+        var i = 0;
+
+        while (offset < payload.Length)
+        {
+            var size = Math.Min(chunkSizes[i++ % chunkSizes.Length], payload.Length - offset);
+
+            body.Write(Encoding.ASCII.GetBytes($"{size:X}\r\n"));
+            body.Write(payload, offset, size);
+            body.Write("\r\n"u8);
+
+            offset += size;
+        }
+
+        body.Write("0\r\n\r\nNEXT"u8);
+
+        return body.ToArray();
+    }
+
+    #endregion
 
 }

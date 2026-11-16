@@ -60,7 +60,16 @@ public static class CertificateRotationSample
 
         certificates.Add(names[1], alpha, alphaKey);
 
-        var host = Host.Create()
+        var host = Host.Create(options: new EngineOptions
+                       {
+                           Tcp = new TcpTransportOptions
+                           {
+                               // A client that sends nothing for a minute, between requests or within one, is let go,
+                               // and so is one that stops reading, once a flush has waited a minute.
+                               ReadTimeoutMs = 60_000,
+                               SendTimeoutMs = 60_000,
+                           },
+                       })
                        .Handler(app)
                        .Bind(IPAddress.Loopback, 8443, certificates, httpProtocols: HttpProtocols.Http1AndHttp2);
 

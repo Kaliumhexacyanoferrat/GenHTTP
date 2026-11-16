@@ -50,6 +50,14 @@ public sealed class StreamedRequestBodyTests
         await RunEchoAsync(ReadThroughArrayOverload, RandomBytes(128 * 1024));
     }
 
+    [IoxideTestMethod]
+    public async Task TestBodyOfUnknownLengthIsRead()
+    {
+        // No content-length, as HttpClient streams a body it cannot measure and fetch sends one from a
+        // ReadableStream: the handler still gets the body.
+        await RunEchoAsync(ReadWhole, RandomBytes(64 * 1024), announceLength: false);
+    }
+
     #region Read strategies
 
     // Reads the body whole, exercising AsMemoryAsync and its chunk-assembly loop.
@@ -95,7 +103,7 @@ public sealed class StreamedRequestBodyTests
 
     #region Infrastructure
 
-    private static async Task RunEchoAsync(Func<IRequestBody, ValueTask<byte[]>> read, byte[] payload)
+    private static async Task RunEchoAsync(Func<IRequestBody, ValueTask<byte[]>> read, byte[] payload, bool announceLength = true)
     {
         var port = (ushort)TestHost.NextPort();
 
@@ -116,7 +124,7 @@ public sealed class StreamedRequestBodyTests
                 Timeout = TimeSpan.FromSeconds(10),
             };
 
-            using var content = new ByteArrayContent(payload);
+            using HttpContent content = announceLength ? new ByteArrayContent(payload) : new UnknownLengthContent(payload);
 
             using var response = await client.PostAsync($"http://localhost:{port}/", content);
 
