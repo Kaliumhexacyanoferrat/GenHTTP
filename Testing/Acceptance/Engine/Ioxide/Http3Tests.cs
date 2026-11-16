@@ -171,7 +171,8 @@ public sealed class Http3Tests
     public async Task TestHttp3StreamsTheRequestBody()
     {
         // Large enough to arrive in many chunks, which the handler reads through the body reader
-        // ioxide hands the driver - an echo that comes back whole proves none went missing.
+        // ioxide hands the driver - an echo that comes back whole proves none went missing. Sent
+        // without a content-length, as a client streams an upload, so the handler must still see it.
         if (!QuicConnection.IsSupported)
         {
             Assert.Inconclusive("QUIC is not supported on this machine (msquic missing).");
@@ -223,7 +224,7 @@ public sealed class Http3Tests
             var payload = new byte[256 * 1024];
             new Random(42).NextBytes(payload);
 
-            using var content = new ByteArrayContent(payload);
+            using var content = new UnknownLengthContent(payload);
 
             using var response = await client.PostAsync($"https://localhost:{port}/", content);
 

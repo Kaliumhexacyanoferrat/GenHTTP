@@ -87,7 +87,7 @@ internal sealed class StreamedRequest : IRequest
 
     // Points this request at one stream, once its headers are in.
     internal void Apply(IServer server, IEndPoint endPoint, ReadOnlyMemory<byte> method, ReadOnlyMemory<byte> path,
-        ReadOnlyMemory<byte> authority, Func<ValueTask<ReadOnlyMemory<byte>>> read, IPAddress? remoteAddress,
+        ReadOnlyMemory<byte> authority, bool hasBody, Func<ValueTask<ReadOnlyMemory<byte>>> read, IPAddress? remoteAddress,
         HttpProtocol protocol, bool secure)
     {
         _server = server;
@@ -97,10 +97,10 @@ internal sealed class StreamedRequest : IRequest
 
         _header.Apply(method, path, authority, protocol);
 
-        // A stream carries a body only when it declares one: HTTP/2 and HTTP/3 forbid Transfer-Encoding,
-        // so Content-Length is the signal - and its absence means no body, matching what the other engines
-        // report for a request that carries neither header.
-        _hasBody = CheckForBody(_headerEntries);
+        // The protocol sees a body that comes without a Content-Length, as a streamed upload does. A
+        // Content-Length still counts on its own, so an empty body announced by one is a body, as it is
+        // over HTTP/1.1, even when the headers already ended the stream.
+        _hasBody = hasBody || CheckForBody(_headerEntries);
 
         if (_hasBody)
         {
@@ -251,7 +251,7 @@ internal sealed class StreamedRequest : IRequest
         }
     }
 
-    // Whether the request declares a body, which over these protocols means a Content-Length header.
+    // Whether the request announces a body with a Content-Length header.
     private static bool CheckForBody(List<(ReadOnlyMemory<byte> Name, ReadOnlyMemory<byte> Value)> headers)
     {
         foreach (var (name, _) in headers)

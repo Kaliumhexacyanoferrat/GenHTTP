@@ -43,7 +43,7 @@ internal static class Http2Driver
             }
 
             mapped.Apply(server, endPoint, request.Method, request.Path, request.Authority,
-                body.ReadAsync, remoteAddress, HttpProtocol.Http2, secure);
+                request.HasBody, body.ReadAsync, remoteAddress, HttpProtocol.Http2, secure);
 
             await StreamedDriver.DispatchAsync(server, mapped, new Writer(writer), headRequest, "HTTP/2");
         }

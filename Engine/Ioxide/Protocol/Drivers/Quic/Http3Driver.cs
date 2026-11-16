@@ -44,7 +44,7 @@ internal static class Http3Driver
             // No remote address: ioxide's QuicConnection exposes none, and a QUIC peer may migrate
             // mid-connection anyway.
             mapped.Apply(server, endPoint, request.Method, request.Path, request.Authority,
-                body.ReadAsync, remoteAddress: null, HttpProtocol.Http3, secure: true);
+                request.HasBody, body.ReadAsync, remoteAddress: null, HttpProtocol.Http3, secure: true);
 
             await StreamedDriver.DispatchAsync(server, mapped, new Writer(writer), headRequest, "HTTP/3");
         }
