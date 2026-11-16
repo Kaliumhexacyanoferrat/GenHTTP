@@ -81,6 +81,8 @@ internal static class Http3Driver
         public void WriteHead(int status) => writer.WriteHeaders(new Nghttp3Response { Status = status });
 
         public ValueTask CompleteAsync() => writer.CompleteAsync();
+
+        public ValueTask ResetStreamAsync() => writer.ResetStreamAsync();
     }
 
 }

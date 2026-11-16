@@ -73,6 +73,7 @@ public sealed partial class Server : IServer
         _dualStack = _endPoints[0].DualStack;
 
         _tcpPorts = ResolveTcpPorts();
+        _h2Options = CreateHttp2Options();
         _quicEndPoint = ResolveQuicEndPoint();
 
         EndPoints = new EndPointCollection(_endPoints);
@@ -152,7 +153,7 @@ public sealed partial class Server : IServer
                 {
                     EndPoint endPoint = EndPointFor(tcpConnection.ListenerPort);
 
-                    return TcpDriver.HandleAsync(this, endPoint, tcpConnection, endPoint.Protocols);
+                    return TcpDriver.HandleAsync(this, endPoint, tcpConnection, _h2Options, endPoint.Protocols);
                 },
 
                 QuicHandle = _quicEngine is not null

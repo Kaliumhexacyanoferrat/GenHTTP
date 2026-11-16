@@ -1,5 +1,6 @@
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
+using GenHTTP.Engine.Ioxide.Protocol.Drivers;
 
 using ioxide;
 using ioxide.nghttp3;
@@ -72,6 +73,7 @@ public sealed partial class Server
         {
             QpackDynamicTableCapacity = _engineOptions.Http3.QpackDynamicTableCapacity,
             QpackBlockedStreams = _engineOptions.Http3.QpackBlockedStreams,
+            OnHandlerFault = StreamedDriver.ReportFaults<Nghttp3Request>(Logging, "HTTP/3"),
         };
 
         return serverConfig with

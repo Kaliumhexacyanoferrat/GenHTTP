@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Quic;
 using System.Net.Security;
@@ -10,6 +11,8 @@ using GenHTTP.Api.Protocol;
 using GenHTTP.Engine.Ioxide;
 
 using GenHTTP.Modules.ServerSentEvents;
+
+using Microsoft.Extensions.Logging;
 
 using Host = GenHTTP.Engine.Ioxide.Host;
 
@@ -46,6 +49,18 @@ public sealed class StreamedResponseEndTests
     public async Task TestFailureAfterTheHeadersResetsTheHttp3Stream()
     {
         await AssertResponseFailsAsync(HttpVersion.Version30);
+    }
+
+    [IoxideTestMethod]
+    public async Task TestFaultReachingIoxideIsLoggedOverHttp2()
+    {
+        await AssertEscapedFaultIsLoggedAsync(HttpVersion.Version20);
+    }
+
+    [IoxideTestMethod]
+    public async Task TestFaultReachingIoxideIsLoggedOverHttp3()
+    {
+        await AssertEscapedFaultIsLoggedAsync(HttpVersion.Version30);
     }
 
     [IoxideTestMethod]
@@ -111,10 +126,51 @@ public sealed class StreamedResponseEndTests
 
     // The headers and the first part of the body are out when the content fails. The response has to
     // fail rather than end, since there is no content-length to tell the client the body is short.
-    // Where it fails depends on the client: a reset may overtake the headers it has not read yet.
+    // The fault goes to the server's logging, so ioxide must not print it to stderr as well.
     private static async Task AssertResponseFailsAsync(Version version)
     {
-        await using var server = await ServerAsync(new FailingMidBodyHandler(), version);
+        var stderr = await CaptureStandardErrorAsync(() => AssertTransferFailsAsync(version));
+
+        Assert.DoesNotContain(FailingMidBodyContent.Failure, stderr);
+    }
+
+    // The engine's own report of the fault fails too, as the log sink refuses it, so the fault escapes
+    // to ioxide. ioxide hands it back to the server's logging rather than printing it to stderr.
+    private static async Task AssertEscapedFaultIsLoggedAsync(Version version)
+    {
+        var logging = new FailingSinkLoggerFactory();
+
+        var stderr = await CaptureStandardErrorAsync(() => AssertTransferFailsAsync(version, logging));
+
+        var protocol = version == HttpVersion.Version30 ? "HTTP/3" : "HTTP/2";
+
+        Assert.Contains($"Failed to complete {protocol} request", logging.Errors);
+        Assert.DoesNotContain(FailingSinkLoggerFactory.Failure, stderr);
+    }
+
+    private static async Task<string> CaptureStandardErrorAsync(Func<Task> action)
+    {
+        var stderr = new StringWriter();
+        var original = Console.Error;
+
+        Console.SetError(stderr);
+
+        try
+        {
+            await action();
+        }
+        finally
+        {
+            Console.SetError(original);
+        }
+
+        return stderr.ToString();
+    }
+
+    // Where the response fails depends on the client: a reset may overtake the headers it has not read yet.
+    private static async Task AssertTransferFailsAsync(Version version, ILoggerFactory? logging = null)
+    {
+        await using var server = await ServerAsync(new FailingMidBodyHandler(), version, logging);
 
         using var client = server.CreateClient();
 
@@ -133,7 +189,7 @@ public sealed class StreamedResponseEndTests
         Assert.IsTrue(failure is HttpRequestException or IOException, $"The response did not fail as a transfer: {failure}");
     }
 
-    private static async Task<RunningServer> ServerAsync(IHandler handler, Version version)
+    private static async Task<RunningServer> ServerAsync(IHandler handler, Version version, ILoggerFactory? logging = null)
     {
         var port = (ushort)TestHost.NextPort();
 
@@ -155,6 +211,11 @@ public sealed class StreamedResponseEndTests
         {
             host = Host.Create().Handler(handler)
                        .Bind(IPAddress.Loopback, port, HttpProtocols.Http2);
+        }
+
+        if (logging != null)
+        {
+            host = host.Logging(logging);
         }
 
         await host.StartAsync();
@@ -199,6 +260,8 @@ public sealed class StreamedResponseEndTests
     /// <summary>Writes and flushes part of an unknown-length body, then fails.</summary>
     private sealed class FailingMidBodyContent : IResponseContent
     {
+        public const string Failure = "The content failed after its headers were sent";
+
         public ulong? Length => null;
 
         public ContentType? Type => ContentType.ApplicationOctetStream;
@@ -212,7 +275,45 @@ public sealed class StreamedResponseEndTests
             await sink.Stream.WriteAsync(new byte[1024]);
             await sink.Stream.FlushAsync();
 
-            throw new InvalidOperationException("The content failed after its headers were sent");
+            throw new InvalidOperationException(Failure);
+        }
+    }
+
+    /// <summary>A log sink that refuses the first error it is given, as one whose disk is full would.</summary>
+    private sealed class FailingSinkLoggerFactory : ILoggerFactory
+    {
+        public const string Failure = "The log sink refused the entry";
+
+        private int _refused;
+
+        public ConcurrentQueue<string> Errors { get; } = new();
+
+        public ILogger CreateLogger(string categoryName) => new Logger(this);
+
+        public void AddProvider(ILoggerProvider provider) { }
+
+        public void Dispose() { }
+
+        private sealed class Logger(FailingSinkLoggerFactory factory) : ILogger
+        {
+            public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+
+            public bool IsEnabled(LogLevel logLevel) => true;
+
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+            {
+                if (logLevel < LogLevel.Error)
+                {
+                    return;
+                }
+
+                if (Interlocked.Exchange(ref factory._refused, 1) == 0)
+                {
+                    throw new IOException(Failure);
+                }
+
+                factory.Errors.Enqueue(formatter(state, exception));
+            }
         }
     }
 

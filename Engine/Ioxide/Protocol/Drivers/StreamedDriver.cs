@@ -37,11 +37,25 @@ internal interface IStreamedWriter
     /// <summary>Ends the stream.</summary>
     ValueTask CompleteAsync();
 
+    /// <summary>Resets the stream, so the client sees the response fail.</summary>
+    ValueTask ResetStreamAsync();
+
 }
 
 /// <summary>What the HTTP/2 and HTTP/3 drivers have in common: one stream through the handler chain.</summary>
 internal static class StreamedDriver
 {
+    private const string LoggerCategory = "GenHTTP.Engine.Ioxide.Protocol.Drivers.StreamedDriver";
+
+    // ioxide's OnHandlerFault, so what it still catches itself goes to the server's logging instead of
+    // stderr: a fault in the error path below, or the stack failing to finish a response once its
+    // handler has returned.
+    internal static Action<TRequest, Exception> ReportFaults<TRequest>(ILoggerFactory logging, string protocol)
+    {
+        var logger = logging.CreateLogger(LoggerCategory);
+
+        return (_, e) => logger.LogError(e, "Failed to complete {Protocol} request", protocol);
+    }
 
     // A fault becomes a 500 while the head is still unwritten, and a reset once it is out. A client
     // that left mid-response is no fault at all.
@@ -79,15 +93,15 @@ internal static class StreamedDriver
         }
         catch (Exception e)
         {
-            server.Logging.CreateLogger("GenHTTP.Engine.Ioxide.Protocol.Drivers.StreamedDriver")
+            server.Logging.CreateLogger(LoggerCategory)
                   .LogError(e, "Failed to handle {Protocol} request", protocol);
 
             if (headersWritten)
             {
                 // Too late for a 500, and ending the stream would pass the truncated body off as
-                // whole. Rethrown, ioxide resets the stream (INTERNAL_ERROR on HTTP/2,
-                // H3_INTERNAL_ERROR on HTTP/3), so the client sees it fail.
-                throw;
+                // whole. Rethrown, ioxide would reset it as well, but report the fault a second time.
+                await writer.ResetStreamAsync();
+                return;
             }
 
             if (!writer.IsCompleted)

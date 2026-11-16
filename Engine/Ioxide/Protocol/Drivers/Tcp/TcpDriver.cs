@@ -12,6 +12,7 @@ using GenHTTP.Api.Ioxide;
 using GenHTTP.Engine.Ioxide.Infrastructure;
 using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 
+using ioxide.http2;
 using ioxide.tls;
 
 using IoxideTls = ioxide.tls;
@@ -30,7 +31,7 @@ internal static partial class TcpDriver
     private static readonly ReadOnlyMemory<byte> Preface = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"u8.ToArray();
 
     // Takes an accepted connection through TLS if the port has it, then hands it to whichever protocol it turns out to speak.
-    internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn,
+    internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn, Http2Options http2Options,
         HttpProtocols httpProtocols = HttpProtocols.Http1)
     {
         IDuplexPipe pipe;
@@ -76,7 +77,7 @@ internal static partial class TcpDriver
         {
             try
             {
-                await Http2Driver.RunAsync(server, endPoint, pipe, remoteAddress, endPoint.Secure);
+                await Http2Driver.RunAsync(server, endPoint, pipe, http2Options, remoteAddress, endPoint.Secure);
             }
             finally
             {

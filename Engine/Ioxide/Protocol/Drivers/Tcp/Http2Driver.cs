@@ -19,8 +19,9 @@ internal static class Http2Driver
 
     // Runs one HTTP/2 connection, dispatching each stream as soon as its headers are in. Taking the
     // body reader is what makes ioxide stream the request body instead of assembling it first.
-    internal static Task RunAsync(IServer server, IEndPoint endPoint, IDuplexPipe pipe, IPAddress? remoteAddress, bool secure)
-        => new Http2Connection(pipe)
+    internal static Task RunAsync(IServer server, IEndPoint endPoint, IDuplexPipe pipe, Http2Options options,
+        IPAddress? remoteAddress, bool secure)
+        => new Http2Connection(pipe, options)
             .RunAsync((request, body, writer) => DispatchAsync(server, endPoint, request, body, writer, remoteAddress, secure));
 
     // Maps one stream's request, and runs it through the dispatch HTTP/2 and HTTP/3 share.
@@ -79,5 +80,7 @@ internal static class Http2Driver
         public void WriteHead(int status) => writer.WriteHeaders(new Http2Response { Status = status });
 
         public ValueTask CompleteAsync() => writer.CompleteAsync();
+
+        public ValueTask ResetStreamAsync() => writer.ResetStreamAsync();
     }
 }
