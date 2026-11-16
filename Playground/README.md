@@ -1,15 +1,19 @@
 # GenHTTP Playground
 
-The playground provides code samples for quick reference and allows developers to
-quickly validate things.
+The playground is a minimal app to quickly try things out while working on GenHTTP.
+Change the handler in [Program.cs](./Program.cs) as needed and start the server:
 
-| Sample                                                               | Description                                                                      |
-|----------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| [Layouting](./Samples/LayoutingSample.cs)                            | Allows an app to use multiple handlers by adding routing.                        |
-| [Webservices](./Samples/WebserviceSample.cs)                         | Implements a REST webservice via a handler class.                                |
-| [Functional](./Samples/FunctionalSample.cs)                          | Uses delegates to implement a web service (similar to ASP.NET Core Minimal API). |
-| [Controllers](./Samples/ControllerSample.cs)                         | Uses controllers to implement a web service (similar to ASP.NET Core MVC).       |
-| [MCP Tools](./Samples/McpSample.cs)                                  | Provides tools to AI agents such as Claude via the Model Context Protocol.       |
-| [Static Files](./Samples/StaticFileSample.cs)                        | Serves static files from a directory.                                            |
-| [Static Websites](./Samples/StaticWebsiteSample.cs)                  | Hosts a static website (with `index.html` support).                              |
-| [Single Page Applications](./Samples/SinglePageApplicationSample.cs) | Hosts a SPA such as a React or Angular application.                              |
+```bash
+cd Playground
+dotnet run
+```
+
+The app is then served at http://localhost:8080/.
+
+## Samples
+
+Samples for the frameworks, handlers and concerns of GenHTTP can be found
+[on the website](https://genhttp.org/samples/), where you can read their code and
+send requests to them as they run live.
+
+The [Ioxide](./Samples/Ioxide/README.md) folder contains samples for the io_uring based engine.

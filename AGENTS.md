@@ -22,7 +22,7 @@ dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -f net11.0 \
 # Only one engine (Internal | Kestrel | Ioxide)
 TEST_ENGINE=Internal dotnet test Testing/Acceptance/GenHTTP.Testing.Acceptance.csproj -f net11.0
 
-cd Playground && dotnet run                                # sample server on http://localhost:8080
+cd Playground && dotnet run                                # minimal app on http://localhost:8080
 ```
 
 - Filter with `FullyQualifiedName~...`. `ClassName=Foo` silently matches nothing.
@@ -49,7 +49,7 @@ cd Playground && dotnet run                                # sample server on ht
 | `Testing/Acceptance`  | The test suite. Folder structure mirrors `API/`, `Engine/`, `Modules/`, `Adapters/`.                                                     |
 | `Benchmarks/`         | BenchmarkDotNet micro-benchmarks.                                                                                                        |
 | `Packages/`           | Meta-package `.nuspec` files (`GenHTTP.Core`, `GenHTTP.Full`, and per-engine variants).                                                  |
-| `Playground/`         | Runnable samples for manual checks and for users to understand the API.                                                                  |
+| `Playground/`         | A minimal app for manual checks. The samples for users are on the website (genhttp.org/samples).                                         |
 
 The parser (Glyph11) and ioxide are separate projects consumed as NuGet packages. If they are checked
 out next to this repository (`../Glyph11`, `../ioxide`), read their source rather than guessing. Flag
