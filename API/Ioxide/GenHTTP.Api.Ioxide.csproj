@@ -9,7 +9,7 @@
 
     <ItemGroup>
 
-        <PackageReference Include="ioxide" Version="0.27.637" />
+        <PackageReference Include="ioxide" Version="0.29.656" />
 
     </ItemGroup>
 
