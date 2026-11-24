@@ -4,6 +4,7 @@ using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
 using GenHTTP.Modules.Websockets.Protocol;
@@ -13,11 +14,19 @@ namespace GenHTTP.Modules.Websockets.Provider;
 
 public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnection, IAsyncDisposable
 {
-    private const int MaxFrameSize = 16 * 1024;
+    private const string NothingToContinue = "Continuation frame without a message to continue";
+    private const string MessageNotFinished = "New message started before the previous one was finished";
+    private const string InvalidUtf8 = "Invalid UTF-8";
 
     private readonly IBufferWriter<byte> _writer;
     private readonly Stream _stream;
     private readonly PipeReader _pipeReader;
+
+    // Taken across each write and its flush, unless the settings turn write synchronization off.
+    private readonly SemaphoreSlim? _writeLock;
+
+    // Set once the handler has ended: the sink is the engine's again, so every later write throws.
+    private bool _closed;
 
     private SequencePosition _consumed;
     private SequencePosition _examined;
@@ -31,6 +40,9 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
     private bool _skipFrameInit;
     private bool _keepPipeReaderBufferValid;
     private bool _pendingAdvance;
+
+    // A data frame without FIN has been read and the continuation frame finishing its message has not
+    private bool _inMessage;
 
     private WebsocketFrame _frame = null!;
 
@@ -52,6 +64,8 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
         _writer = sink.Writer;
         _stream = sink.Stream;
 
+        _writeLock = settings.SynchronizeWrites ? new SemaphoreSlim(1, 1) : null;
+
         _pipeReader = request.Upgrade();
     }
 
@@ -61,20 +75,50 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
     public async ValueTask WriteAsync(ReadOnlyMemory<byte> payload, FrameType opcode = FrameType.Text, bool fin = true, bool flush = true, CancellationToken token = default)
     {
-        Frame.Write(_writer, payload, opcode: (byte)opcode, fin);
-        if (flush) await _stream.FlushAsync(token);
+        if (_writeLock is not null) await _writeLock.WaitAsync(token);
+
+        try
+        {
+            ThrowIfClosed();
+            Frame.Write(_writer, payload, opcode: (byte)opcode, fin);
+            if (flush) await _stream.FlushAsync(token);
+        }
+        finally
+        {
+            _writeLock?.Release();
+        }
     }
 
     public async ValueTask PingAsync(bool flush = true, CancellationToken token = default)
     {
-        Frame.WritePing(_writer);
-        if (flush) await _stream.FlushAsync(token);
+        if (_writeLock is not null) await _writeLock.WaitAsync(token);
+
+        try
+        {
+            ThrowIfClosed();
+            Frame.WritePing(_writer);
+            if (flush) await _stream.FlushAsync(token);
+        }
+        finally
+        {
+            _writeLock?.Release();
+        }
     }
 
     public async ValueTask PongAsync(ReadOnlyMemory<byte> payload, bool flush = true, CancellationToken token = default)
     {
-        Frame.WritePong(_writer, payload);
-        if (flush) await _stream.FlushAsync(token);
+        if (_writeLock is not null) await _writeLock.WaitAsync(token);
+
+        try
+        {
+            ThrowIfClosed();
+            Frame.WritePong(_writer, payload);
+            if (flush) await _stream.FlushAsync(token);
+        }
+        finally
+        {
+            _writeLock?.Release();
+        }
     }
 
     public async ValueTask PongAsync(string payload, bool flush = true, CancellationToken token = default)
@@ -89,11 +133,42 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
     public async ValueTask CloseAsync(string? reason = null, ushort statusCode = 1000, bool flush = true, CancellationToken token = default)
     {
-        Frame.WriteClose(_writer, reason, statusCode);
-        if (flush) await _stream.FlushAsync(token);
+        if (_writeLock is not null) await _writeLock.WaitAsync(token);
+
+        try
+        {
+            ThrowIfClosed();
+            Frame.WriteClose(_writer, reason, statusCode);
+            if (flush) await _stream.FlushAsync(token);
+        }
+        finally
+        {
+            _writeLock?.Release();
+        }
     }
 
-    public ValueTask FlushAsync(CancellationToken token = default) => new(_stream.FlushAsync(token));
+    public async ValueTask FlushAsync(CancellationToken token = default)
+    {
+        if (_writeLock is not null) await _writeLock.WaitAsync(token);
+
+        try
+        {
+            ThrowIfClosed();
+            await _stream.FlushAsync(token);
+        }
+        finally
+        {
+            _writeLock?.Release();
+        }
+    }
+
+    private void ThrowIfClosed()
+    {
+        if (Volatile.Read(ref _closed))
+        {
+            throw new ConnectionClosedException();
+        }
+    }
 
     public async ValueTask<IWebsocketFrame> ReadFrameAsync(CancellationToken token = default)
     {
@@ -110,6 +185,13 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
     public bool TryReadFrame(out IWebsocketFrame frame)
     {
         Advance();
+
+        if (_skipFrameInit)
+        {
+            // A message interrupted by a control frame is completed by ReadFrameAsync, which reassembles it
+            frame = default!;
+            return false;
+        }
 
         if (!_pipeReader.TryRead(out var result))
         {
@@ -134,7 +216,18 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
         var currentSequence = result.Buffer;
 
-        var decoded = Frame.Decode(this, ref currentSequence, MaxFrameSize, out var consumed, out var examined);
+        if (!Settings.HandleContinuationFramesManually && StartsFragmentedMessage(currentSequence))
+        {
+            // Left in the pipe for ReadFrameAsync, which reassembles the message. It is not decoded here,
+            // as decoding unmasks the payload in place.
+            _pipeReader.AdvanceTo(result.Buffer.Start);
+            _consumed = result.Buffer.Start;
+            _examined = result.Buffer.Start;
+            frame = default!;
+            return false;
+        }
+
+        var decoded = Frame.Decode(this, ref currentSequence, Settings.MaxFrameSize, out var consumed, out var examined);
         _consumed = consumed;
         _examined = examined;
 
@@ -146,6 +239,8 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
             frame = default!;
             return false;
         }
+
+        decoded = CheckSequence(decoded);
 
         if (Settings.AllocateFrameData)
         {
@@ -218,6 +313,11 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
                 {
                     _frame.Memory = SequenceUtils.ConcatSequences(_frame.Segments);
 
+                    if (_frame.Type == FrameType.Text && !Frame.IsValidUtf8(_frame.Memory))
+                    {
+                        return new WebsocketFrame(this, new FrameError(InvalidUtf8, FrameErrorType.InvalidUtf8));
+                    }
+
                     return _frame;
                 }
             }
@@ -272,7 +372,7 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
                 ? result.Buffer.Slice(innerExamined)
                 : result.Buffer;
 
-            var frame = Frame.Decode(this, ref currentSequence, MaxFrameSize, out var consumed, out var examined);
+            var frame = Frame.Decode(this, ref currentSequence, Settings.MaxFrameSize, out var consumed, out var examined);
             _consumed = consumed;
             _examined = examined;
 
@@ -302,10 +402,38 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
             // Any other frame (including other errors)
             _pendingAdvance = true;
-            return frame;
+            return CheckSequence(frame);
         }
 
         throw new InvalidOperationException("Server has been stopped");
+    }
+
+    // RFC 6455 5.4: a continuation frame continues the message in progress, and a new message waits for it to finish
+    private WebsocketFrame CheckSequence(WebsocketFrame frame)
+    {
+        switch (frame.Type)
+        {
+            case FrameType.Continue:
+                if (!_inMessage)
+                {
+                    return new WebsocketFrame(this, new FrameError(NothingToContinue, FrameErrorType.InvalidContinuation));
+                }
+
+                _inMessage = !frame.Fin;
+                return frame;
+
+            case FrameType.Text or FrameType.Binary:
+                if (_inMessage)
+                {
+                    return new WebsocketFrame(this, new FrameError(MessageNotFinished, FrameErrorType.InvalidContinuation));
+                }
+
+                _inMessage = !frame.Fin;
+                return frame;
+
+            default:
+                return frame;
+        }
     }
 
     private void Examine()
@@ -342,6 +470,14 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsErrorFrame(WebsocketFrame frame) => frame.Type == FrameType.Error;
 
+    // A Text or Binary frame without FIN, read from its first header byte
+    private static bool StartsFragmentedMessage(in ReadOnlySequence<byte> buffer)
+    {
+        var reader = new SequenceReader<byte>(buffer);
+
+        return reader.TryPeek(out var b0) && (b0 & 0x80) == 0 && (b0 & 0x0F) is 0x1 or 0x2;
+    }
+
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsControlFrame(WebsocketFrame frame)
@@ -359,7 +495,20 @@ public sealed class WebsocketConnection : IReactiveConnection, IImperativeConnec
 
     #region Disposable Pattern
 
-    public ValueTask DisposeAsync() => _pipeReader.CompleteAsync();
+    // The handler has ended. A write in flight finishes first, under the lock, and every one after it is refused rather
+    // than reaching a sink the engine may already have given to another connection.
+    public async ValueTask DisposeAsync()
+    {
+        if (_writeLock is not null)
+        {
+            await _writeLock.WaitAsync();
+        }
+
+        Volatile.Write(ref _closed, true);
+        _writeLock?.Release();
+
+        await _pipeReader.CompleteAsync();
+    }
 
     #endregion
 

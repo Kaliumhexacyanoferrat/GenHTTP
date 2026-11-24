@@ -5,6 +5,7 @@ using System.Text;
 
 using GenHTTP.Modules.Websockets;
 using GenHTTP.Modules.Websockets.Protocol;
+using GenHTTP.Modules.Websockets.Utils;
 
 namespace GenHTTP.Testing.Acceptance.Modules.Websockets.Protocol;
 
@@ -325,6 +326,78 @@ public sealed class Frame_Decode_Tests
         // Incomplete => nothing consumed, everything examined
         Assert.AreEqual(sequence.Start, consumed);
         Assert.AreEqual(sequence.End, examined);
+    }
+
+    [TestMethod]
+    public void Decode_ReservedBitSet_ReturnsInvalidReservedBitsError()
+    {
+        // FIN=1, RSV1=1, Text "hi" - no extension was negotiated that would give RSV1 a meaning
+        var seq = new ReadOnlySequence<byte>(new byte[] { 0xC1, 0x02, (byte)'h', (byte)'i' });
+
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out _, out _);
+
+        AssertError(result, FrameErrorType.InvalidReservedBits);
+    }
+
+    [TestMethod]
+    public void Decode_CloseFrame_OneBytePayload_ReturnsInvalidCloseFrameError()
+    {
+        var seq = new ReadOnlySequence<byte>(new byte[] { 0x88, 0x01, 0x03 });
+
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out _, out _);
+
+        AssertError(result, FrameErrorType.InvalidCloseFrame);
+    }
+
+    [TestMethod]
+    public void Decode_CloseFrame_CodeNotToBeSent_ReturnsInvalidCloseFrameError()
+    {
+        // 1005 (no status received) is reserved for local use and never sent in a frame
+        var seq = new ReadOnlySequence<byte>(new byte[] { 0x88, 0x02, 0x03, 0xED });
+
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out _, out _);
+
+        AssertError(result, FrameErrorType.InvalidCloseFrame);
+    }
+
+    [TestMethod]
+    public void Decode_CloseFrame_InvalidUtf8Reason_ReturnsInvalidUtf8Error()
+    {
+        // 1000 followed by 0xC3 0x28, a lead byte without its continuation byte
+        var seq = new ReadOnlySequence<byte>(new byte[] { 0x88, 0x04, 0x03, 0xE8, 0xC3, 0x28 });
+
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out _, out _);
+
+        AssertError(result, FrameErrorType.InvalidUtf8);
+    }
+
+    [TestMethod]
+    public void Decode_TextFrame_InvalidUtf8_ReturnsInvalidUtf8Error()
+    {
+        var seq = new ReadOnlySequence<byte>(new byte[] { 0x81, 0x02, 0xC3, 0x28 });
+
+        var result = Frame.Decode(new MockConnection(), ref seq, DefaultRxMaxBufferSize, out _, out _);
+
+        AssertError(result, FrameErrorType.InvalidUtf8);
+    }
+
+    [TestMethod]
+    public void IsValidUtf8_CodePointAcrossSegments()
+    {
+        // "é" is 0xC3 0xA9: split across two segments it is still valid, while 0xC3 0x28 is not
+        Assert.IsTrue(Frame.IsValidUtf8(TwoSegments([(byte)'a', 0xC3], [0xA9, (byte)'b'])));
+        Assert.IsFalse(Frame.IsValidUtf8(TwoSegments([(byte)'a', 0xC3], [0x28, (byte)'b'])));
+
+        // a sequence cut off at the end of the payload
+        Assert.IsFalse(Frame.IsValidUtf8(TwoSegments([(byte)'a'], [0xC3])));
+    }
+
+    private static ReadOnlySequence<byte> TwoSegments(byte[] first, byte[] second)
+    {
+        var start = new BufferSegment(first);
+        var end = start.Append(second);
+
+        return new ReadOnlySequence<byte>(start, 0, end, second.Length);
     }
 
     private static void AssertError(IWebsocketFrame frame, FrameErrorType expected)

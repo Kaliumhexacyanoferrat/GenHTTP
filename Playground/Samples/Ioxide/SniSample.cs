@@ -54,7 +54,16 @@ public static class SniSample
             certificates.Add(name, certificate, key);
         }
 
-        return Host.Create()
+        return Host.Create(options: new EngineOptions
+                   {
+                       Tcp = new TcpTransportOptions
+                       {
+                           // A client that sends nothing for a minute, between requests or within one, is let go,
+                           // and so is one that stops reading, once a flush has waited a minute.
+                           ReadTimeoutMs = 60_000,
+                           SendTimeoutMs = 60_000,
+                       },
+                   })
                    .Handler(app)
                    .Bind(IPAddress.Loopback, 8443, certificates, httpProtocols: HttpProtocols.Http1AndHttp2);
     }

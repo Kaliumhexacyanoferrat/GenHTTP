@@ -89,43 +89,39 @@ public sealed partial class Server
         return rotations;
     }
 
-    // Installs the resolved sets on every reactor, collecting failures rather than stopping half way.
+    // Installs the resolved sets, collecting failures rather than stopping half way. Every reactor was started with
+    // each port's one TlsOptions, so its reactors share the port's contexts, and rotating them through one service
+    // rotates them all: another call per reactor would only build the same set again.
     private void Publish(TcpTlsRegistry?[] registries, List<CertificateRotation> rotations)
     {
         List<Exception>? failures = null;
 
-        for (var reactor = 0; reactor < registries.Length; reactor++)
+        var registry = Array.Find(registries, static r => r is not null);
+
+        foreach (var rotation in rotations)
         {
-            if (registries[reactor] is not { } registry)
+            if (registry is null || !registry.TryFor(rotation.Port, out var service))
             {
                 continue;
             }
 
-            foreach (var rotation in rotations)
+            try
             {
-                if (!registry.TryFor(rotation.Port, out var service))
-                {
-                    continue;
-                }
+                service.ReplaceCertificates(rotation.Default, rotation.ByHost);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Port {Port} kept its previous certificate", rotation.Port);
 
-                try
-                {
-                    service.ReplaceCertificates(rotation.Default, rotation.ByHost);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "Reactor {Reactor} kept the previous certificate on port {Port}", reactor, rotation.Port);
-
-                    (failures ??= []).Add(e);
-                }
+                (failures ??= []).Add(e);
             }
         }
 
         if (failures is not null)
         {
             throw new InvalidOperationException(
-                $"{failures.Count} of the server's TLS services refused the new certificates and still serve the previous ones; "
-                + "the rest were replaced. See the inner exceptions, and the errors logged against each reactor and port.",
+                $"{failures.Count} of the server's secure ports refused the new certificates and still serve the previous ones; "
+                + "the rest were replaced. See the inner exceptions, and the errors logged against each port.",
                 new AggregateException(failures));
         }
     }

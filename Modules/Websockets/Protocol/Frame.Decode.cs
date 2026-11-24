@@ -2,6 +2,7 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Unicode;
 
 namespace GenHTTP.Modules.Websockets.Protocol;
 
@@ -12,6 +13,12 @@ public static partial class Frame
     private const string InvalidControlFrame = "Invalid Control Frame";
     private const string InvalidControlFrameLength = "Invalid Control Frame Length";
     private const string PayloadTooLarge = "Payload is too large";
+    private const string ReservedBitsSet = "Reserved Bits Set";
+    private const string InvalidCloseFrame = "Invalid Close Frame";
+    private const string InvalidCloseCode = "Invalid Close Code";
+    private const string InvalidUtf8 = "Invalid UTF-8";
+
+    private static readonly UTF8Encoding StrictUtf8 = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
     /* Websockets RFC 6455 Frame Decode definition (LLM generated)
 
@@ -20,17 +27,18 @@ public static partial class Frame
        which determine whether the frame is a complete message, a fragment, or a control frame such as Ping, Pong, or Close. It then checks the
        MASK bit and the 7-bit base payload length. If the length field indicates an extended payload (126 or 127), the algorithm reads the
        appropriate 16-bit or 64-bit length field and adjusts the header size accordingly. Control-frame rules are enforced: control frames must
-       not be fragmented and must not use extended lengths. After determining the final payload length and verifying that the buffer contains
+       not be fragmented and must not use extended lengths, and no reserved bit may be set. After determining the final payload length and verifying that the buffer contains
        enough bytes for the full header, mask key, and payload, the decoder extracts the optional 4-byte mask key and applies the unmasking XOR
        operation in place if masking is enabled. For normal data frames (Text, Binary, Continue), the raw unmasked payload bytes are returned
-       as-is, while Close frames are additionally parsed to extract the close code and UTF-8 reason. Finally, the method returns a WebsocketFrame
+       as-is (an unfragmented Text frame is checked to be valid UTF-8), while Close frames are additionally parsed to extract and validate
+       the close code and UTF-8 reason. Finally, the method returns a WebsocketFrame
        containing the payload, frame type, and FIN flag, leaving higher-level logic to handle message reassembly and continuation semantics.
      */
 
     internal static WebsocketFrame Decode(
         ISocketConnection connection,
         ref ReadOnlySequence<byte> sequence,
-        int rxMaxBufferSize,
+        int maxPayloadLength,
         out SequencePosition consumed,
         out SequencePosition examined)
     {
@@ -73,6 +81,13 @@ public static partial class Frame
             return new WebsocketFrame(connection, new FrameError(InvalidOpCode, FrameErrorType.InvalidOpCode));
         }
 
+        if ((b0 & 0b0111_0000) != 0)
+        {
+            consumed = reader.Position;
+            examined = reader.Position;
+            return new WebsocketFrame(connection, new FrameError(ReservedBitsSet, FrameErrorType.InvalidReservedBits));
+        }
+
         var isControlFrame = frameType is FrameType.Close or FrameType.Ping or FrameType.Pong;
         var isMasked = (b1 & 0x80) != 0;
         var payloadLen7 = (byte)(b1 & 0x7F);
@@ -110,10 +125,7 @@ public static partial class Frame
             payloadLen64 = len64;
         }
 
-        const int MaxFrameHeaderSize = 14;
-        var maxAllowedPayload = rxMaxBufferSize - MaxFrameHeaderSize;
-
-        if (payloadLen64 < 0 || payloadLen64 > maxAllowedPayload || payloadLen64 > int.MaxValue)
+        if (payloadLen64 < 0 || payloadLen64 > maxPayloadLength || payloadLen64 > int.MaxValue)
         {
             consumed = reader.Position;
             examined = reader.Position;
@@ -153,12 +165,22 @@ public static partial class Frame
         // Close frame
         if (frameType == FrameType.Close)
         {
+            if (payloadLength == 1)
+            {
+                return new WebsocketFrame(connection, new FrameError(InvalidCloseFrame, FrameErrorType.InvalidCloseFrame));
+            }
+
             if (payloadLength >= 2)
             {
                 // Read close code
                 Span<byte> codeBuf = stackalloc byte[2];
                 payloadSeq.Slice(0, 2).CopyTo(codeBuf);
                 var closeCode = BinaryPrimitives.ReadUInt16BigEndian(codeBuf);
+
+                if (!IsValidCloseCode(closeCode))
+                {
+                    return new WebsocketFrame(connection, new FrameError(InvalidCloseCode, FrameErrorType.InvalidCloseFrame));
+                }
 
                 // Read reason (allocates string, only for Close)
                 string? reason = null;
@@ -168,6 +190,12 @@ public static partial class Frame
                     // so we must materialize reason bytes OR decode manually.
                     // We'll keep it simple: materialize only the reason part.
                     var reasonBytes = payloadSeq.Slice(2).ToArray(); // alloc only for Close
+
+                    if (!Utf8.IsValid(reasonBytes))
+                    {
+                        return new WebsocketFrame(connection, new FrameError(InvalidUtf8, FrameErrorType.InvalidUtf8));
+                    }
+
                     reason = Encoding.UTF8.GetString(reasonBytes);
                 }
 
@@ -186,9 +214,55 @@ public static partial class Frame
         }
         // -------------------------------------------------------
 
+        // A fragmented text message can only be checked once it has been reassembled
+        if (frameType == FrameType.Text && fin && !IsValidUtf8(payloadSeq))
+        {
+            return new WebsocketFrame(connection, new FrameError(InvalidUtf8, FrameErrorType.InvalidUtf8));
+        }
+
         // Normal frames: return raw payload slice (zero-copy)
         return new WebsocketFrame(connection, ref payloadSeq, frameType, fin: fin);
     }
+
+    /// <summary>
+    /// Checks whether the given payload is valid UTF-8, also when a code point spans two segments.
+    /// </summary>
+    internal static bool IsValidUtf8(in ReadOnlySequence<byte> payload)
+    {
+        if (payload.IsSingleSegment)
+        {
+            return Utf8.IsValid(payload.FirstSpan);
+        }
+
+        var decoder = StrictUtf8.GetDecoder();
+
+        Span<char> chars = stackalloc char[256];
+
+        try
+        {
+            foreach (var segment in payload)
+            {
+                var bytes = segment.Span;
+
+                while (!bytes.IsEmpty)
+                {
+                    decoder.Convert(bytes, chars, flush: false, out var used, out _, out _);
+                    bytes = bytes[used..];
+                }
+            }
+
+            decoder.Convert(ReadOnlySpan<byte>.Empty, chars, flush: true, out _, out _, out _);
+
+            return true;
+        }
+        catch (DecoderFallbackException)
+        {
+            return false;
+        }
+    }
+
+    // RFC 6455 7.4 and the IANA registry: 1004-1006 and 1015 are never sent, 1016-2999 are unassigned
+    private static bool IsValidCloseCode(ushort code) => code is >= 1000 and <= 1003 or >= 1007 and <= 1014 or >= 3000 and <= 4999;
 
     /// <summary>
     /// Brute force modifying the PipeReader's buffer, unmask the bytes.

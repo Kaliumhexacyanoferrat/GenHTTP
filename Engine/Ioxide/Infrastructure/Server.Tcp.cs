@@ -1,5 +1,7 @@
 using GenHTTP.Api.Infrastructure;
+using GenHTTP.Engine.Ioxide.Protocol.Drivers;
 using ioxide;
+using ioxide.http2;
 
 namespace GenHTTP.Engine.Ioxide.Infrastructure;
 
@@ -7,7 +9,13 @@ namespace GenHTTP.Engine.Ioxide.Infrastructure;
 public sealed partial class Server
 {
     private readonly ushort[] _tcpPorts;
-    
+
+    // Shared by every HTTP/2 connection, so the fault hook is built once.
+    private readonly Http2Options _h2Options;
+
+    private Http2Options CreateHttp2Options()
+        => new() { OnHandlerFault = StreamedDriver.ReportFaults<Http2Request>(Logging, "HTTP/2") };
+
     // The ports serving HTTP/1.1 or HTTP/2, primary first. Empty on an HTTP/3-only server.
     private ushort[] ResolveTcpPorts()
         => _endPoints.Where(e => (e.Protocols & HttpProtocols.Http1AndHttp2) != 0)
@@ -32,7 +40,7 @@ public sealed partial class Server
 
             // Set explicitly, because ioxide defaults both to 60s and this listener carries
             // upgraded connections too - inheriting that would start closing idle websockets.
-            IdleTimeoutMs = _engineOptions.Tcp.IdleTimeoutMs,
+            ReadTimeoutMs = _engineOptions.Tcp.ReadTimeoutMs,
             SendTimeoutMs = _engineOptions.Tcp.SendTimeoutMs,
         },
     };

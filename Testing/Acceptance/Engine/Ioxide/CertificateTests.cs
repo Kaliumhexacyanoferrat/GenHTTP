@@ -117,6 +117,46 @@ public sealed class CertificateTests
     }
 
     [IoxideTestMethod]
+    public async Task TestCertificatesRotateOnEveryReactor()
+    {
+        // The reactors of a port share its contexts, so the server rotates them through one of its
+        // services: a connection has to see the new certificate whichever reactor takes it.
+        var dir = IoxideCertificates.Isolated();
+
+        var (certificate, key) = IoxideCertificates.Create("localhost", dir);
+
+        var port = (ushort)TestHost.NextPort();
+
+        var options = new EngineOptions { Reactor = new ReactorOptions { ReactorCount = 4 } };
+
+        var server = Host.Create(options: options)
+                         .Handler(Layout.Create().Add("ok", Content.From(Resource.FromString("ok"))))
+                         .Bind(IPAddress.Loopback, port, new FileCertificateProvider(certificate, key));
+
+        await server.StartAsync();
+
+        try
+        {
+            var before = await IoxideCertificates.SerialAsync(port);
+
+            IoxideCertificates.Create("localhost", dir);
+
+            (server.Instance as IoxideServer)!.ReloadCertificates();
+
+            // Twenty connections over four reactors: the kernel spreads them by hashing each one.
+            for (var i = 0; i < 20; i++)
+            {
+                Assert.AreNotEqual(before, await IoxideCertificates.SerialAsync(port),
+                                   $"connection {i} was still served the certificate the server started with");
+            }
+        }
+        finally
+        {
+            await server.StopAsync();
+        }
+    }
+
+    [IoxideTestMethod]
     public async Task TestRotationNeedsASecureEndpoint()
     {
         var port = (ushort)TestHost.NextPort();

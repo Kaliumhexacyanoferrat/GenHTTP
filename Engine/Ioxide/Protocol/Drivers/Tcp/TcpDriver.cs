@@ -12,6 +12,7 @@ using GenHTTP.Api.Ioxide;
 using GenHTTP.Engine.Ioxide.Infrastructure;
 using GenHTTP.Engine.Ioxide.Infrastructure.Endpoints;
 
+using ioxide.http2;
 using ioxide.tls;
 
 using IoxideTls = ioxide.tls;
@@ -23,12 +24,6 @@ namespace GenHTTP.Engine.Ioxide.Protocol.Drivers.Tcp;
 /// <summary>Takes an accepted TCP connection through TLS and up to whichever protocol it turns out to speak.</summary>
 internal static partial class TcpDriver
 {
-    private const int ShutWrite = 1;
-
-    // Half-closes the socket, which is what puts a FIN on the wire.
-    [LibraryImport("libc", EntryPoint = "shutdown")]
-    private static partial int Shutdown(int sockfd, int how);
-
     // The peer's sockaddr, which ioxide does not surface itself.
     [LibraryImport("libc", EntryPoint = "getpeername")]
     private static partial int GetPeerName(int sockfd, [Out] byte[] addr, ref int addrlen);
@@ -36,7 +31,7 @@ internal static partial class TcpDriver
     private static readonly ReadOnlyMemory<byte> Preface = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"u8.ToArray();
 
     // Takes an accepted connection through TLS if the port has it, then hands it to whichever protocol it turns out to speak.
-    internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn,
+    internal static async Task HandleAsync(IServer server, IEndPoint endPoint, IoConnection conn, Http2Options http2Options,
         HttpProtocols httpProtocols = HttpProtocols.Http1)
     {
         IDuplexPipe pipe;
@@ -49,7 +44,6 @@ internal static partial class TcpDriver
             {
                 if (!IoxideReactor.Current.GetService<TcpTlsRegistry>().TryFor(conn.ListenerPort, out var service))
                 {
-                    _ = Shutdown(conn.ClientFd, ShutWrite);
                     conn.DecRef();
                     return;
                 }
@@ -83,7 +77,7 @@ internal static partial class TcpDriver
         {
             try
             {
-                await Http2Driver.RunAsync(server, endPoint, pipe, remoteAddress, endPoint.Secure);
+                await Http2Driver.RunAsync(server, endPoint, pipe, http2Options, remoteAddress, endPoint.Secure);
             }
             finally
             {
@@ -118,7 +112,7 @@ internal static partial class TcpDriver
         return (new TlsConnectionDualPipe(conn, session), session.NegotiatedAlpn);
     }
 
-    // Asks the endpoint's validator about the peer certificate OpenSSL ended up with.
+    // Asks the endpoint's validator about the peer certificate BoringSSL ended up with.
     private static bool Accepts(ICertificateValidator validator, IoxideTls.TlsSession session)
     {
         var der = session.PeerCertificateDer;
@@ -167,7 +161,9 @@ internal static partial class TcpDriver
         }
     }
 
-    // Completes both halves of the pipe, then FINs the socket and drops the connection's reference.
+    // Completes both halves of the pipe, then drops the connection's reference. The release is what
+    // FINs the socket - once any send still in flight is out, and never on a descriptor the reactor
+    // has already closed.
     internal static async ValueTask CloseAsync(IDuplexPipe pipe, IoConnection conn)
     {
         await pipe.Input.CompleteAsync();
@@ -178,7 +174,6 @@ internal static partial class TcpDriver
             await disposable.DisposeAsync(); // tears down a TLS transport (stops the decrypt pump, close_notify)
         }
 
-        Shutdown(conn.ClientFd, ShutWrite);
         conn.DecRef();
     }
 
